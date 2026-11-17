@@ -1,145 +1,1147 @@
-# Design Tokens — سوق الزل
+# Design System و Design Tokens — سوق الزل
 
-> **الحالة:** مقترح للمراجعة في بوابة G1 — النسخة 0.1 — 2026-11-17
-> **الاتجاه:** فخامة خليجية هادئة. أرضية بيج عاجي، نص أسود دافئ، بني غامق للأسطح القوية، والذهبي **للتمييز فقط** (حدود، شارات، أيقونات، أزرار على خلفية داكنة)، مو للنصوص الصغيرة على الفاتح.
-> **المصدر الوحيد للقيم** لـ `tailwind.config.ts` و `globals.css` في P1-02. ممنوع أي لون أو مسافة hardcoded خارج هذه القائمة.
+> **الحالة:** مقترح للمراجعة في بوابة G1. **النسخة 1.0** بتاريخ 2026-11-17. تحلّ محل المسودة 0.1.
+> **المالك:** design-system-performance. القرارات البصرية (الهوية والمزاج) بالتنسيق مع `designer`.
+> **المصدر الوحيد للقيم** لملف `src/app/globals.css` (Tailwind v4 + shadcn/ui) في المهمة P1-02. ممنوع أي لون أو مقاس أو مسافة hardcoded خارج هذا الملف.
+> **ملف المراجعة المرافق:** `docs/design/review-design-system.md` (ملاحظات على التصاميم الحالية).
 
-## 1. الألوان
+## 0. ما تغيّر عن المسودة 0.1 ولماذا
 
-### 1.1 الأساسية
-| Token | Hex | الاستخدام |
-|---|---|---|
-| `ink` | `#16120E` | النص الأساسي، الأزرار الأساسية، الهيدر الداكن |
-| `brown-900` | `#2E2018` | أسطح داكنة (فوتر، Sidebar الإدارة، شريط سوق الزل) |
-| `brown-700` | `#4A3426` | عناوين ثانوية، hover على الأسطح الداكنة |
-| `brown-500` | `#6E5240` | أيقونات ثانوية، فواصل داكنة |
-| `gold-500` | `#C29A4B` | التمييز: حدود، شارات، أيقونات، نص على خلفية داكنة، حلقة التركيز |
-| `gold-600` | `#A67F35` | hover للذهبي، خطوط الرسوم البيانية |
-| `gold-700` | `#7E5F22` | **الذهبي الوحيد المسموح كنص على خلفية فاتحة** (روابط، أسعار مميزة) |
-| `sand-50` | `#FBF7F0` | خلفية الصفحة |
-| `sand-100` | `#F3EADB` | خلفية البطاقات الثانوية، صفوف الجداول المتبادلة |
-| `sand-200` | `#E6D7BE` | الحدود، الفواصل، خلفية الحقول المعطلة |
-| `white` | `#FFFFFF` | البطاقات، الحقول، النوافذ |
-| `muted` | `#6B5E52` | النص الثانوي، السعر قبل الخصم، التلميحات |
+نسب التباين في المسودة أعدت حسابها بسكربت (الملحق أ)، والأرقام المكتوبة فيها كانت صحيحة. المشكلة كانت في أزواج ألوان لم تُفحص أصلاً. هذه الأخطاء صُحّحت:
 
-### 1.2 الدلالية (Semantic) — منفصلة عن هوية الذهبي
-| Token | Hex | الاستخدام |
-|---|---|---|
-| `success` | `#2F6B3F` | مقبول، مدفوع، متاح، مكتمل |
-| `warning` | `#8A5A0F` | بانتظار، مهلة قربت، مخزون منخفض |
-| `danger` | `#A23B2A` | خطأ، مرفوض، ملغي، شارة "مباشر"، نسبة الخصم |
-| `info` | `#2D5B7A` | معلومات، "بانتظار العميل" |
-| كل لون دلالي له خلفية فاتحة `*-bg` = نفس اللون بشفافية 10% فوق `white` | | للشارات (Pills) |
-
-### 1.3 نسب التباين المحسوبة (WCAG 2.1)
-| النص | الخلفية | النسبة | النتيجة |
+| # | في المسودة 0.1 | المشكلة (مقاسة) | القرار في 1.0 |
 |---|---|---|---|
-| ink | sand-50 | 17.45 | AAA |
-| brown-700 | sand-50 | 10.86 | AAA |
-| muted | sand-50 | 5.87 | AA |
-| muted | sand-100 | 5.26 | AA |
-| gold-700 | sand-50 / white | 5.54 / 5.92 | AA |
-| gold-500 | ink | 7.11 | AAA |
-| gold-500 | brown-900 | 6.00 | AA |
-| sand-50 | ink | 17.45 | AAA |
-| white | danger / success | 6.57 / 6.37 | AA |
-| danger / success / warning / info | sand-50 | 6.15 / 5.97 / 5.54 / 6.81 | AA |
-| **gold-500** | **sand-50** | **2.45** | **ممنوع للنص** (مسموح للحدود والأيقونات الزخرفية فقط) |
-| gold-600 | sand-50 | 3.44 | نص كبير فقط (≥ 24px أو 18.66px عريض) |
+| 1 | حلقة التركيز `gold-500` على الفاتح والداكن | 2.45:1 على `sand-50` و 2.62:1 على الأبيض، أي أقل من 3:1 المطلوبة في WCAG 1.4.11 | `--ring` = `gold-700` على الفاتح (5.54) و `gold-500` على الداكن (6.00) |
+| 2 | حدود الحقل `sand-200` | 1.42:1، فحدود الحقل لا تُرى (1.4.11) | توكن جديد `--input` = `sand-500` بنسبة 4.04 على الأبيض و 3.39 على `sand-100`. `sand-200` يبقى للفواصل فقط |
+| 3 | `--accent: gold-500` في shadcn | shadcn يستخدم `accent` كخلفية hover في القوائم والـ ghost buttons، فكل قائمة منسدلة كانت ستصير ذهبية | `--accent` = `sand-100` (سطح hover)، والذهبي صار توكن مستقلاً اسمه `--gold` |
+| 4 | الخط بأربعة أوزان 400/500/600/700 + Tajawal في الـ fallback | 4 أوزان × (عربي + لاتيني) = 257KB woff2 مقاسة. و Tajawal خط ويب غير مثبت على الأجهزة، فوجوده في الـ fallback لا يفيد | 3 أوزان (400/600/700) بـ subset مخصص: حوالي 70KB إجمالاً (القسم 3.2). أُزيل Tajawal |
+| 5 | `xs` = 12/16 و `body` = 15 | ارتفاع سطر 1.33 يقص الحركات والنقاط في العربي (مقاييس الخط: ascent 1085 و descent 415 من 1000 = 1.5em). وحقل نصه أقل من 16px يجعل iOS Safari يكبّر الصفحة عند التركيز | مقياس واحد من 12 إلى 36، ونسبة السطر لا تقل عن 1.5 في النص الجاري، والحقول 16px |
+| 6 | `font-variant-numeric: tabular-nums` للعدادات | IBM Plex Sans Arabic **لا يحتوي feature `tnum`** (فحصته بـ fontTools). لكن الأرقام اللاتينية فيه عرضها ثابت أصلاً (600 وحدة لكل رقم)، أما الأرقام الهندية (٠–٩) فعرضها متغير من 263 إلى 635 | نعتمد الأرقام اللاتينية (عرضها ثابت تلقائياً)، ونبقي `tabular-nums` للخطوط البديلة فقط |
+| 7 | الألوان الدلالية: `*-bg` = اللون بشفافية 10% | الشفافية تغيّر التباين حسب السطح تحتها، فلا يمكن ضمانه | خلفيات ثابتة بقيم hex (`*-subtle`) ومفحوصة |
+| 8 | لا يوجد نطاق للأسطح الداكنة | البطاقة البيضاء داخل شريط داكن ترث لون النص الفاتح وتختفي | نطاق `data-surface="inverse"` يعيد تعريف المتغيرات نفسها، ونطاق `data-surface="default"` يرجعها للفاتح داخل الداكن (القسم 2.3) |
+| 9 | ظلال `sm` و `md` فقط، بدون z-index ولا حالات طلبات | ناقص | 3 مستويات ظلال، وطبقات z-index، وخريطة لكل حالات الطلبات والفصال والعروض (القسم 2.5) |
 
-## 2. الخطوط
-- **الخط:** `IBM Plex Sans Arabic` (Google Fonts) — الأوزان 400، 500، 600، 700. يغطي العربي واللاتيني.
-- **Fallback:** `"IBM Plex Sans Arabic", "Tajawal", "Segoe UI", Tahoma, system-ui, sans-serif`
-- **الأرقام:** أرقام لاتينية (0–9) في الأسعار والكميات والعدادات لتوحيد الإدخال مع `lib/money.ts`، مع `font-variant-numeric: tabular-nums` في الجداول والعدادات.
-- تحميل عبر `next/font/google` مع `display: swap` و subset `arabic` + `latin`.
+---
 
-| Token | الحجم / السطر | الوزن | الاستخدام |
-|---|---|---|---|
-| `display` | 40 / 52 | 700 | عناوين الحملات (ديسكتوب فقط) |
-| `h1` | 28 / 40 | 700 | عنوان الصفحة |
-| `h2` | 22 / 32 | 600 | عنوان قسم |
-| `h3` | 18 / 28 | 600 | عنوان بطاقة |
-| `body-lg` | 17 / 28 | 400 | وصف المنتج |
-| `body` | 15 / 24 | 400 | النص الأساسي (الجوال) |
-| `sm` | 13 / 20 | 500 | تسميات، شارات، بيانات ثانوية |
-| `xs` | 12 / 16 | 500 | أقل حجم مسموح (ملاحظات قانونية) |
-| `price` | 20 / 28 | 700 tabular | السعر في صفحة المنتج |
-| `counter` | 18 / 24 | 700 tabular | العداد التنازلي |
+## 1. المبادئ
 
-> العربي يحتاج سطراً أطول من اللاتيني؛ لا تقل نسبة السطر عن 1.5 في النص الجاري.
+1. **الفخامة من الهدوء:** أرضية بيج عاجية، ونص أسود دافئ، والبني الغامق للأسطح القوية، والذهبي **للتمييز فقط** (حدود وشارات وأيقونات وأزرار على خلفية داكنة). لا تدرجات ذهبية لامعة.
+2. **لا لون بدون معنى، ولا معنى باللون وحده:** كل حالة لها لون + أيقونة + نص.
+3. **توكنات دلالية فقط في المكونات:** المكون يستخدم `bg-card` أو `text-muted-foreground` أو `bg-success-subtle`، ولا يستخدم `sand-100` أو hex مباشرة. الألوان الأساسية (Primitives) لا يراها إلا هذا الملف و `globals.css`.
+4. **العربي أولاً:** RTL افتراضي، بلا letter-spacing، بأسطر مريحة، وأرقام لاتينية معزولة اتجاهياً.
+5. **الأداء جزء من النظام:** 3 أوزان خط، صور بمقاسات صحيحة، مكونات Server افتراضياً، وجزر Client صغيرة.
 
-## 3. المسافات والتخطيط
-- **الوحدة:** 4px. المقياس: `0, 1=4, 2=8, 3=12, 4=16, 5=20, 6=24, 8=32, 10=40, 12=48, 16=64`.
-- **هامش جانبي للصفحة:** 16px جوال، 24px تابلت، 32px ديسكتوب. أقصى عرض للمحتوى 1280px.
-- **Breakpoints:** `sm 640`, `md 768`, `lg 1024`, `xl 1280`.
-- **شبكة المنتجات:** عمودان جوال، 3 تابلت، 4 ديسكتوب، بفجوة 12px جوال و 24px ديسكتوب.
-- **أهداف اللمس:** لا تقل عن 44×44px.
+---
 
-## 4. الزوايا والحدود والظلال
+## 2. الألوان
+
+### 2.1 الألوان الأساسية (Primitives)
+تُعرّف في `globals.css` بالبادئة `--c-*`. **ممنوع استخدامها في المكونات.**
+
+| المجموعة | القيم |
+|---|---|
+| Ink | `ink #16120E` |
+| Brown | `brown-900 #2E2018` · `brown-800 #3B2B21` · `brown-700 #4A3426` · `brown-600 #5C4334` · `brown-500 #6E5240` |
+| Gold | `gold-50 #FAF3E3` · `gold-300 #DDBE7C` · `gold-500 #C29A4B` · `gold-600 #A67F35` · `gold-700 #7E5F22` |
+| Sand | `sand-50 #FBF7F0` · `sand-100 #F3EADB` · `sand-200 #E6D7BE` · `sand-300 #BCAA92` · `sand-500 #8F7B66` |
+| Neutral | `white #FFFFFF` · `muted #6B5E52` |
+| Success | `success-50 #E8F1EA` · `success-300 #8FC79C` · `success-700 #2F6B3F` |
+| Warning | `warning-50 #F8EEDC` · `warning-300 #E8B866` · `warning-700 #8A5A0F` |
+| Danger | `danger-50 #F8E7E3` · `danger-300 #F0A08F` · `danger-700 #A23B2A` |
+| Info | `info-50 #E6EEF4` · `info-300 #8DB8D6` · `info-700 #2D5B7A` |
+
+> القاعدة: درجة 700 للنص والخلفية الصلبة على الفاتح، ودرجة 50 للخلفية الهادئة، ودرجة 300 للنص على الداكن.
+
+### 2.2 التوكنات الدلالية (الوضع الفاتح، وهو الافتراضي)
+أسماء shadcn/ui كما هي، ومعها إضافات سوق الزل. كل اسم يصير utility في Tailwind (`bg-*`، `text-*`، `border-*`).
+
 | Token | القيمة | الاستخدام |
 |---|---|---|
-| `radius-sm` | 4px | الشارات، الحقول |
-| `radius-md` | 8px | الأزرار، البطاقات |
-| `radius-lg` | 12px | النوافذ، الـ Bottom sheet |
-| `radius-full` | 9999px | الشارات الدائرية، الأفاتار |
-| `border` | 1px `sand-200` | الافتراضي |
-| `border-accent` | 1px `gold-500` | بطاقة مميزة، أفضل عرض |
-| `shadow-sm` | `0 1px 2px rgba(22,18,14,.06)` | البطاقات |
-| `shadow-md` | `0 6px 20px rgba(22,18,14,.10)` | القوائم المنسدلة، النوافذ |
+| `background` / `foreground` | sand-50 / ink | خلفية الصفحة والنص الأساسي |
+| `foreground-secondary` | brown-700 | عناوين ثانوية، نص في صناديق المعلومات |
+| `card` / `card-foreground` | white / ink | البطاقات، الحقول، النوافذ |
+| `popover` / `popover-foreground` | white / ink | القوائم المنسدلة |
+| `primary` / `primary-foreground` / `primary-hover` | ink / sand-50 / brown-900 | الزر الأساسي ("أضف إلى السلة"، "ادفع الآن") |
+| `secondary` / `secondary-foreground` | sand-100 / ink | زر ثانوي ممتلئ |
+| `muted` / `muted-foreground` | sand-100 / muted | أسطح هادئة، والنص الثانوي (السعر قبل الخصم، التلميحات، الحقل المعطل) |
+| `accent` / `accent-foreground` | sand-100 / ink | **سطح الـ hover في shadcn** (عناصر القوائم، ghost). ليس الذهبي |
+| `gold` / `gold-foreground` / `gold-hover` | gold-500 / ink / gold-600 | الذهبي: CTA في سوق الزل، الشارات الذهبية، الأزرار على الداكن |
+| `gold-subtle` / `gold-text` | gold-50 / gold-700 | شارة "الأفضل إجمالاً"، "سعر مقفول"، ونص ذهبي على الفاتح |
+| `link` | gold-700 | الروابط |
+| `destructive` / `destructive-foreground` | danger-700 / white | الحذف والإلغاء |
+| `border` | sand-200 | فواصل وحدود بطاقات (زخرفية) |
+| `border-strong` | ink | حدود العنصر المختار (مقاس، طريقة دفع)، مؤشر التبويب |
+| `input` | sand-500 | **حدود الحقول** والـ checkbox والـ select |
+| `ring` | gold-700 | حلقة التركيز |
+| `success` · `warning` · `danger` · `info` · `neutral` | درجة 700 (و brown-700 للـ neutral) | نص الحالة، أو خلفية صلبة |
+| `*-foreground` | white (و sand-50 للـ neutral) | النص على الخلفية الصلبة للحالة |
+| `*-subtle` | درجة 50 (و sand-100 للـ neutral) | خلفية شارة الحالة |
+| `discount` / `discount-foreground` | danger-700 / white | شارة نسبة الخصم |
+| `live` | danger-700 | نقطة وشارة "مباشر" |
+| `inverse` / `inverse-foreground` | brown-900 / sand-50 | لتلوين سطح داكن من الخارج (الأفضل استخدام النطاق في 2.3) |
+| `chart-1..4` | gold-600 · brown-700 · info-700 · success-700 | سلاسل الرسوم البيانية. **أقصى 4 سلاسل**، وكلها ≥ 3:1 على الأبيض |
+| `sidebar*` | انظر `globals.css` | Sidebar داكن في admin و vendor |
 
-> الفخامة هنا تأتي من الهدوء: زوايا صغيرة، ظلال خفيفة، مساحات بيضاء، وخط ذهبي رفيع. تجنب التدرجات الذهبية اللامعة.
+### 2.3 النطاق المعكوس (Inverse scope) بدل الوضع الداكن الكامل
 
-## 5. الحركة
-| Token | القيمة |
-|---|---|
-| `duration-fast` | 120ms |
-| `duration-base` | 200ms |
-| `duration-slow` | 320ms (فتح النوافذ) |
-| `ease` | `cubic-bezier(.2,.8,.2,1)` |
-- `prefers-reduced-motion: reduce` يلغي كل الحركة ما عدا تحديث رقم العداد.
-- نبض شارة "مباشر": opacity بين 1 و .55 كل 1.6s، ويتوقف مع reduced-motion.
+**القرار:** لا يوجد Dark mode كامل في الإطلاق، لا للمتجر ولا للوحات. الأسباب: عالم الهوية مبني على البيج، وصور المنتجات مصورة على خلفيات فاتحة، ووضع داكن كامل يضاعف اختبار الوصولية والصور. لكن التصميم فيه **جزر داكنة** (الهيدر، شريط عروض الساعة، رأس `/souq`، الفوتر، Sidebar الإدارة والتاجر). لها نطاق يعيد تعريف **المتغيرات نفسها**، فتعمل كل المكونات داخلها بدون variants إضافية:
 
-## 6. الاتجاه (RTL)
-- `dir="rtl"` على `<html>` للعربي و `ltr` للإنجليزي من next-intl.
-- استخدم الخصائص المنطقية فقط: `ms-* / me-* / ps-* / pe-* / start-* / end-*` في Tailwind، و `margin-inline-start` في CSS. ممنوع `ml/mr/left/right`.
-- الأيقونات الاتجاهية (أسهم، "التالي"، chevron) تُعكس في RTL بـ `rtl:-scale-x-100`. أيقونات السلة والبحث لا تُعكس.
-- الأرقام والأسعار داخل نص عربي تُلف بـ `<bdi>` أو `dir="ltr"` لتجنب انقلاب "1,250.00 ر.س".
-- الـ Sidebar في admin/vendor على **اليمين** في العربي.
-
-## 7. مكونات أساسية (tokens على مستوى المكون)
-| المكون | الحالة | القيم |
+| النطاق | الخلفية | متى |
 |---|---|---|
-| زر أساسي | default / hover / disabled | bg `ink` نص `sand-50` / bg `brown-900` / bg `sand-200` نص `muted` |
-| زر ذهبي (CTA في سوق الزل) | default | bg `gold-500` نص `ink` (7.11) |
-| زر ثانوي | default | حدود `ink` نص `ink` bg شفاف |
-| زر "فاصل" / "اطلب سعرك" | default | حدود `gold-500` 1.5px، نص `gold-700`، أيقونة يد |
-| حقل | default / focus / error | حدود `sand-200` / حلقة 2px `gold-500` / حدود `danger` + رسالة |
-| حلقة التركيز | كل العناصر | `outline: 2px solid gold-500; outline-offset: 2px` (على الداكن والفاتح) |
-| شارة خصم | — | bg `danger` نص `white` `radius-sm` |
-| شارة "مباشر" | — | نقطة `danger` نابضة + نص `sm` |
-| بطاقة أفضل عرض | — | `border-accent` + شريط علوي `gold-500` + وسم "الأفضل إجمالاً" |
-| StatusBadge | حسب الحالة | pill بـ `*-bg` ونص اللون الدلالي |
+| `data-surface="inverse"` | brown-900 | شريط عروض الساعة، رأس السوق، الفوتر، الـ Sidebar |
+| `data-surface="inverse-strong"` | ink | هيدر المتجر |
+| `data-surface="default"` | يرجع للفاتح | بطاقة منتج بيضاء داخل شريط داكن |
 
-## 8. خريطة Tailwind (للتنفيذ في P1-02)
-```ts
-// tailwind.config.ts — theme.extend (مرجع، لا يُنسخ قبل G1)
-colors: {
-  ink: '#16120E',
-  brown: { 500: '#6E5240', 700: '#4A3426', 900: '#2E2018' },
-  gold:  { 500: '#C29A4B', 600: '#A67F35', 700: '#7E5F22' },
-  sand:  { 50: '#FBF7F0', 100: '#F3EADB', 200: '#E6D7BE' },
-  muted: '#6B5E52',
-  success: '#2F6B3F', warning: '#8A5A0F', danger: '#A23B2A', info: '#2D5B7A',
-},
-fontFamily: { sans: ['var(--font-plex-arabic)', 'Tajawal', 'Segoe UI', 'Tahoma', 'system-ui', 'sans-serif'] },
-borderRadius: { sm: '4px', md: '8px', lg: '12px' },
+القيم داخل النطاق المعكوس: `foreground` sand-50، و `foreground-secondary` sand-200، و `muted-foreground` sand-300، و `card` brown-800، و `border` brown-600، و `primary` **gold-500 بنص ink** (الزر الأساسي على الداكن يصير ذهبياً)، و `ring` gold-500، و `link` gold-300، والحالات بدرجة 300 مع خلفيات subtle ثابتة (success `#3E3B2D`، warning `#4C3824`، danger `#4D342B`، info `#3D3836`).
+
+> **لو احتجنا Dark mode كامل لاحقاً:** `<html data-surface="inverse-strong">` يعطي 90% منه، ويبقى فحص الصور والرسوم. التوكنات جاهزة ومفحوصة (الجدول 2.6.2).
+
+### 2.4 نغمات الحالة (Tones)
+كل حالة في النظام تُعرض بنغمة من ست نغمات فقط. **لكل نغمة أيقونة ثابتة** حتى لا يُعتمد على اللون وحده (أسماء الأيقونات من lucide-react):
+
+| Tone | الشارة الهادئة (افتراضي) | الشارة الصلبة | الأيقونة | المعنى |
+|---|---|---|---|---|
+| `neutral` | `bg-neutral-subtle text-neutral` | `bg-neutral text-neutral-foreground` | `circle-dashed` / `minus-circle` | مسودة، منتهٍ، ملغي، مؤرشف |
+| `info` | `bg-info-subtle text-info` | `bg-info text-info-foreground` | `info` / `truck` | جديد، معتمد، في الطريق، بانتظار الطرف الآخر |
+| `accent` (gold) | `bg-gold-subtle text-gold-text` | `bg-gold text-gold-foreground` | `sparkles` / `lock` | قيد التجهيز، وصلت عروض، سعر مقفول، موثوق، أفضل عرض |
+| `warning` | `bg-warning-subtle text-warning` | `bg-warning text-warning-foreground` | `clock` | بانتظار، يحتاج إجراء، مهلة قربت، مخزون منخفض |
+| `success` | `bg-success-subtle text-success` | `bg-success text-success-foreground` | `check-circle-2` | مدفوع، تم التسليم، مقبول، متاح |
+| `danger` | `bg-danger-subtle text-danger` | `bg-danger text-danger-foreground` | `x-circle` / `alert-triangle` | فشل، مرفوض، معلّق، خطأ |
+
+نغمة خاصة: **`live`** = نقطة `bg-live` نابضة + نص (شارة "مباشر" وعرض LIVE).
+
+### 2.5 خريطة حالات الدومين ← النغمة
+مرجع لـ `StatusBadge`. يُخزَّن كـ map في `src/components/status/status-map.ts`، والنصوص في `messages/*.json` تحت `status.<entity>.<STATE>`. النصوص العربية هنا مقترحة، والصياغة النهائية لـ arabic-content-seo.
+
+**الطلب الفرعي `SubOrder.status`** (العميل يرى تسمية مبسطة، والتاجر والإدارة يرون الكاملة):
+
+| الحالة | النغمة | التسمية |
+|---|---|---|
+| NEW | info | جديد |
+| PREPARING | accent | قيد التجهيز |
+| READY_TO_SHIP | accent | جاهز للشحن |
+| SHIPPED | info | تم الشحن |
+| DELIVERED | success | تم التسليم |
+| COMPLETED | success (صلبة) | مكتمل |
+| CANCELLED | neutral | ملغي |
+| RETURN_REQUESTED | warning | طلب استرجاع |
+| RETURNED | neutral | مسترجع |
+
+- **الطلب `Order.status`:** PENDING_PAYMENT warning "بانتظار الدفع" · PAID info "مدفوع" · PARTIALLY_SHIPPED info "شُحن جزئياً" · COMPLETED success "مكتمل" · CANCELLED neutral "ملغي".
+- **الدفع `paymentStatus`:** PENDING warning · PAID success · FAILED danger · REFUNDED neutral "مسترد" · PARTIALLY_REFUNDED neutral "مسترد جزئياً".
+- **الاسترجاع `Return.status`:** REQUESTED warning · APPROVED info · REJECTED danger · RECEIVED info · REFUNDED success.
+
+**طلب السعر `PriceRequest.status`:**
+
+| الحالة | النغمة | للعميل |
+|---|---|---|
+| OPEN | info | بانتظار العروض |
+| HAS_OFFERS | accent | وصلتك {count} عروض |
+| ACCEPTED | success | مقبول، ادفع خلال {time} |
+| CONVERTED | success (صلبة) | تم الشراء |
+| EXPIRED | neutral | انتهت المدة |
+| CANCELLED | neutral | ملغي |
+
+- **العرض `PriceOffer.status`:** PENDING warning ("بانتظار ردك" للعميل و"بانتظار العميل" للتاجر) · COUNTERED info "سعر مضاد" · ACCEPTED success · REJECTED neutral "مرفوض" (ليس danger، لأن الرفض في الفصال طبيعي) · EXPIRED neutral · WITHDRAWN neutral "مسحوب". وسم إضافي عند `isAuto`: accent "قبول تلقائي".
+- **صندوق التاجر `PriceRequestRecipient`:** SENT/SEEN info "جديد" · بانتظار ردي warning · RESPONDED neutral "بانتظار العميل" · DECLINED neutral "اعتذرت" · IGNORED neutral. وسم **"أقل من حدك الأدنى"** = warning، **للتاجر فقط**، ولا يُرسل في أي DTO للعميل.
+- **قفل السعر `PriceLock`:** ACTIVE accent "سعر مقفول" + `Countdown` · USED success · EXPIRED neutral · CANCELLED neutral.
+- **العرض `Deal.status`:** DRAFT neutral · PENDING warning "بانتظار الموافقة" · APPROVED info "مجدول" · LIVE **live** "مباشر" · ENDED neutral "انتهى" · REJECTED danger.
+- **المنتج `Product.status`:** DRAFT neutral · PENDING warning "قيد المراجعة" · PUBLISHED success "منشور" · REJECTED danger · ARCHIVED neutral.
+- **التاجر `Vendor.status`:** PENDING warning · APPROVED success "معتمد" · REJECTED danger · SUSPENDED danger "معلّق". و `isTrusted` = accent "موثوق".
+- **المحفظة `WalletTransaction.status`:** PENDING warning "معلّق" · AVAILABLE success "متاح" · PAID neutral "محوّل".
+- **التسوية `Payout.status`:** DRAFT neutral · APPROVED info "معتمد" · PAID success "محوّل" · CANCELLED neutral.
+- **التقييم `Review.status`:** PENDING warning · APPROVED success · HIDDEN neutral "مخفي".
+
+### 2.6 نسب التباين المحسوبة
+محسوبة بسكربت (الملحق أ) وفق صيغة WCAG 2.x للإضاءة النسبية. الحدود: نص 4.5:1، نص كبير 3:1، عناصر واجهة غير نصية 3:1 (حدود الحقول، حلقة التركيز، مؤشرات الحالة، الأيقونات التي تحمل معنى). **النتيجة: 90 زوجاً مستخدماً، 0 فشل.** (تدقيق المسودة الحالية في ملف المراجعة.)
+
+#### 2.6.1 الوضع الفاتح (الافتراضي)
+
+| الاستخدام | الأمامي | الخلفية | النوع | النسبة | النتيجة |
+|---|---|---|---|---:|---|
+| text | `ink` #16120E | `background` #FBF7F0 | text | 17.45 | AAA |
+| text | `ink` #16120E | `surface` #FFFFFF | text | 18.63 | AAA |
+| text | `ink` #16120E | `surface-subtle` #F3EADB | text | 15.62 | AAA |
+| text-secondary | `brown-700` #4A3426 | `background` #FBF7F0 | text | 10.86 | AAA |
+| text-secondary | `brown-700` #4A3426 | `surface-subtle` #F3EADB | text | 9.72 | AAA |
+| text-muted | `muted` #6B5E52 | `surface` #FFFFFF | text | 6.27 | AA |
+| text-muted | `muted` #6B5E52 | `background` #FBF7F0 | text | 5.87 | AA |
+| text-muted | `muted` #6B5E52 | `surface-subtle` #F3EADB | text | 5.26 | AA |
+| text-muted (disabled field) | `muted` #6B5E52 | `surface-subtle` #F3EADB | text | 5.26 | AA |
+| text-link / text-accent | `gold-700` #7E5F22 | `surface` #FFFFFF | text | 5.92 | AA |
+| text-link / text-accent | `gold-700` #7E5F22 | `background` #FBF7F0 | text | 5.54 | AA |
+| text-link / text-accent | `gold-700` #7E5F22 | `surface-subtle` #F3EADB | text | 4.96 | AA |
+| text-accent | `gold-700` #7E5F22 | `accent-subtle` #FAF3E3 | text | 5.35 | AA |
+| primary-fg on primary (btn) | `sand-50` #FBF7F0 | `primary` #16120E | text | 17.45 | AAA |
+| primary-fg on primary-hover | `sand-50` #FBF7F0 | `primary-hover` #2E2018 | text | 14.72 | AAA |
+| accent-fg on accent (gold btn) | `ink` #16120E | `accent` #C29A4B | text | 7.11 | AAA |
+| accent-fg on accent-hover | `ink` #16120E | `accent-hover` #A67F35 | text | 5.07 | AA |
+| destructive-fg | `white` #FFFFFF | `destructive` #A23B2A | text | 6.57 | AA |
+| discount badge text | `white` #FFFFFF | `discount` #A23B2A | text | 6.57 | AA |
+| price-discount text | `danger-700` #A23B2A | `surface` #FFFFFF | text | 6.57 | AA |
+| success text (KPI up) | `success-700` #2F6B3F | `surface` #FFFFFF | text | 6.37 | AA |
+| warning text (timer) | `warning-700` #8A5A0F | `surface` #FFFFFF | text | 5.92 | AA |
+| warning text | `warning-700` #8A5A0F | `background` #FBF7F0 | text | 5.54 | AA |
+| info text | `info-700` #2D5B7A | `surface` #FFFFFF | text | 7.27 | AAA |
+| badge success | `success-700` #2F6B3F | `success-subtle` #E8F1EA | text | 5.52 | AA |
+| badge warning | `warning-700` #8A5A0F | `warning-subtle` #F8EEDC | text | 5.14 | AA |
+| badge danger | `danger-700` #A23B2A | `danger-subtle` #F8E7E3 | text | 5.49 | AA |
+| badge info | `info-700` #2D5B7A | `info-subtle` #E6EEF4 | text | 6.20 | AA |
+| badge neutral | `brown-700` #4A3426 | `neutral-subtle` #F3EADB | text | 9.72 | AAA |
+| badge accent | `gold-700` #7E5F22 | `accent-subtle` #FAF3E3 | text | 5.35 | AA |
+| badge solid success | `white` #FFFFFF | `success-solid` #2F6B3F | text | 6.37 | AA |
+| badge solid info | `white` #FFFFFF | `info-solid` #2D5B7A | text | 7.27 | AAA |
+| badge solid warning | `white` #FFFFFF | `warning-solid` #8A5A0F | text | 5.92 | AA |
+| badge solid neutral | `sand-50` #FBF7F0 | `neutral-solid` #4A3426 | text | 10.86 | AAA |
+| border-input (field boundary) | `sand-500` #8F7B66 | `surface` #FFFFFF | ui | 4.04 | AA (ui) |
+| border-input (field boundary) | `sand-500` #8F7B66 | `background` #FBF7F0 | ui | 3.79 | AA (ui) |
+| border-input (field boundary) | `sand-500` #8F7B66 | `surface-subtle` #F3EADB | ui | 3.39 | AA (ui) |
+| ring (focus, light) | `gold-700` #7E5F22 | `background` #FBF7F0 | ui | 5.54 | AA (ui) |
+| ring (focus, light) | `gold-700` #7E5F22 | `surface-subtle` #F3EADB | ui | 4.96 | AA (ui) |
+| ring (focus, light) | `gold-700` #7E5F22 | `surface` #FFFFFF | ui | 5.92 | AA (ui) |
+| ring vs primary btn (offset 2px) | `gold-700` #7E5F22 | `primary` #16120E | ui | 3.15 | AA (ui) |
+| border-strong (selected option) | `ink` #16120E | `surface` #FFFFFF | ui | 18.63 | AA (ui) |
+| tab indicator (selected) | `ink` #16120E | `surface` #FFFFFF | ui | 18.63 | AA (ui) |
+| checkbox/radio border | `brown-500` #6E5240 | `surface` #FFFFFF | ui | 7.13 | AA (ui) |
+| progress fill (stock left) | `danger-700` #A23B2A | `progress-track` #E6D7BE | ui | 4.64 | AA (ui) |
+| star icon | `gold-600` #A67F35 | `surface` #FFFFFF | ui | 3.68 | AA (ui) |
+| chart-1 line | `gold-600` #A67F35 | `surface` #FFFFFF | ui | 3.68 | AA (ui) |
+| chart-2 line | `brown-700` #4A3426 | `surface` #FFFFFF | ui | 11.60 | AA (ui) |
+| chart-3 line | `info-700` #2D5B7A | `surface` #FFFFFF | ui | 7.27 | AA (ui) |
+| chart-4 line | `success-700` #2F6B3F | `surface` #FFFFFF | ui | 6.37 | AA (ui) |
+| whatsapp fab icon | `white` #FFFFFF | `success-solid` #2F6B3F | ui | 6.37 | AA (ui) |
+| border-accent (best offer) + label | `gold-500` #C29A4B | `surface` #FFFFFF | deco | 2.62 | decorative |
+| border (divider) | `sand-200` #E6D7BE | `surface` #FFFFFF | deco | 1.42 | decorative |
+
+_53 زوج — فشل: 0_
+
+#### 2.6.2 النطاق المعكوس (inverse: الهيدر، شريط عروض الساعة، رأس السوق، Sidebar)
+
+| الاستخدام | الأمامي | الخلفية | النوع | النسبة | النتيجة |
+|---|---|---|---|---:|---|
+| text | `sand-50` #FBF7F0 | `inverse (brown-900)` #2E2018 | text | 14.72 | AAA |
+| text-secondary | `sand-200` #E6D7BE | `inverse (brown-900)` #2E2018 | text | 11.10 | AAA |
+| text-muted | `sand-300` #BCAA92 | `inverse (brown-900)` #2E2018 | text | 6.96 | AA |
+| text-accent (gold) | `gold-500` #C29A4B | `inverse (brown-900)` #2E2018 | text | 6.00 | AA |
+| text-link (gold-300) | `gold-300` #DDBE7C | `inverse (brown-900)` #2E2018 | text | 8.78 | AAA |
+| danger text (live) | `danger-300` #F0A08F | `inverse (brown-900)` #2E2018 | text | 7.58 | AAA |
+| success text | `success-300` #8FC79C | `inverse (brown-900)` #2E2018 | text | 8.10 | AAA |
+| warning text | `warning-300` #E8B866 | `inverse (brown-900)` #2E2018 | text | 8.59 | AAA |
+| info text | `info-300` #8DB8D6 | `inverse (brown-900)` #2E2018 | text | 7.46 | AAA |
+| ring (focus, inverse) | `gold-500` #C29A4B | `inverse (brown-900)` #2E2018 | ui | 6.00 | AA (ui) |
+| border-input (inverse) | `sand-500` #8F7B66 | `inverse (brown-900)` #2E2018 | ui | 3.89 | AA (ui) |
+| text | `sand-50` #FBF7F0 | `inverse-strong (ink)` #16120E | text | 17.45 | AAA |
+| text-secondary | `sand-200` #E6D7BE | `inverse-strong (ink)` #16120E | text | 13.16 | AAA |
+| text-muted | `sand-300` #BCAA92 | `inverse-strong (ink)` #16120E | text | 8.26 | AAA |
+| text-accent (gold) | `gold-500` #C29A4B | `inverse-strong (ink)` #16120E | text | 7.11 | AAA |
+| text-link (gold-300) | `gold-300` #DDBE7C | `inverse-strong (ink)` #16120E | text | 10.41 | AAA |
+| danger text (live) | `danger-300` #F0A08F | `inverse-strong (ink)` #16120E | text | 8.99 | AAA |
+| success text | `success-300` #8FC79C | `inverse-strong (ink)` #16120E | text | 9.60 | AAA |
+| warning text | `warning-300` #E8B866 | `inverse-strong (ink)` #16120E | text | 10.19 | AAA |
+| info text | `info-300` #8DB8D6 | `inverse-strong (ink)` #16120E | text | 8.84 | AAA |
+| ring (focus, inverse) | `gold-500` #C29A4B | `inverse-strong (ink)` #16120E | ui | 7.11 | AA (ui) |
+| border-input (inverse) | `sand-500` #8F7B66 | `inverse-strong (ink)` #16120E | ui | 4.61 | AA (ui) |
+| badge success (inverse subtle) | `success-300` #8FC79C | `success-300@16%/brown-900` #3E3B2D | text | 5.79 | AA |
+| badge success (inverse solid) | `ink` #16120E | `success-300` #8FC79C | text | 9.60 | AAA |
+| badge warning (inverse subtle) | `warning-300` #E8B866 | `warning-300@16%/brown-900` #4C3824 | text | 6.05 | AA |
+| badge warning (inverse solid) | `ink` #16120E | `warning-300` #E8B866 | text | 10.19 | AAA |
+| badge danger (inverse subtle) | `danger-300` #F0A08F | `danger-300@16%/brown-900` #4D342B | text | 5.50 | AA |
+| badge danger (inverse solid) | `ink` #16120E | `danger-300` #F0A08F | text | 8.99 | AAA |
+| badge info (inverse subtle) | `info-300` #8DB8D6 | `info-300@16%/brown-900` #3D3836 | text | 5.48 | AA |
+| badge info (inverse solid) | `ink` #16120E | `info-300` #8DB8D6 | text | 8.84 | AAA |
+| badge neutral (inverse) | `sand-200` #E6D7BE | `brown-800` #3B2B21 | text | 9.55 | AAA |
+| primary btn on inverse (gold) | `ink` #16120E | `gold-500` #C29A4B | text | 7.11 | AAA |
+| text on inverse-surface card | `sand-50` #FBF7F0 | `brown-800` #3B2B21 | text | 12.66 | AAA |
+| text-muted on inverse-surface | `sand-300` #BCAA92 | `brown-800` #3B2B21 | text | 5.99 | AA |
+| countdown digits | `gold-500` #C29A4B | `ink` #16120E | text | 7.11 | AAA |
+| nav item active text | `sand-50` #FBF7F0 | `blend gold .16/brown-900` #463420 | text | 11.09 | AAA |
+| sidebar counter | `ink` #16120E | `gold-500` #C29A4B | text | 7.11 | AAA |
+
+_37 زوج — فشل: 0_
+
+**قواعد ملزمة نتجت عن الجدول:**
+- `gold-500` و `gold-600` **ممنوعان كنص على الفاتح** (2.45 و 3.44). النص الذهبي على الفاتح هو `gold-text` (gold-700) فقط.
+- حلقة التركيز **صلبة**: `outline: 2px solid var(--ring); outline-offset: 2px`. **ممنوع** `ring-ring/50` الافتراضي في shadcn، لأنه بنسبة 2.16:1.
+- لا `opacity` على عنصر فيه نص لإظهاره "مطفأ". استخدم `text-muted-foreground` و `bg-muted`. (`opacity: .75` على بطاقة "اعتذر" نزّل النص إلى 3.14:1.)
+- حدود الحقل `border-input` دائماً، ولا تُستبدل بـ `border-border`.
+- الرسوم البيانية بحد أقصى 4 سلاسل، ومع تسمية مباشرة على الخط أو جدول بديل، لا الألوان وحدها.
+
+---
+
+## 3. الخطوط
+
+### 3.1 الخط والأوزان
+- **الخط:** IBM Plex Sans Arabic لكل اللغات (يغطي العربي واللاتيني بنفس الروح).
+- **الأوزان المسموحة: 400، 600، 700 فقط.** الوزن 500 أُلغي: الفرق بينه وبين 400 و 600 في العربي بالأحجام الصغيرة شبه غير مرئي، وثمنه ملفان إضافيان (حوالي 65KB). وكل `font-medium` في مكونات shadcn يُستبدل بـ `font-semibold` (ملاحظات الترحيل، القسم 10).
+- **Fallback:** `"Plex Fallback", "Segoe UI", Tahoma, "Geeza Pro", "Noto Sans Arabic", system-ui, sans-serif`. الـ `Plex Fallback` وجه محلي بمقاييس IBM Plex (القسم 3.3) لتقليل CLS عند تبديل الخط.
+- **ممنوع letter-spacing على العربي** نهائياً، لأنه يكسر الاتصال بين الحروف. utilities الـ `tracking-*` كلها محذوفة من الـ theme، ومعها قاعدة `:lang(ar){letter-spacing:0}`. اللاتيني الكبير (مثل رموز الطلبات `SZ-100001`) يبقى بلا tracking أيضاً.
+- **ممنوع** `leading-none` و `leading-tight` تحت 1.35 مع العربي.
+
+### 3.2 أحجام الخط والتحميل (مقاسة)
+قستها على حزمة `@fontsource/ibm-plex-sans-arabic@5.3.0` (نفس ملفات Google Fonts) وعلى subset بنيته بـ fontTools:
+
+| الخيار | الملفات | الحجم woff2 |
+|---|---|---|
+| المسودة: 4 أوزان × (arabic + latin) من Google | 8 | **257.0 KB** |
+| 3 أوزان × (arabic + latin) من Google (الخطة ب) | 6 | **188.5 KB** (arabic 400/600/700 = 41.8 + 44.6 + 43.2، latin = 18.7 + 20.0 + 19.0) |
+| **3 أوزان، subset مدمج "core" عربي + لاتيني (الخطة أ، المعتمدة)** | **3** | **69.6 KB** (400 = 22.4، 600 = 23.9، 700 = 23.4) |
+
+- الـ core يحتوي: ASCII، والحروف العربية الأساسية U+0621–U+064A، والحركات U+064B–U+0652، والأرقام الهندية U+0660–U+0669 (للعرض لو كتبها المستخدم)، وعلامات الترقيم العربية (، ؛ ؟)، و پ چ ژ ڤ گ ی، و ZWNJ/ZWJ/LRM/RLM، و `× – — ‘ ’ “ ” • … −`، مع features: `ccmp locl init medi fina rlig calt liga kern mark mkmk`.
+- **تحققت من التشكيل (shaping) بـ HarfBuzz:** نص تجريبي عربي ولاتيني وأرقام أعطى advances مطابقة 100% للخط الكامل وبدون أي `.notdef`.
+- أي حرف خارج الـ core (عربي ممتد نادر) يغطيه وجه ثانٍ `plex-ext` **بدون preload**، والمتصفح لا ينزّله إلا لو ظهر حرف منه في الصفحة.
+- `font-display: swap` مع preload لملفات الـ core الثلاثة فقط.
+- **رمز الريال الجديد U+20C1 غير موجود في الخط** (فحصته بـ fontTools). القرار في القسم 9.4.
+
+### 3.3 مقياس الخطوط (Type scale) — مقياس واحد للمتجر واللوحات
+
+| Token (Tailwind) | الحجم / السطر | النسبة | الأوزان | الاستخدام |
+|---|---|---|---|---|
+| `text-xs` | 12 / 20 | 1.67 | 400, 600 | **أقل حجم مسموح**: الشارات، ملاحظات قانونية، "شامل الضريبة"، تسميات المحاور |
+| `text-sm` | 14 / 22 | 1.57 | 400, 600 | نص ثانوي، اسم المنتج في البطاقة، خلايا الجداول، التسميات، الأزرار الصغيرة |
+| `text-base` | 16 / 26 | 1.63 | 400, 600 | **النص الأساسي والحقول** (16 يمنع تكبير iOS عند التركيز)، الأزرار |
+| `text-lg` | 18 / 28 | 1.56 | 400, 600 | وصف المنتج، عنوان البطاقة، عنوان الـ Bottom sheet |
+| `text-xl` | 20 / 30 | 1.5 | 600, 700 | عنوان قسم في الجوال (h3)، قيمة KPI صغيرة |
+| `text-2xl` | 24 / 36 | 1.5 | 700 | h2، **السعر في صفحة المنتج**، قيمة KPI |
+| `text-3xl` | 28 / 40 | 1.43 | 700 | h1 في الجوال |
+| `text-4xl` | 36 / 52 | 1.44 | 700 | h1 في الديسكتوب، عناوين الحملات |
+
+**أدوار جاهزة (تطبّق كـ utilities في `@layer components`):**
+
+| الدور | التركيبة |
+|---|---|
+| `price-lg` (صفحة المنتج) | `text-2xl font-bold` |
+| `price` (البطاقة) | `text-base font-bold` |
+| `price-old` | `text-sm text-muted-foreground line-through` |
+| `countdown` | `text-base font-bold` مع أرقام لاتينية داخل `<bdi dir="ltr">` |
+| `label` | `text-sm font-semibold` |
+| `overline` | `text-xs font-semibold text-gold-text` (على الداكن: `text-gold`) |
+
+### 3.4 مقاييس الخط (للـ fallback)
+مقاسة من الملف: unitsPerEm 1000، ascent 1085، descent 415، lineGap 0، أرقام لاتينية بعرض 600 ثابت.
+```css
+@font-face {
+  font-family: "Plex Fallback";
+  src: local("Segoe UI"), local("Tahoma"), local("Geeza Pro"), local("Noto Sans Arabic");
+  ascent-override: 108.5%;
+  descent-override: 41.5%;
+  line-gap-override: 0%;
+  size-adjust: 100%; /* يُعاير في P1-02 بقياس CLS (القسم 11.4)، ويُعدّل إن تجاوز تبديل الخط 0.02 */
+}
 ```
-- shadcn/ui: تُربط متغيرات CSS (`--background: sand-50`, `--foreground: ink`, `--primary: ink`, `--primary-foreground: sand-50`, `--accent: gold-500`, `--ring: gold-500`, `--border: sand-200`, `--destructive: danger`).
-- **الوضع الداكن:** غير مطلوب للمتجر في الإطلاق. لوحات admin/vendor تستخدم Sidebar داكن (`brown-900`) ومحتوى فاتح.
 
-## 9. ملاحظات الأداء (design-system-performance)
-- خط واحد بأربعة أوزان كحد أقصى، subset عربي + لاتيني، `display: swap`.
-- الأيقونات من `lucide-react` بـ tree-shaking؛ لا icon fonts.
-- الصور: `next/image` بنسبة 4:5 لبطاقات المنتجات (البشوت والعبايات طولية)، و AVIF/WebP، و placeholder بلون `sand-100` بدل blur ثقيل.
-- لا زخارف SVG كبيرة في الـ LCP. الزخرفة الخليجية (إن وُجدت) خط رفيع بـ CSS.
-- العدادات التنازلية تُحدّث بـ `requestAnimationFrame` مرة كل ثانية في مكون عميل صغير، وليس الصفحة كلها.
+---
+
+## 4. المسافات والتخطيط
+
+- **الوحدة 4px.** الخطوات المسموحة: `0, 0.5(2), 1(4), 1.5(6), 2(8), 3(12), 4(16), 5(20), 6(24), 8(32), 10(40), 12(48), 16(64), 20(80)`. Tailwind v4 يقبل أي مضاعف، لذلك الالتزام بالقائمة بالمراجعة وبـ lint (القسم 10).
+- **هامش الصفحة:** 16px جوال، 24px من `md`، 32px من `lg`. أقصى عرض للمتجر 1280px (`max-w-7xl`)، وللوحات 1440px.
+- **شبكة المنتجات:** عمودان (جوال)، 3 (`md`)، 4 (`lg`). الفجوة 12px جوال و 16px تابلت و 24px ديسكتوب.
+- **اللوحات:** Sidebar بعرض 240px على **اليمين** في العربي (`start`)، وTopbar بارتفاع 64px، ومسافة المحتوى 24px.
+- **أهداف اللمس:** 44×44px كحد أدنى على أجهزة اللمس (`pointer: coarse`). في اللوحات على الديسكتوب يُسمح بـ 36px (`size="sm"`). لا شيء أقل من 24×24 أبداً (WCAG 2.2، البند 2.5.8). الأيقونات الصغيرة (المفضلة، إغلاق) تكبّر منطقة الضغط بـ padding وليس الأيقونة.
+
+### 4.1 نقاط التجاوب (Breakpoints)
+
+| Token | العرض | الهدف |
+|---|---|---|
+| (الأساس) | 0–639 | الجوال (التصميم بـ 390px، ويُختبر حتى 360px) |
+| `sm` | 640px | جوال أفقي وفابلت |
+| `md` | 768px | تابلت. الـ Bottom sheet يصير Dialog |
+| `lg` | 1024px | ديسكتوب. ظهور الـ Sidebar في اللوحات، وفلاتر جانبية في المتجر |
+| `xl` | 1280px | ديسكتوب واسع |
+
+`2xl` محذوف. داخل المكونات تُستخدم container queries (`@container`) للبطاقات اللي تظهر في أكثر من سياق، مثل DealCard في الشبكة وفي الشريط الأفقي.
+
+### 4.2 طبقات z-index
+
+| Token | القيمة | العنصر |
+|---|---|---|
+| `--z-sticky` | 10 | شريط "ادفع الآن" الثابت، رؤوس الجداول |
+| `--z-header` | 20 | هيدر المتجر |
+| `--z-fab` | 30 | زر واتساب العائم |
+| `--z-dropdown` | 40 | القوائم المنسدلة، الـ popover |
+| `--z-overlay` | 50 | الـ Dialog والـ Sheet والـ scrim |
+| `--z-toast` | 60 | الإشعارات المؤقتة |
+
+---
+
+## 5. الزوايا (Radius) — ثلاث قيم فقط
+
+| Token | القيمة | الاستخدام |
+|---|---|---|
+| `rounded-sm` | 4px | الشارات، الحقول، الصور المصغرة، مربعات العداد |
+| `rounded-md` | 8px | الأزرار، البطاقات، صناديق المعلومات |
+| `rounded-lg` | 12px | النوافذ، الـ Bottom sheet (الزاويتان العلويتان)، البانر |
+| `rounded-full` | 9999px | شكل وليس درجة: الـ pills، الأفاتار، زر واتساب |
+
+`rounded-xl` و `rounded-2xl` غير معرّفين، فلا يولّدان أي CSS. مكونات shadcn الافتراضية تستخدم `rounded-xl` في Card، ولازم تُستبدل بـ `rounded-lg` (القسم 10).
+
+## 6. الظلال والارتفاع — ثلاثة مستويات
+
+| Token | القيمة | الاستخدام |
+|---|---|---|
+| `shadow-sm` | `0 1px 2px rgb(22 18 14 / .06)` | البطاقات عند الـ hover فقط (البطاقة الافتراضية بالحدود بلا ظل) |
+| `shadow-md` | `0 6px 20px rgb(22 18 14 / .10)` | القوائم المنسدلة، الـ popover، الزر العائم |
+| `shadow-lg` | `0 12px 32px rgb(22 18 14 / .16)` | الـ Dialog والـ Sheet |
+| scrim | `rgb(22 18 14 / .55)` | خلفية النوافذ |
+
+## 7. الحركة
+
+| Token | القيمة | الاستخدام |
+|---|---|---|
+| `duration-120` (fast) | 120ms | hover، الضغط، تبديل checkbox |
+| `duration-200` (base) | 200ms | فتح القوائم، tooltip، accordion |
+| `duration-320` (slow) | 320ms | فتح الـ Sheet والـ Dialog |
+| `ease-standard` | `cubic-bezier(.2,.8,.2,1)` | الدخول |
+| `ease-exit` | `cubic-bezier(.4,0,1,1)` | الخروج (أسرع بـ 20%) |
+
+- تُحرَّك `transform` و `opacity` فقط، ولا تُحرَّك `width/height/top/left` (لتفادي CLS وتأثيرها على INP).
+- **نبض "مباشر":** opacity من 1 إلى .55 كل 1.6s. يتوقف مع `prefers-reduced-motion: reduce`.
+- **تحديث "باقي X" لحظياً:** وميض خلفية `bg-warning-subtle` مرة واحدة لمدة 600ms، ويُلغى مع reduced-motion. الرقم نفسه لا يتحرك.
+- **العداد التنازلي:** الرقم يتغير بلا حركة. مع reduced-motion يبقى التحديث (هو معلومة وليس زخرفة).
+- `prefers-reduced-motion: reduce` يلغي كل الانتقالات والحركات الأخرى (القاعدة في `globals.css`).
+
+---
+
+## 8. قواعد RTL
+
+### 8.1 الاتجاه والخصائص المنطقية
+- `<html lang="ar" dir="rtl">` للعربي و `lang="en" dir="ltr"` للإنجليزي من next-intl، في `[locale]/layout.tsx`.
+- **خصائص منطقية فقط:** `ms/me/ps/pe/start/end/border-s/border-e/rounded-s/rounded-e/text-start/text-end`. **ممنوع:** `ml/mr/pl/pr/left/right/border-l/border-r/rounded-l/rounded-r/text-left/text-right/float-left/float-right`. وفي CSS المخصص: `margin-inline-start` و `inset-inline-end` وأمثالها.
+- المؤشر الجانبي للعنصر النشط (Sidebar، الصف المختار) يُرسم بـ `border-s-[3px]` وليس `box-shadow: inset -3px 0`، لأن الـ box-shadow لا ينعكس في الإنجليزي.
+- الـ Sidebar على `start` (يمين في العربي). وزر واتساب العائم على **`end`** (يسار في العربي) حتى لا يغطي زر السلة وزر "التالي" اللي على اليمين (تفصيل التعارض في ملف المراجعة).
+- الرسوم البيانية الزمنية في العربي: الأقدم يمين والأحدث يسار (`XAxis reversed`)، ومحور القيم على اليمين (`YAxis orientation="right"`).
+
+### 8.2 الأيقونات
+
+| تُعكس في RTL (`rtl:-scale-x-100`) | لا تُعكس |
+|---|---|
+| `chevron-left/right`، `arrow-left/right`، `chevrons-*`، زر الرجوع، "التالي/السابق"، الترقيم (pagination)، `undo/redo`، `reply`، `send-horizontal`، `log-in/log-out`، `list-indent`، فاصل الـ breadcrumbs، شريط التقدم بالخطوات | البحث، السلة، القلب، الجرس، القفل، الساعة والمؤقت (العقارب دائماً مع الساعة)، علامة الصح، اليد (فاصل)، النجمة، الهاتف، واتساب وكل الشعارات، الأرقام، `play` |
+
+- **النجوم الجزئية** (4.5) تمتلئ من `start` (من اليمين في العربي).
+- الأيقونة الاتجاهية في مكون مشترك تُعطى `data-directional` حتى يعكسها `Icon` تلقائياً، ولا يتذكر كل مطوّر `rtl:` بنفسه.
+
+### 8.3 الأرقام
+- **أرقام لاتينية (0–9)** في كل الواجهة: الأسعار، الكميات، العدادات، أرقام الطلبات، التواريخ. السبب: توحيد الإدخال مع `lib/money.ts`، وعرض ثابت للأرقام في الخط (العدادات لا ترتجف)، والمعتاد في التجارة الإلكترونية السعودية.
+- **تحذير Intl:** `ar-SA` يرجع افتراضياً أرقاماً هندية والتقويم الهجري (أم القرى). كل الـ formatters تستخدم:
+  - الأرقام: `new Intl.NumberFormat('ar-SA-u-nu-latn', …)`
+  - التاريخ: `new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', …)`، أي ميلادي بأسماء الشهور العربية ("17 نوفمبر 2026"). الهجري اختياري كسطر ثانٍ في صفحات المواسم فقط.
+- **الإدخال:** كل حقل رقمي (السعر، الكمية، الجوال، الآيبان، OTP) يقبل الأرقام الهندية ٠–٩ والفارسية ۰–۹ ويحوّلها للاتينية قبل التحقق (`toLatinDigits()` في `lib/format/digits.ts`)، ويقبل الفاصلة العربية ٫ كفاصلة عشرية. وفلتر وسائل التواصل في الملاحظات يعتمد على نفس الدالة.
+- حقول الأرقام والجوال والآيبان والإيميل: `dir="ltr"` مع `text-end` (النص يلاصق جهة البداية العربية بصرياً)، و `inputMode="decimal"` للسعر و `numeric` للكمية والـ OTP، و `tel` للجوال، و `autoComplete="one-time-code"` للـ OTP.
+
+### 8.4 الأسعار والعملة
+- **الصيغة (من SPEC 6.1):** `1,250.00 ر.س` بالعربي، و `SAR 1,250.00` بالإنجليزي. العملة بعد الرقم في العربي، بمسافة non-breaking (U+00A0) حتى لا تنفصل في سطر جديد.
+- **العزل الاتجاهي:** المكون `Price` يلف السعر كاملاً في `<bdi>`، فيظهر بصرياً `ر.س 1,250.00` ويُقرأ صحيحاً من اليمين. **أي قيمة تبدأ بإشارة** (`-22%`، `+12%`، `−3%`، رصيد سالب `-150.00`) تُلف في `<bdi dir="ltr">`، وإلا ظهرت `22%-`.
+- **الكسور:** المتجر يعرض دائماً منزلتين (`.00`) حسب SPEC. اللوحات في بطاقات KPI يُسمح فيها بالصيغة المختصرة (`486.2 ألف ر.س`) عبر `formatSAR(x, { compact: true })`، **مع العملة دائماً**.
+- **السعر قبل الخصم:** `<s>` مع نص مخفي للقارئ "السعر قبل الخصم"، لأن معظم قارئات الشاشة لا تعلن الشطب.
+- **قارئ الشاشة:** "ر.س" تُقرأ حرفاً حرفاً، لذلك `Price` يضع `ر.س` بـ `aria-hidden` ومعه `<span class="sr-only">ريال</span>`.
+- **"شامل الضريبة":** سطر `text-xs text-muted-foreground` تحت السعر في صفحة المنتج والسلة والـ checkout (D8).
+- **رمز الريال الجديد (U+20C1):** دخل [Unicode 17](https://en.wikipedia.org/wiki/Saudi_riyal_sign)، لكنه **غير موجود في IBM Plex Sans Arabic** (فحصته في الملف). القرار: نعرض `ر.س` نصاً في الإطلاق. التحويل للرمز يكون بمكون `<RiyalSign/>` (SVG inline بـ `currentColor` و `aria-label="ريال سعودي"`)، **بقرار من المالك** عبر الـ CEO لأنه قرار هوية. ممنوع كتابة U+20C1 كنص قبل أن يدعمه الخط، وإلا ظهر مربع فارغ أو خط بديل.
+- **مفاتيح الضبط:** لا تُحسب الأسعار في الواجهة. المكون يستقبل هللات (Integer) ويمررها لـ `formatSAR` (D7).
+
+### 8.5 التواريخ والمدد والعدادات
+- العداد: أقل من ساعة `MM:SS`، وأقل من 24 ساعة `HH:MM:SS`، وأكثر من ذلك "يومان و 4 ساعات". الأرقام في `<bdi dir="ltr">` **والكلمة العربية خارجها**: `ينتهي خلال <bdi dir="ltr">23:41:10</bdi>`.
+- الوقت النسبي ("قبل 2 د") من `Intl.RelativeTimeFormat('ar-SA-u-nu-latn', { numeric: 'auto', style: 'short' })`.
+- الجوال يُعرض `05X XXX XXXX` داخل `<bdi dir="ltr">`، ويُخزن E.164.
+
+---
+
+## 9. إعداد Tailwind v4 + shadcn/ui (جاهز للنسخ في P1-02)
+
+> shadcn/ui الحالي مبني على Tailwind v4 (إعداد CSS-first بدون `tailwind.config.ts`). الألوان مكتوبة hex لتطابق سكربت التباين حرفياً. **لا يُنسخ قبل موافقة G1.**
+
+### 9.1 `src/app/globals.css`
+```css
+/* Souq AlZal design tokens v1.0 — source: docs/design/tokens.md. Do not edit values here without updating the doc + contrast script. */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ---------- 1) Primitives (never referenced by components) ---------- */
+:root {
+  --c-ink: #16120E;
+  --c-brown-900: #2E2018; --c-brown-800: #3B2B21; --c-brown-700: #4A3426; --c-brown-600: #5C4334; --c-brown-500: #6E5240;
+  --c-gold-50: #FAF3E3; --c-gold-300: #DDBE7C; --c-gold-500: #C29A4B; --c-gold-600: #A67F35; --c-gold-700: #7E5F22;
+  --c-sand-50: #FBF7F0; --c-sand-100: #F3EADB; --c-sand-200: #E6D7BE; --c-sand-300: #BCAA92; --c-sand-500: #8F7B66;
+  --c-white: #FFFFFF; --c-muted: #6B5E52;
+  --c-success-50: #E8F1EA; --c-success-300: #8FC79C; --c-success-700: #2F6B3F;
+  --c-warning-50: #F8EEDC; --c-warning-300: #E8B866; --c-warning-700: #8A5A0F;
+  --c-danger-50:  #F8E7E3; --c-danger-300:  #F0A08F; --c-danger-700:  #A23B2A;
+  --c-info-50:    #E6EEF4; --c-info-300:    #8DB8D6; --c-info-700:    #2D5B7A;
+
+  --z-sticky: 10; --z-header: 20; --z-fab: 30; --z-dropdown: 40; --z-overlay: 50; --z-toast: 60;
+  --scrim: rgb(22 18 14 / .55);
+  --radius: 8px; /* shadcn base = md */
+}
+
+/* ---------- 2) Semantic tokens — light (default) ---------- */
+:root, [data-surface="default"] {
+  --background: var(--c-sand-50);        --foreground: var(--c-ink);
+  --foreground-secondary: var(--c-brown-700);
+  --card: var(--c-white);                --card-foreground: var(--c-ink);
+  --popover: var(--c-white);             --popover-foreground: var(--c-ink);
+  --primary: var(--c-ink);               --primary-foreground: var(--c-sand-50);  --primary-hover: var(--c-brown-900);
+  --secondary: var(--c-sand-100);        --secondary-foreground: var(--c-ink);
+  --muted: var(--c-sand-100);            --muted-foreground: var(--c-muted);
+  --accent: var(--c-sand-100);           --accent-foreground: var(--c-ink);       /* shadcn hover surface — NOT brand gold */
+  --destructive: var(--c-danger-700);    --destructive-foreground: var(--c-white);
+  --border: var(--c-sand-200);           --border-strong: var(--c-ink);
+  --input: var(--c-sand-500);            --ring: var(--c-gold-700);
+  --link: var(--c-gold-700);
+
+  --gold: var(--c-gold-500);             --gold-foreground: var(--c-ink);         --gold-hover: var(--c-gold-600);
+  --gold-subtle: var(--c-gold-50);       --gold-text: var(--c-gold-700);
+
+  --success: var(--c-success-700); --success-foreground: var(--c-white); --success-subtle: var(--c-success-50);
+  --warning: var(--c-warning-700); --warning-foreground: var(--c-white); --warning-subtle: var(--c-warning-50);
+  --danger:  var(--c-danger-700);  --danger-foreground:  var(--c-white); --danger-subtle:  var(--c-danger-50);
+  --info:    var(--c-info-700);    --info-foreground:    var(--c-white); --info-subtle:    var(--c-info-50);
+  --neutral: var(--c-brown-700);   --neutral-foreground: var(--c-sand-50); --neutral-subtle: var(--c-sand-100);
+  --discount: var(--c-danger-700); --discount-foreground: var(--c-white);
+  --live: var(--c-danger-700);
+  --progress-track: var(--c-sand-200);
+  --inverse: var(--c-brown-900);   --inverse-foreground: var(--c-sand-50);
+
+  --chart-1: var(--c-gold-600); --chart-2: var(--c-brown-700); --chart-3: var(--c-info-700); --chart-4: var(--c-success-700);
+
+  --sidebar: var(--c-brown-900);            --sidebar-foreground: var(--c-sand-200);
+  --sidebar-primary: var(--c-gold-500);     --sidebar-primary-foreground: var(--c-ink);
+  --sidebar-accent: #463420; /* gold-500 @16% over brown-900, flattened */
+  --sidebar-accent-foreground: var(--c-sand-50);
+  --sidebar-border: var(--c-brown-700);     --sidebar-ring: var(--c-gold-500);
+
+  color: var(--foreground);
+}
+
+/* ---------- 3) Inverse scope (dark islands). Same variable names → components need no variants ---------- */
+[data-surface="inverse"], [data-surface="inverse-strong"] {
+  --background: var(--c-brown-900);      --foreground: var(--c-sand-50);
+  --foreground-secondary: var(--c-sand-200);
+  --card: var(--c-brown-800);            --card-foreground: var(--c-sand-50);
+  --muted: var(--c-brown-800);           --muted-foreground: var(--c-sand-300);
+  --accent: var(--c-brown-800);          --accent-foreground: var(--c-sand-50);
+  --primary: var(--c-gold-500);          --primary-foreground: var(--c-ink);      --primary-hover: var(--c-gold-300);
+  --secondary: var(--c-brown-800);       --secondary-foreground: var(--c-sand-50);
+  --border: var(--c-brown-600);          --border-strong: var(--c-sand-50);
+  --input: var(--c-sand-500);            --ring: var(--c-gold-500);
+  --link: var(--c-gold-300);             --gold-text: var(--c-gold-500);          --gold-subtle: var(--c-brown-800);
+  --success: var(--c-success-300); --success-foreground: var(--c-ink); --success-subtle: #3E3B2D;
+  --warning: var(--c-warning-300); --warning-foreground: var(--c-ink); --warning-subtle: #4C3824;
+  --danger:  var(--c-danger-300);  --danger-foreground:  var(--c-ink); --danger-subtle:  #4D342B;
+  --info:    var(--c-info-300);    --info-foreground:    var(--c-ink); --info-subtle:    #3D3836;
+  --neutral: var(--c-sand-200);    --neutral-foreground: var(--c-ink); --neutral-subtle: var(--c-brown-800);
+  --live: var(--c-danger-300);
+  --progress-track: var(--c-brown-600);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+[data-surface="inverse-strong"] { --background: var(--c-ink); --card: var(--c-brown-900); }
+
+/* ---------- 4) Theme (resets remove every value not in the doc) ---------- */
+@theme {
+  --color-*: initial;
+  --text-*: initial;
+  --font-weight-*: initial;
+  --tracking-*: initial;
+  --leading-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --breakpoint-*: initial;
+  --ease-*: initial;
+
+  --text-xs: 0.75rem;   --text-xs--line-height: 1.25rem;
+  --text-sm: 0.875rem;  --text-sm--line-height: 1.375rem;
+  --text-base: 1rem;    --text-base--line-height: 1.625rem;
+  --text-lg: 1.125rem;  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;   --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.5rem;   --text-2xl--line-height: 2.25rem;
+  --text-3xl: 1.75rem;  --text-3xl--line-height: 2.5rem;
+  --text-4xl: 2.25rem;  --text-4xl--line-height: 3.25rem;
+
+  --font-weight-normal: 400; --font-weight-semibold: 600; --font-weight-bold: 700;
+  --tracking-normal: 0;
+  --leading-snug: 1.35; --leading-normal: 1.625; --leading-relaxed: 1.8;
+
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+
+  --shadow-sm: 0 1px 2px rgb(22 18 14 / .06);
+  --shadow-md: 0 6px 20px rgb(22 18 14 / .10);
+  --shadow-lg: 0 12px 32px rgb(22 18 14 / .16);
+
+  --breakpoint-sm: 40rem; --breakpoint-md: 48rem; --breakpoint-lg: 64rem; --breakpoint-xl: 80rem;
+
+  --ease-standard: cubic-bezier(.2,.8,.2,1);
+  --ease-exit: cubic-bezier(.4,0,1,1);
+  --animate-live-pulse: live-pulse 1.6s ease-in-out infinite;
+  @keyframes live-pulse { 50% { opacity: .55; } }
+}
+
+@theme inline {
+  --font-sans: var(--font-plex), var(--font-plex-ext), "Plex Fallback", "Segoe UI", Tahoma, "Geeza Pro", "Noto Sans Arabic", system-ui, sans-serif;
+
+  --color-background: var(--background);   --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-card: var(--card);               --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);         --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);         --color-primary-foreground: var(--primary-foreground); --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);     --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);             --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);           --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive); --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);           --color-border-strong: var(--border-strong);
+  --color-input: var(--input);             --color-ring: var(--ring);
+  --color-link: var(--link);
+  --color-gold: var(--gold);               --color-gold-foreground: var(--gold-foreground);  --color-gold-hover: var(--gold-hover);
+  --color-gold-subtle: var(--gold-subtle); --color-gold-text: var(--gold-text);
+  --color-success: var(--success); --color-success-foreground: var(--success-foreground); --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning); --color-warning-foreground: var(--warning-foreground); --color-warning-subtle: var(--warning-subtle);
+  --color-danger:  var(--danger);  --color-danger-foreground:  var(--danger-foreground);  --color-danger-subtle:  var(--danger-subtle);
+  --color-info:    var(--info);    --color-info-foreground:    var(--info-foreground);    --color-info-subtle:    var(--info-subtle);
+  --color-neutral: var(--neutral); --color-neutral-foreground: var(--neutral-foreground); --color-neutral-subtle: var(--neutral-subtle);
+  --color-discount: var(--discount); --color-discount-foreground: var(--discount-foreground);
+  --color-live: var(--live);
+  --color-progress-track: var(--progress-track);
+  --color-inverse: var(--inverse); --color-inverse-foreground: var(--inverse-foreground);
+  --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4);
+  --color-sidebar: var(--sidebar); --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary); --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);   --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ---------- 5) Base ---------- */
+@font-face {
+  font-family: "Plex Fallback";
+  src: local("Segoe UI"), local("Tahoma"), local("Geeza Pro"), local("Noto Sans Arabic");
+  ascent-override: 108.5%; descent-override: 41.5%; line-gap-override: 0%; size-adjust: 100%;
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  html { font-family: var(--font-sans); -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+  body { background: var(--background); color: var(--foreground); font-size: var(--text-base); line-height: var(--text-base--line-height); }
+  :lang(ar) { letter-spacing: 0; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  bdi { unicode-bidi: isolate; }
+  input, select, textarea { font-size: max(16px, 1em); } /* iOS zoom guard */
+  .num { font-variant-numeric: tabular-nums; } /* no-op for Plex (digits already 600u), kept for fallbacks */
+  [data-directional]:dir(rtl) { transform: scaleX(-1); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important; scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .price-lg  { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); font-weight: 700; }
+  .price     { font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: 700; }
+  .price-old { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--muted-foreground); text-decoration: line-through; }
+  .label     { font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: 600; }
+  .overline  { font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: 600; color: var(--gold-text); }
+}
+```
+
+### 9.2 `src/app/fonts.ts` (الخطة أ: subset محلي)
+```ts
+import localFont from 'next/font/local';
+
+// Core subset (Arabic + Latin, ~23 KB/weight). Preloaded.
+export const plex = localFont({
+  src: [
+    { path: './fonts/plex-arabic-core-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/plex-arabic-core-600.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/plex-arabic-core-700.woff2', weight: '700', style: 'normal' },
+  ],
+  variable: '--font-plex',
+  display: 'swap',
+  preload: true,
+  adjustFontFallback: false, // "Plex Fallback" in globals.css carries the metric overrides
+});
+
+// Rare Arabic code points only. Never preloaded; fetched only if such a glyph renders.
+export const plexExt = localFont({
+  src: [
+    { path: './fonts/plex-arabic-ext-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/plex-arabic-ext-700.woff2', weight: '700', style: 'normal' },
+  ],
+  variable: '--font-plex-ext',
+  display: 'swap',
+  preload: false,
+  adjustFontFallback: false,
+  declarations: [{ prop: 'unicode-range', value: 'U+0600-0620,U+0653-065F,U+066E-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC' }],
+});
+// layout: <html lang={locale} dir={dir} className={`${plex.variable} ${plexExt.variable}`}>
+```
+
+سكربت توليد الـ subset (يُحفظ في `scripts/fonts/subset.sh` في P1-02، والمصدر ملفات IBM Plex الرسمية بترخيص OFL):
+```bash
+#!/usr/bin/env bash
+# Requires: pip install fonttools brotli
+set -euo pipefail
+SRC=${1:?path to IBM Plex Sans Arabic TTFs}; OUT=src/app/fonts
+CORE='U+0020-007E,U+00A0,U+00D7,U+2013-2014,U+2018-201D,U+2022,U+2026,U+2212,U+060C,U+061B,U+061F,U+0621-063A,U+0640-0652,U+0660-066D,U+0670,U+0679,U+067E,U+0686,U+0698,U+06A4,U+06AF,U+06CC,U+06D4,U+200C-200F'
+FEAT='ccmp,locl,init,medi,fina,rlig,calt,liga,kern,mark,mkmk'
+for W in 400:Regular 600:SemiBold 700:Bold; do
+  N=${W%%:*}; S=${W##*:}
+  pyftsubset "$SRC/IBMPlexSansArabic-$S.ttf" --unicodes="$CORE" --layout-features="$FEAT" --flavor=woff2 --output-file="$OUT/plex-arabic-core-$N.woff2"
+done
+for W in 400:Regular 700:Bold; do
+  N=${W%%:*}; S=${W##*:}
+  pyftsubset "$SRC/IBMPlexSansArabic-$S.ttf" --unicodes='U+0600-0620,U+0653-065F,U+066E-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC' --layout-features='*' --flavor=woff2 --output-file="$OUT/plex-arabic-ext-$N.woff2"
+done
+ls -l "$OUT"/*.woff2
+```
+
+**الخطة ب (لو تأخر الـ subset):** `next/font/google` بـ `IBM_Plex_Sans_Arabic({ weight: ['400','600','700'], subsets: ['arabic','latin'], display: 'swap', variable: '--font-plex' })`، بحجم 188.5KB. تنبيه: `next/font/google` ينزّل الخطوط **وقت البناء** من `fonts.googleapis.com`، فلازم بيئة الـ CI تسمح بالوصول له (هذه الجلسة مثلاً حُجب فيها هذا الدومين).
+
+### 9.3 `components.json` (shadcn)
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": { "config": "", "css": "src/app/globals.css", "baseColor": "neutral", "cssVariables": true, "prefix": "" },
+  "iconLibrary": "lucide",
+  "aliases": { "components": "@/components", "ui": "@/components/ui", "lib": "@/lib", "utils": "@/lib/utils", "hooks": "@/hooks" }
+}
+```
+بعد `shadcn add` لأي مكون، طبّق ملاحظات الترحيل (القسم 10). الـ `baseColor` لا يهم، لأن `globals.css` أعلاه يستبدل كل القيم.
+
+### 9.4 بديل Tailwind v3 (فقط لو فُرض v3)
+```ts
+// tailwind.config.ts — v3 equivalent; same CSS variables from globals.css sections 1–3 & 5
+import type { Config } from 'tailwindcss';
+const v = (n: string) => `var(--${n})`;
+const tone = (t: string) => ({ DEFAULT: v(t), foreground: v(`${t}-foreground`), subtle: v(`${t}-subtle`) });
+export default {
+  darkMode: ['selector', '[data-surface="inverse-strong"]'],
+  content: ['./src/**/*.{ts,tsx}'],
+  theme: {
+    screens: { sm: '640px', md: '768px', lg: '1024px', xl: '1280px' },
+    colors: {
+      transparent: 'transparent', current: 'currentColor',
+      background: v('background'), foreground: { DEFAULT: v('foreground'), secondary: v('foreground-secondary') },
+      card: { DEFAULT: v('card'), foreground: v('card-foreground') },
+      popover: { DEFAULT: v('popover'), foreground: v('popover-foreground') },
+      primary: { DEFAULT: v('primary'), foreground: v('primary-foreground'), hover: v('primary-hover') },
+      secondary: { DEFAULT: v('secondary'), foreground: v('secondary-foreground') },
+      muted: { DEFAULT: v('muted'), foreground: v('muted-foreground') },
+      accent: { DEFAULT: v('accent'), foreground: v('accent-foreground') },
+      destructive: { DEFAULT: v('destructive'), foreground: v('destructive-foreground') },
+      border: { DEFAULT: v('border'), strong: v('border-strong') }, input: v('input'), ring: v('ring'), link: v('link'),
+      gold: { DEFAULT: v('gold'), foreground: v('gold-foreground'), hover: v('gold-hover'), subtle: v('gold-subtle'), text: v('gold-text') },
+      success: tone('success'), warning: tone('warning'), danger: tone('danger'), info: tone('info'), neutral: tone('neutral'),
+      discount: { DEFAULT: v('discount'), foreground: v('discount-foreground') }, live: v('live'),
+      'progress-track': v('progress-track'), inverse: { DEFAULT: v('inverse'), foreground: v('inverse-foreground') },
+      chart: { 1: v('chart-1'), 2: v('chart-2'), 3: v('chart-3'), 4: v('chart-4') },
+      sidebar: { DEFAULT: v('sidebar'), foreground: v('sidebar-foreground'), primary: v('sidebar-primary'),
+        'primary-foreground': v('sidebar-primary-foreground'), accent: v('sidebar-accent'),
+        'accent-foreground': v('sidebar-accent-foreground'), border: v('sidebar-border'), ring: v('sidebar-ring') },
+    },
+    fontFamily: { sans: ['var(--font-plex)', 'var(--font-plex-ext)', '"Plex Fallback"', '"Segoe UI"', 'Tahoma', '"Geeza Pro"', '"Noto Sans Arabic"', 'system-ui', 'sans-serif'] },
+    fontSize: {
+      xs: ['0.75rem', '1.25rem'], sm: ['0.875rem', '1.375rem'], base: ['1rem', '1.625rem'], lg: ['1.125rem', '1.75rem'],
+      xl: ['1.25rem', '1.875rem'], '2xl': ['1.5rem', '2.25rem'], '3xl': ['1.75rem', '2.5rem'], '4xl': ['2.25rem', '3.25rem'],
+    },
+    fontWeight: { normal: '400', semibold: '600', bold: '700' },
+    letterSpacing: { normal: '0' },
+    lineHeight: { snug: '1.35', normal: '1.625', relaxed: '1.8' },
+    borderRadius: { none: '0', sm: '4px', md: '8px', lg: '12px', full: '9999px' },
+    boxShadow: { none: 'none', sm: '0 1px 2px rgb(22 18 14 / .06)', md: '0 6px 20px rgb(22 18 14 / .10)', lg: '0 12px 32px rgb(22 18 14 / .16)' },
+    extend: { transitionTimingFunction: { standard: 'cubic-bezier(.2,.8,.2,1)', exit: 'cubic-bezier(.4,0,1,1)' },
+      transitionDuration: { 120: '120ms', 200: '200ms', 320: '320ms' } },
+  },
+  plugins: [require('tailwindcss-animate')],
+} satisfies Config;
+```
+
+---
+
+## 10. ملاحظات الترحيل وقواعد الـ lint للمهندسين (P1-02)
+
+1. **بعد كل `npx shadcn add`:** استبدل `font-medium` بـ `font-semibold`، و `rounded-xl` بـ `rounded-lg`، و `leading-none` بـ `leading-snug`، و `focus-visible:ring-ring/50 focus-visible:ring-[3px]` بـ `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring` (أو احذفها واعتمد على القاعدة العامة)، و `outline-ring/50` بـ `outline-ring`. أي `ml-/mr-/left-/right-` فيها يصير منطقياً.
+2. **فحص CI (grep)، يفشل الـ build لو وجد شيئاً في `src/`:**
+   ```bash
+   rg -n --glob 'src/**/*.{ts,tsx,css}' \
+     -e '\b(-?m[lr]|p[lr]|left|right|border-[lr]|rounded-[lr]|rounded-[tb][lr]|text-(left|right)|float-(left|right))-' \
+     -e '\b(font-(thin|extralight|light|medium|extrabold|black)|tracking-(tight|tighter|wide|wider|widest)|rounded-(xl|2xl|3xl)|leading-none)\b' \
+     -e '#[0-9A-Fa-f]{3,8}\b' --glob '!src/app/globals.css' \
+     -e 'ring-ring/[0-9]+' -e 'text-\[(1[01]|[0-9])px\]' && exit 1 || exit 0
+   ```
+3. **الألوان:** أي `bg-[#...]` أو `text-[#...]` مرفوض في المراجعة. لو احتجت لوناً جديداً: اقتراح على هذا الملف، ثم إضافة الزوج لسكربت التباين، ثم تشغيله.
+4. **الأسطح الداكنة:** الـ theme لا يحتوي `white` ولا `black`، فـ `bg-black/50` في overlay الـ Dialog يصير `bg-[var(--scrim)]`، و `text-white` يصير توكن دلالياً. لا تكتب `text-white` داخل شريط داكن. ضع `data-surface="inverse"` على الحاوية، والبطاقة البيضاء داخلها تأخذ `data-surface="default"`.
+5. **الأرقام والأسعار:** لا `toLocaleString()` مباشرة في المكونات. استخدم `lib/format/*` (القسم 11).
+6. **إضافة توكن:** PR يعدّل `tokens.md` (هذا الملف) والسكربت والنتائج معاً، بمراجعة من design-system-performance و designer.
+
+---
+
+## 11. المكونات المشتركة
+
+**المبدأ:** كل مكون **Server Component** إلا المذكور بأنه Client (🟢 = server، 🔵 = client island). الـ formatters منفصلة عن المكونات في `src/lib/format/`: `money.ts` (يلف `lib/money.ts::formatSAR`، و `compact`، و `percent`)، و `number.ts`، و `date.ts`، و `duration.ts` (العدادات)، و `phone.ts`، و `digits.ts` (`toLatinDigits`). المكونات تستقبل قيماً خاماً (هللات، ISO dates) وتنسقها عبر هذه الدوال فقط.
+
+### 11.1 الأساسيات (`src/components/ui/`, shadcn معدّل)
+
+| المكون | النوع | Variants | الأحجام | الحالات | ملاحظات وصولية |
+|---|---|---|---|---|---|
+| `Button` | 🟢 | `primary` (ink)، `gold` (CTA في السوق وعلى الداكن)، `outline`، `ghost`، `bargain` (حد gold-500 بسماكة 1.5px ونص gold-text وأيقونة يد)، `destructive`، `link` | `sm` 36 (لوحات فقط)، `md` 44، `lg` 52، `icon` 44×44 | default، hover، active، focus-visible، disabled، **loading** (spinner + `aria-busy`، والعرض ثابت لمنع القفز) | `disabled` يعطّل الضغط ويبقي التباين ≥ 4.5 (نص muted على muted). الأيقونة وحدها تحتاج `aria-label` |
+| `Input` / `Textarea` / `Select` | 🟢 (الحالة 🔵 داخل form) | `default`، `numeric` (dir=ltr + toLatinDigits)، `price` (لاحقة "ر.س")، `phone` (بادئة +966) | 44 (جوال)، 40 (لوحات) | default، hover، focus، **error** (حد danger + أيقونة + رسالة)، disabled، read-only | `aria-invalid` و `aria-describedby` للرسالة. النص 16px |
+| `FormField` | 🔵 (react-hook-form) | `stacked` (افتراضي)، `inline` (لوحات) | — | normal، error (inline تحت الحقل)، hint، required (`*` + `aria-required`) | الرسالة تُعلن بـ `role="alert"` مرة واحدة عند الإرسال، وليس عند كل ضغطة |
+| `Checkbox` / `Radio` / `Switch` | 🔵 | — | منطقة ضغط 44 | checked، unchecked، indeterminate (checkbox)، disabled، error | حدود `input`. مجموعة الراديو بـ `fieldset`/`legend` |
+| `Tabs` | 🔵 | `underline` (السوق)، `pill` (فلاتر الصندوق) | — | selected (مؤشر `border-strong` بسماكة 2px + نص foreground)، hover، focus، disabled، مع `count` | أسهم لوحة المفاتيح تنعكس في RTL (Radix يدعم `dir`) |
+| `SegmentedControl` | 🔵 | — | 36/44 | selected، focus | `role="radiogroup"` (فلتر الفترة في اللوحات) |
+| `Dialog` / `Sheet` | 🔵 | `dialog` (من `md`)، `bottom-sheet` (جوال)، `side-sheet` (لوحات، من `end`) | — | open، closing، مع form submitting | focus trap، و `aria-modal`، والإغلاق بـ Esc، وإرجاع التركيز للزر اللي فتحه |
+| `Badge` / `StatusBadge` | 🟢 | `subtle` (افتراضي)، `solid`، `outline`. النغمات: neutral، info، accent، warning، success، danger، live | `sm` 20، `md` 24 | — | `StatusBadge entity="subOrder" status="SHIPPED"` يأخذ النغمة والأيقونة والنص من الـ map (2.5). النص دائماً موجود، وأقل حجم 12px |
+| `Alert` / `Callout` | 🟢 | info، success، warning، danger، `secure` (قفل، "اسمك ورقمك ما يظهرون للتاجر") | — | dismissible اختياري | `role="status"` أو `alert` حسب الخطورة |
+| `Toast` | 🔵 | success، error، info | — | مع action (تراجع) | `aria-live="polite"`، والأخطاء `assertive` |
+| `Skeleton` | 🟢 | `text`، `card`، `row`، `kpi`، `image` (4:5 أو 1:1) | — | — | بلون `muted` ثابت بدون shimmer مع reduced-motion، و `aria-hidden`، والحاوية `aria-busy` |
+| `EmptyState` | 🟢 | `default`، `search` (بدون نتائج)، `filtered` (مع "مسح الفلاتر")، `first-use` (onboarding) | — | **دائماً مع action** (زر أساسي واحد) | عنوان + سطر + زر. ممنوع حالة فارغة بدون خطوة تالية |
+| `ErrorState` | 🟢 | `inline`، `page` (لـ `error.tsx`)، `offline`، `expired` (مهلة) | — | مع retry | النص يقول ما حدث وما الخطوة، ولا يكشف تفاصيل تقنية |
+| `Icon` | 🟢 | — | 16، 20، 24 | `data-directional` للانعكاس | زخرفية `aria-hidden` افتراضياً |
+
+### 11.2 المتجر
+
+| المكون | النوع | Variants | الحالات | ملاحظات |
+|---|---|---|---|---|
+| `ProductCard` | 🟢 + `FavoriteButton` 🔵 | `grid` (4:5)، `compact` (أفقي، للسلة والاقتراحات)، `rail` (عرض 160 في الشريط الأفقي) | default، hover (shadow-sm)، **out-of-stock** (شارة neutral وزر معطل)، **has-variants** ("متوفر بعدة خيارات" بدل زر السلة)، **on-deal** (شارة خصم + `StockMeter`)، loading (Skeleton) | الكارت كله رابط واحد (`<a>` يغطي البطاقة) وزر المفضلة فوقه منفصل، فلا تتداخل الروابط. اسم المنتج سطران بـ `line-clamp-2`، والاسم الكامل في `title` |
+| `Price` | 🟢 | `sm`، `md`، `lg`؛ `with-compare` (قبل/بعد + نسبة الخصم)، `range` ("من 690.00 ر.س")، `locked` (أيقونة قفل + نغمة accent)، `free` ("مجاني") | — | يستقبل هللات. `<bdi>` + sr-only (8.4). ولا يعرض `compareAt` لو ≤ السعر |
+| `DiscountBadge` | 🟢 | `solid` (افتراضي)، `subtle` | — | `<bdi dir="ltr">-22%</bdi>`، والقارئ يسمع "خصم 22 بالمئة" |
+| `RatingStars` | 🟢 | `display`، `input` 🔵 | — | `role="img"` + `aria-label="4.8 من 5، 312 تقييماً"`. التعبئة من `start` |
+| `VendorChip` | 🟢 | `inline` (اسم + تقييم)، `row` (شعار + تقييم + "زيارة المتجر")، `platform` (سوق الزل بدون تقييم) | — | لا يعرض اسم التاجر في سياق الفصال إلا حسب O8 |
+| `VariantPicker` | 🔵 | `swatch` (لون)، `chip` (مقاس، خامة) | selected (`border-strong`)، **unavailable** (شطب + نص "غير متوفر" مخفي للقارئ، ويبقى قابلاً للتركيز ليُعلن)، disabled | `radiogroup`، و 44×44 حد أدنى |
+| `QuantityStepper` | 🔵 | `sm`، `md` | min، max (حسب المخزون أو `perCustomerLimit`)، disabled | زرّان 44 + input رقمي. `aria-live` على التغيير |
+| `ImageGallery` | 🔵 (سحب) | `pdp` (1:1 جوال، 4:5 ديسكتوب)، `thumbs` | loading، single-image (بدون نقاط) | الصورة الأولى server-rendered بـ `priority` (هي الـ LCP)، والسحب يتحمّل بعد الـ hydration |
+| `Breadcrumbs` | 🟢 | — | — | `nav[aria-label]` + `ol`، والفاصل أيقونة `data-directional`، ويولّد BreadcrumbList JSON-LD |
+| `FilterChips` / `SortMenu` | 🔵 | `scroll` (جوال)، `wrap` | selected، with-count، clear-all | الحالة في الـ URL (`searchParams`)، و `aria-pressed` |
+| `SearchBox` | 🔵 | `header`، `page` | idle، typing (اقتراحات)، empty-results | `role="combobox"`، والتطبيع العربي على السيرفر |
+| `BnplSlot` | 🔵 lazy | tabby، tamara | loading (ارتفاع محجوز لمنع CLS) | يُحمّل عند ظهوره (IntersectionObserver)، ولا يدخل في الـ LCP |
+| `WhatsAppFab` | 🟢 | — | hidden في `/checkout` وفي الـ Sheet | رابط `wa.me` عادي بدون SDK، و `aria-label`، وعلى `end` |
+| `CartLine` | 🔵 | `default`، `deal-locked` (عداد 15 دقيقة)، `price-locked` (عداد PriceLock)، `unavailable` | updating، removed (تراجع) | السعر المقفول يُعرض بـ `Price variant="locked"` |
+| `ShipmentGroup` | 🟢 | — | — | "الشحنة N · اسم التاجر"، والمدة والرسوم لكل تاجر (D3) |
+| `CheckoutStepper` | 🟢 | — | done، current (`aria-current="step"` + أيقونة)، upcoming | النص 12px كحد أدنى (المسودة 11px) |
+| `PaymentMethodOption` | 🔵 | mada، applepay، card، stcpay، tabby، tamara | selected، disabled (غير متاح لهذا المبلغ) | شعارات SVG بالأبعاد الرسمية. `radiogroup` |
+| `OrderSummary` | 🟢 | `cart`، `checkout`، `order` | — | سطر "يشمل ضريبة القيمة المضافة" |
+| `StickyActionBar` | 🟢 | — | — | `pb-[env(safe-area-inset-bottom)]`، وطبقة `--z-sticky`، ومساحة محجوزة في الصفحة |
+
+### 11.3 سوق الزل والفصال
+
+| المكون | النوع | Variants | الحالات | ملاحظات |
+|---|---|---|---|---|
+| `DealCard` | 🟢 + `Countdown` و `StockMeter` 🔵 | `horizontal` (قائمة السوق)، `rail` (الرئيسية)، `pinned` (`border-accent`) | scheduled (APPROVED: "يبدأ خلال")، **live**، ending-soon (أقل من 10 دقائق: نغمة warning)، **sold-out** (شارة neutral وزر معطل)، **ended** (يختفي في التحديث التالي مع إعلان polite)، مع/بدون "فاصل" (`allowBargain`) | الأزرار 44. "اشترِ الآن" `gold`، و"فاصل" `bargain` |
+| `Countdown` | 🔵 (جزيرة صغيرة) | `boxed` (على الداكن)، `inline` (نص)، `compact` (MM:SS) | running، warning (≤ 10 د)، **expired** (يستدعي `onExpire` مرة واحدة) | **ساعة واحدة مشتركة** للصفحة كلها (`useSyncExternalStore` بـ tick كل ثانية، يتوقف مع `document.hidden`). والوقت المتبقي محسوب من `endsAt` القادم من السيرفر مع تصحيح فرق الساعة. `role="timer"` + `aria-label` نصي ("ينتهي خلال 42 دقيقة")، **بدون** `aria-live` (لا يُعلن كل ثانية). يُعلن مرة واحدة عند 5 دقائق وعند الانتهاء |
+| `StockMeter` | 🔵 | `bar`، `text` | normal، low (≤ 3: نغمة danger)، sold-out | النص هو المعلومة ("باقي 3 قطع")، والشريط زخرفي `aria-hidden`. الصيغة العربية للعدد (قطعة/قطعتان/قطع) عبر ICU plural في messages |
+| `LiveBadge` | 🟢 | `pill`، `dot`، `on-dark` | — | النقطة زخرفية، والنص "مباشر" دائماً |
+| `BargainButton` | 🟢 | `block`، `inline` | hidden لو `!allowBargain`، disabled (وصل الحد O9، مع السبب) | يفتح `PriceRequestSheet` عبر `?bargain=1` (رابط قابل للمشاركة) |
+| `PriceRequestSheet` | 🔵 | `product`، `open` (`/souq/request/new`، مع رفع صور) | idle، validating (أقل من الحد العام O9)، submitting، **limit-reached**، success (رقم الطلب + رابط المتابعة)، error | **لا يعرض `floorPrice` أبداً**، والحد المعروض هو `minTargetPricePercent` العام. `Callout secure`، وموافقة PriceLock، وعدّاد الحدود |
+| `RequestTicker` | 🔵 (Realtime) | — | live، paused (التبويب مخفي)، empty | `aria-live="polite"` مع تجميع (إعلان واحد كل 30 ثانية على الأكثر)، وبدون أي بيانات عميل |
+| `OfferCard` | 🔵 | `best` (`border-accent` + شارة accent "الأفضل إجمالاً")، `default`، `countered`، `declined` (`bg-muted` + `text-muted-foreground` **بدون opacity**)، `expired`، `accepted` | pending، countering (form مفتوح داخل البطاقة)، accepting، accepted ← CTA "ادفع الآن"، rounds-exhausted ("آخر جولة") | تفصيل: السعر × الكمية + الشحن = الإجمالي. الأزرار: "اقبل" `primary`، و"سعر مضاد" `outline`، و"رفض" `ghost` |
+| `OfferCompare` | 🔵 (Realtime) | `list` (جوال)، `table` (من `lg`) | waiting (لا عروض بعد: EmptyState مع عداد المهلة)، has-offers، accepted، **expired** (مع "أعد الطلب")، converted | الترتيب بالإجمالي. وصول عرض جديد = Toast + إعلان polite، بدون قفز في الترتيب أثناء تركيز المستخدم على بطاقة |
+| `RoundTimeline` | 🟢 | `compact`، `full` | — | `ol`، وكل خطوة: الطرف + السعر + الوقت، و"الجولة X من N" |
+| `CounterOfferForm` | 🔵 | `customer`، `vendor` | validating، submitting، error | فلتر وسائل التواصل يظهر كتحذير inline قبل الإرسال |
+| `PriceLockBadge` | 🔵 | `cart`، `request` | active (accent + Countdown)، expiring (≤ 2 ساعة: warning)، expired | — |
+| `RequestRow` (صندوق التاجر) | 🟢 + Countdown 🔵 | `new`، `awaiting-me`، `awaiting-customer`، `accepted` | selected (`border-s` بـ 3px)، unread (نقطة + `font-semibold`)، below-floor (شارة warning **للتاجر فقط**) | الصف كله زر يفتح `ResponsePanel`، والتنقل بالأسهم |
+| `ResponsePanel` | 🔵 | `product-owner`، `competitor` (اختيار منتج مطابق) | idle، submitting، sent، expired | اختيار المنتج من منتجات التاجر المنشورة في نفس التصنيف فقط |
+
+### 11.4 اللوحات (admin / vendor)
+
+| المكون | النوع | Variants | الحالات | ملاحظات |
+|---|---|---|---|---|
+| `DataTable` (TanStack) | 🔵 (الصفحة 🟢 تمرر البيانات) | `default`، `compact` (صف 40)، `selectable` | loading (Skeleton rows)، **empty** (EmptyState مع action)، **filtered-empty** ("مسح الفلاتر")، error (retry)، sorting، paginated (server-side)، row-selected، bulk-actions bar | الأعمدة الرقمية والمبالغ `text-end` و `whitespace-nowrap` (الحالي في المسودة `text-start`). رأس ثابت `--z-sticky`. الفرز بـ `aria-sort`. الترقيم والفلاتر في الـ URL. التصدير CSV من السيرفر وليس من المتصفح |
+| `StatCard` (KPI) | 🟢 | `default`، `split` (معلّق/متاح)، `with-trend` (سهم + `<bdi dir="ltr">+12%</bdi>` + "عن الفترة السابقة")، `link` | loading، no-data ("—" مع tooltip) | القيمة `text-2xl font-bold`، والعملة دائماً. الاتجاه بالأيقونة والنص، لا باللون وحده |
+| `ChartCard` | 🔵 lazy (`next/dynamic`, `ssr: false` + Skeleton بارتفاع ثابت) | `line`، `bar`، `area` | loading، empty، error | Recharts يُحمّل فقط في الصفحات اللي فيها رسم. حد 4 سلاسل، ومحور RTL، وجدول بيانات بديل (`<details>`) للقارئ |
+| `SidebarNav` | 🟢 + toggle 🔵 | `admin`، `vendor` | active (`bg-sidebar-accent` + `border-s` ذهبي)، with-count، collapsed (أقل من `lg`: Sheet) | داخل `data-surface="inverse"`، و `aria-current="page"` |
+| `Topbar` | 🟢 | — | — | العنوان + فلتر الفترة + الإشعارات |
+| `ReviewQueueItem` | 🟢 | product، vendor، deal، iban، contact-attempt (danger) | — | العدد `text-base font-bold`، والنغمة بحد `border-s` |
+| `Timeline` (تاريخ الطلب) | 🟢 | `order`، `audit` | — | `ol` + الوقت بـ `<time dateTime>` |
+| `ImageUploader` | 🔵 | `single` (شعار)، `multi-sortable` (صور المنتج)، `document` (وثائق، private) | idle، dragging، uploading (تقدم)، error (نوع أو حجم)، reorder | السحب له بديل بأزرار "تحريك للأمام/للخلف" للوحة المفاتيح. والضغط وتحويل الصيغة على السيرفر |
+| `MoneyInput` | 🔵 | `price`، `percent` (basis points) | — | يعرض ر.س، ويخزن هللات، ويقبل ٠–٩ |
+| `Pagination` | 🟢 | — | — | روابط حقيقية، والأسهم `data-directional` |
+
+---
+
+## 12. ميزانية الأداء (Performance budget)
+
+### 12.1 Core Web Vitals (p75 حقيقي، جوال)
+
+| المقياس | الميزانية | الهدف في المختبر (Lighthouse، Moto G Power، Slow 4G) |
+|---|---|---|
+| **LCP** | ≤ 2.5s (SPEC) | ≤ 2.0s للرئيسية والمنتج والتصنيف و `/souq` |
+| **INP** | ≤ 200ms | Total Blocking Time ≤ 200ms في المختبر |
+| **CLS** | ≤ 0.1 | ≤ 0.05، وتبديل الخط وحده ≤ 0.02 |
+| TTFB | ≤ 0.8s | ≤ 0.4s للصفحات المخزنة (ISR/CDN) |
+| FCP | ≤ 1.8s | ≤ 1.5s |
+| Lighthouse Performance | ≥ 90 جوال (SPEC) | ≥ 90 للصفحات الأربع، و Accessibility ≥ 95 |
+
+### 12.2 الخطوط
+- 3 ملفات preload بإجمالي **≤ 75KB** (المقاس 69.6KB في الخطة أ). `font-display: swap`. صفر طلبات لخطوط من دومين خارجي في وقت التشغيل.
+- لا أوزان غير 400/600/700. الوجه `ext` لا يُحمّل في الصفحات العادية (يُتحقق منه في Lighthouse: "Network requests").
+
+### 12.3 الصور
+- `next/image` لكل الصور، و `formats: ['image/avif', 'image/webp']`.
+- `deviceSizes: [360, 414, 640, 768, 1024, 1280, 1536]` و `imageSizes: [48, 64, 96, 128, 160, 256, 320]`، و `qualities: [60, 75]` (الافتراضي 75، والبانرات 60).
+- **`sizes` لكل سياق (إلزامي، بدونه ينزل المتصفح أكبر نسخة):**
+  | السياق | النسبة | `sizes` |
+  |---|---|---|
+  | بطاقة شبكة المنتجات | 4:5 | `(min-width:1280px) 296px, (min-width:1024px) 25vw, (min-width:768px) 33vw, 50vw` |
+  | بطاقة في شريط أفقي | 4:5 | `160px` |
+  | صورة DealCard الأفقية | 4:5 | `120px` |
+  | معرض صفحة المنتج | 1:1 جوال، 4:5 ديسكتوب | `(min-width:1024px) 50vw, 100vw` |
+  | بانر الرئيسية | 16:9 جوال، 3:1 ديسكتوب (`<picture>` بمصدرين، `Banner.imageMobile`/`imageDesktop`) | `100vw` |
+  | الصور المصغرة (السلة، الصندوق) | 1:1 أو 4:5 | `56px` |
+- **الـ LCP:** صورة واحدة فقط لكل صفحة بـ `priority` (`fetchPriority="high"`): أول بانر في الرئيسية، وأول صورة في معرض المنتج، وأول صورة في شبكة التصنيف. كل الباقي `loading="lazy"`.
+- **أوزان مستهدفة (AVIF):** صورة LCP للمنتج بعرض 828px ≤ 90KB، وبطاقة الشبكة بعرض 384px ≤ 25KB، والبانر بعرض 828px ≤ 70KB.
+- **المصدر:** الرفع ≤ 5MB، وأقل ضلع طويل 1600px، ويُخزن نسخة أصلية في Supabase Storage. والتحويل عبر `next/image` (أو Supabase Image Transformations حسب O6، بـ loader مخصص).
+- **Placeholder:** لون `muted` ثابت (`bg-muted`) مع `aspect-ratio` محجوزة. بدون `blurDataURL` (يضيف bytes لكل صورة في الـ HTML).
+- الأيقونات من `lucide-react` بـ import فردي (`import { Search } from 'lucide-react'`)، وممنوع icon fonts. أيقونات التصنيفات SVG inline صغيرة (≤ 1KB لكل واحدة).
+
+### 12.4 JavaScript (المنقول مضغوطاً، First Load JS حسب مخرجات `next build`)
+
+| المسار | الميزانية | ملاحظات |
+|---|---|---|
+| الحزمة المشتركة (framework + layout) | ≤ 110KB | next-intl: الرسائل تُمرر للـ client islands فقط حسب الـ namespace |
+| `/` ، `/c/[slug]` ، `/products` ، `/search` | ≤ 150KB إجمالاً | Server Components. Client فقط: المفضلة، الفلاتر، السلة المصغرة، العداد |
+| `/p/[slug]` | ≤ 170KB | + VariantPicker والمعرض والـ Sheet (الـ Sheet بـ `next/dynamic` عند `?bargain=1` أو الضغط) |
+| `/souq` | ≤ 180KB قبل Realtime | `@supabase/realtime-js` يُحمّل **بعد** الـ hydration وعند ظهور التبويب (`requestIdleCallback`)، ولا يدخل في الـ First Load |
+| `/cart` ، `/checkout` | ≤ 220KB | Moyasar form و Tabby/Tamara تُحمّل في خطوة الدفع فقط |
+| `/admin/*` ، `/vendor/*` | ≤ 300KB | TanStack Table في صفحات الجداول فقط، و Recharts بـ dynamic import |
+| سكربتات الطرف الثالث | 0 قبل موافقة الكوكيز | GA4 والـ Pixels بـ `next/script strategy="lazyOnload"` بعد الموافقة. وواتساب رابط فقط |
+
+**قواعد:**
+- `'use client'` على مستوى الورقة (المكون الصغير)، وليس على مستوى الصفحة أو الـ layout.
+- كل route عام له `loading.tsx` (Skeleton بأبعاد الصفحة الحقيقية لمنع CLS) و `error.tsx` (`ErrorState page`)، و `not-found.tsx` عربي.
+- الصفحات العامة ISR مع `revalidateTag` عند تحديث المنتج أو العرض. `/souq` = shell ثابت + Suspense streaming للأقسام + اشتراك Realtime بعد التحميل.
+- تحديث Realtime لا يعيد render القائمة كلها: تحديث العنصر المتأثر فقط (مفتاح ثابت + حالة لكل بطاقة).
+
+### 12.5 خطة القياس
+
+| الطبقة | الأداة | متى | يفشل الـ PR لو |
+|---|---|---|---|
+| حجم الحزم | مخرجات `next build` + سكربت يقارن First Load JS لكل route بالميزانية (12.4)، و `@next/bundle-analyzer` عند الحاجة | كل PR | تجاوز ميزانية أي route، أو زيادة > 10KB بدون تبرير في وصف الـ PR |
+| المختبر | Lighthouse CI (`lhci autorun`)، preset جوال، 3 تشغيلات وأخذ الوسيط، على 4 مسارات: `/`، `/c/<seed>`، `/p/<seed>`، `/souq`. بيانات seed بصور حقيقية بنسبة 4:5 | كل PR على بيئة preview | Performance < 90، أو LCP > 2.5s، أو CLS > 0.1، أو TBT > 200ms، أو Accessibility < 95 |
+| الخطوط | فحص في Lighthouse CI: عدد طلبات الخطوط ≤ 3 وحجمها ≤ 75KB | كل PR | تجاوز |
+| الوصولية | axe-core في Playwright (E2E 6) عربي وإنجليزي، و `contrast.py` عند تغيير التوكنات | كل PR | أي مخالفة serious أو critical |
+| الميدان (RUM) | `useReportWebVitals` في `app/[locale]/layout` يرسل LCP و INP و CLS و TTFB مع route و device و connection إلى GA4 (بعد الموافقة) و Sentry. ومع Vercel Speed Insights لو قرار O6 = Vercel | مستمر من أول staging | تنبيه أسبوعي لو p75 تجاوز الميزانية لأي route |
+| CrUX | PageSpeed Insights / CrUX API لـ `suqalzl.com` | شهرياً بعد الإطلاق (يحتاج حجم زيارات كافٍ) | — |
+| يدوي | iPhone SE و Android متوسط حقيقي على 4G، مع VoiceOver و TalkBack بالعربي | قبل G2 و G3 و P6 | — |
+
+**خط الأساس:** أول قياس في نهاية P1-02 (صفحة الدخول + layout المتجر) يُسجّل هنا، ثم يقارن كل PR معه.
+
+---
+
+## الملحق أ: سكربت التباين
+
+يُحفظ في `scripts/design/contrast.py` في P1-02، ويُشغّل في CI عند تغيير `globals.css`. التشغيل: `python3 scripts/design/contrast.py`، والخروج برمز 1 لو فشل أي زوج في الوضع الفاتح أو المعكوس.
+
+```python
+#!/usr/bin/env python3
+"""WCAG 2.x contrast checker for Souq AlZal design tokens.
+
+Usage: python3 contrast.py [--md]
+Every pair below is a pair that is actually used by a component.
+kind: text (>=4.5), large (>=3.0, text >=24px or >=18.66px bold),
+      ui (>=3.0, WCAG 1.4.11 non-text: borders that identify a control, focus rings, state indicators, icons that carry meaning)
+"""
+import sys
+
+# ---------- primitives (single source of truth) ----------
+P = {
+    "ink": "#16120E",
+    "brown-900": "#2E2018", "brown-800": "#3B2B21", "brown-700": "#4A3426", "brown-600": "#5C4334", "brown-500": "#6E5240",
+    "gold-50": "#FAF3E3", "gold-300": "#DDBE7C", "gold-500": "#C29A4B", "gold-600": "#A67F35", "gold-700": "#7E5F22",
+    "sand-50": "#FBF7F0", "sand-100": "#F3EADB", "sand-200": "#E6D7BE", "sand-300": "#BCAA92", "sand-500": "#8F7B66",
+    "white": "#FFFFFF",
+    "muted": "#6B5E52",
+    "success-700": "#2F6B3F", "success-50": "#E8F1EA", "success-300": "#8FC79C",
+    "warning-700": "#8A5A0F", "warning-50": "#F8EEDC", "warning-300": "#E8B866",
+    "danger-700": "#A23B2A", "danger-50": "#F8E7E3", "danger-300": "#F0A08F",
+    "info-700": "#2D5B7A", "info-50": "#E6EEF4", "info-300": "#8DB8D6",
+}
+
+def hex2rgb(h):
+    h = h.lstrip("#"); return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+
+def rgb2hex(c):
+    return "#" + "".join(f"{round(max(0, min(1, x)) * 255):02X}" for x in c)
+
+def blend(fg, bg, a):
+    """alpha-composite fg over bg (both hex) -> hex"""
+    f, b = hex2rgb(fg), hex2rgb(bg)
+    return rgb2hex(tuple(a * x + (1 - a) * y for x, y in zip(f, b)))
+
+def lum(h):
+    def ch(c):
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+    r, g, b = (ch(c) for c in hex2rgb(h))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+def ratio(a, b):
+    la, lb = lum(a), lum(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+def c(x):
+    return P.get(x, x)
+
+TH = {"text": 4.5, "large": 3.0, "ui": 3.0, "deco": 0}
+
+def verdict(r, kind):
+    if r >= 7 and kind == "text":
+        return "AAA"
+    if kind == "deco":
+        return "decorative"
+    if r >= TH[kind]:
+        return "AA" if kind == "text" else f"AA ({kind})"
+    return "FAIL"
+
+# ---------- token pairs used by components (light / default scope) ----------
+LIGHT = [
+    ("text", "background", "ink", "sand-50", "text"),
+    ("text", "surface", "ink", "white", "text"),
+    ("text", "surface-subtle", "ink", "sand-100", "text"),
+    ("text-secondary", "background", "brown-700", "sand-50", "text"),
+    ("text-secondary", "surface-subtle", "brown-700", "sand-100", "text"),
+    ("text-muted", "surface", "muted", "white", "text"),
+    ("text-muted", "background", "muted", "sand-50", "text"),
+    ("text-muted", "surface-subtle", "muted", "sand-100", "text"),
+    ("text-muted (disabled field)", "surface-subtle", "muted", "sand-100", "text"),
+    ("text-link / text-accent", "surface", "gold-700", "white", "text"),
+    ("text-link / text-accent", "background", "gold-700", "sand-50", "text"),
+    ("text-link / text-accent", "surface-subtle", "gold-700", "sand-100", "text"),
+    ("text-accent", "accent-subtle", "gold-700", "gold-50", "text"),
+    ("primary-fg on primary (btn)", "primary", "sand-50", "ink", "text"),
+    ("primary-fg on primary-hover", "primary-hover", "sand-50", "brown-900", "text"),
+    ("accent-fg on accent (gold btn)", "accent", "ink", "gold-500", "text"),
+    ("accent-fg on accent-hover", "accent-hover", "ink", "gold-600", "text"),
+    ("destructive-fg", "destructive", "white", "danger-700", "text"),
+    ("discount badge text", "discount", "white", "danger-700", "text"),
+    ("price-discount text", "surface", "danger-700", "white", "text"),
+    ("success text (KPI up)", "surface", "success-700", "white", "text"),
+    ("warning text (timer)", "surface", "warning-700", "white", "text"),
+    ("warning text", "background", "warning-700", "sand-50", "text"),
+    ("info text", "surface", "info-700", "white", "text"),
+    # status badges (tone fg on tone bg)
+    ("badge success", "success-subtle", "success-700", "success-50", "text"),
+    ("badge warning", "warning-subtle", "warning-700", "warning-50", "text"),
+    ("badge danger", "danger-subtle", "danger-700", "danger-50", "text"),
+    ("badge info", "info-subtle", "info-700", "info-50", "text"),
+    ("badge neutral", "neutral-subtle", "brown-700", "sand-100", "text"),
+    ("badge accent", "accent-subtle", "gold-700", "gold-50", "text"),
+    ("badge solid success", "success-solid", "white", "success-700", "text"),
+    ("badge solid info", "info-solid", "white", "info-700", "text"),
+    ("badge solid warning", "warning-solid", "white", "warning-700", "text"),
+    ("badge solid neutral", "neutral-solid", "sand-50", "brown-700", "text"),
+    # non-text
+    ("border-input (field boundary)", "surface", "sand-500", "white", "ui"),
+    ("border-input (field boundary)", "background", "sand-500", "sand-50", "ui"),
+    ("border-input (field boundary)", "surface-subtle", "sand-500", "sand-100", "ui"),
+    ("ring (focus, light)", "background", "gold-700", "sand-50", "ui"),
+    ("ring (focus, light)", "surface-subtle", "gold-700", "sand-100", "ui"),
+    ("ring (focus, light)", "surface", "gold-700", "white", "ui"),
+    ("ring vs primary btn (offset 2px)", "primary", "gold-700", "ink", "ui"),
+    ("border-strong (selected option)", "surface", "ink", "white", "ui"),
+    ("tab indicator (selected)", "surface", "ink", "white", "ui"),
+    ("checkbox/radio border", "surface", "brown-500", "white", "ui"),
+    ("progress fill (stock left)", "progress-track", "danger-700", "sand-200", "ui"),
+    ("star icon", "surface", "gold-600", "white", "ui"),
+    ("chart-1 line", "surface", "gold-600", "white", "ui"),
+    ("chart-2 line", "surface", "brown-700", "white", "ui"),
+    ("chart-3 line", "surface", "info-700", "white", "ui"),
+    ("chart-4 line", "surface", "success-700", "white", "ui"),
+    ("whatsapp fab icon", "success-solid", "white", "success-700", "ui"),
+    ("border-accent (best offer) + label", "surface", "gold-500", "white", "deco"),
+    ("border (divider)", "surface", "sand-200", "white", "deco"),
+]
+
+# ---------- inverse scope (dark islands: header ink, souq hero/flash strip/sidebar brown-900) ----------
+INV = []
+for bgname, bg in (("inverse (brown-900)", "brown-900"), ("inverse-strong (ink)", "ink")):
+    INV += [
+        ("text", bgname, "sand-50", bg, "text"),
+        ("text-secondary", bgname, "sand-200", bg, "text"),
+        ("text-muted", bgname, "sand-300", bg, "text"),
+        ("text-accent (gold)", bgname, "gold-500", bg, "text"),
+        ("text-link (gold-300)", bgname, "gold-300", bg, "text"),
+        ("danger text (live)", bgname, "danger-300", bg, "text"),
+        ("success text", bgname, "success-300", bg, "text"),
+        ("warning text", bgname, "warning-300", bg, "text"),
+        ("info text", bgname, "info-300", bg, "text"),
+        ("ring (focus, inverse)", bgname, "gold-500", bg, "ui"),
+        ("border-input (inverse)", bgname, "sand-500", bg, "ui"),
+    ]
+for t in ("success", "warning", "danger", "info"):
+    sub = blend(P[f"{t}-300"], P["brown-900"], .16)
+    INV += [
+        (f"badge {t} (inverse subtle)", f"{t}-300@16%/brown-900", f"{t}-300", sub, "text"),
+        (f"badge {t} (inverse solid)", f"{t}-300", "ink", f"{t}-300", "text"),
+    ]
+INV += [
+    ("badge neutral (inverse)", "brown-800", "sand-200", "brown-800", "text"),
+    ("primary btn on inverse (gold)", "gold-500", "ink", "gold-500", "text"),
+    ("text on inverse-surface card", "brown-800", "sand-50", "brown-800", "text"),
+    ("text-muted on inverse-surface", "brown-800", "sand-300", "brown-800", "text"),
+    ("countdown digits", "ink", "gold-500", "ink", "text"),
+    ("nav item active text", "blend gold .16/brown-900", "sand-50", blend(P["gold-500"], P["brown-900"], .16), "text"),
+    ("sidebar counter", "gold-500", "ink", "gold-500", "text"),
+]
+
+# ---------- what the current mockups actually render (audit) ----------
+B = P["brown-900"]
+MOCK = [
+    (".side .grp (group label 11px)", "brown-900", "brown-500", B, "text"),
+    (".side a (nav text)", "brown-900", "sand-200", B, "text"),
+    (".livepill on souq hero", "danger .18 over brown-900", "#F2C7BE", blend(P["danger-700"], B, .18), "text"),
+    (".livepill vendor topbar", "#F4E6E3", "danger-700", "#F4E6E3", "text"),
+    (".p-success", "#E7EFE9", "success-700", "#E7EFE9", "text"),
+    (".p-warning", "#F3ECE1", "warning-700", "#F3ECE1", "text"),
+    (".p-info", "#E5ECF1", "info-700", "#E5ECF1", "text"),
+    (".offer.declined (opacity .75) muted text", "sand-100@.75/sand-50",
+     blend(P["muted"], P["sand-50"], .75), blend(P["sand-100"], P["sand-50"], .75), "text"),
+    (".offer.declined (opacity .75) ink name", "sand-100@.75/sand-50",
+     blend(P["ink"], P["sand-50"], .75), blend(P["sand-100"], P["sand-50"], .75), "text"),
+    (".reqrow.new muted meta", "#FFFDF8", "muted", "#FFFDF8", "text"),
+    (".opts gold-700 12px", "white", "gold-700", "white", "text"),
+    (".lock warning 11px", "white", "warning-700", "white", "text"),
+    (".banner p / .souq-hero p", "brown-900", "sand-200", B, "text"),
+    (":focus-visible gold-500 on page", "sand-50", "gold-500", "sand-50", "ui"),
+    (":focus-visible gold-500 on card", "white", "gold-500", "white", "ui"),
+    (".input border sand-200", "white", "sand-200", "white", "ui"),
+    (".input.focus border gold-500", "white", "gold-500", "white", "ui"),
+    (".tabs span.on underline gold-500", "white", "gold-500", "white", "ui"),
+    (".btn-bargain border gold-500 (النص يعرّف الزر)", "white", "gold-500", "white", "deco"),
+    (".bar fill danger vs track", "sand-200", "danger-700", "sand-200", "ui"),
+    ("gold-500 as text on light (forbidden)", "sand-50", "gold-500", "sand-50", "text"),
+    ("gold-600 as text on light", "sand-50", "gold-600", "sand-50", "text"),
+    ("shadcn default focus ring-ring/50", "white", blend(P["gold-700"], P["white"], .5), "white", "ui"),
+]
+
+def rows(pairs):
+    out = []
+    for name, bgname, fg, bg, kind in pairs:
+        f, b = c(fg), c(bg)
+        r = ratio(f, b)
+        out.append((name, fg, f, bgname, b, kind, r, verdict(r, kind)))
+    return out
+
+def table(title, pairs):
+    print(f"\n#### {title}\n")
+    print("| الاستخدام | الأمامي | الخلفية | النوع | النسبة | النتيجة |")
+    print("|---|---|---|---|---:|---|")
+    fails = 0
+    for name, fg, f, bgname, b, kind, r, v in rows(pairs):
+        fails += v == "FAIL"
+        fgl = f"`{fg}` {f}" if fg != f else f"`{f}`"
+        print(f"| {name} | {fgl} | `{bgname}` {b} | {kind} | {r:.2f} | {'**FAIL**' if v == 'FAIL' else v} |")
+    print(f"\n_{len(pairs)} زوج — فشل: {fails}_")
+    return fails
+
+if __name__ == "__main__":
+    tf = table("الوضع الفاتح (الافتراضي)", LIGHT)
+    ti = table("النطاق المعكوس (inverse: الهيدر، شريط عروض الساعة، رأس السوق، Sidebar)", INV)
+    table("تدقيق المسودة الحالية (docs/design/mockups) — للمراجعة فقط", MOCK)
+    sys.exit(1 if (tf or ti) else 0)
+```
+
+## الملحق ب: مصادر القياس
+- ملفات الخط: `@fontsource/ibm-plex-sans-arabic@5.3.0` (نفس ملفات Google Fonts). الأحجام بـ `ls -l`، والـ features والـ cmap والمقاييس بـ fontTools، والتحقق من التشكيل بـ uharfbuzz.
+- الـ subset المقترح بُني بـ `pyftsubset` وقيس مباشرة (القسم 3.2).

@@ -1,0 +1,577 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-17T23:51:06Z"
+ },
+ "title": "سوق الزل — تصاميم P0",
+ "launch": {
+  "view": "canvas",
+  "page": "base"
+ },
+ "pages": [
+  {
+   "id": "base",
+   "name": "الأساسيات"
+  },
+  {
+   "id": "store",
+   "name": "المتجر"
+  },
+  {
+   "id": "souq",
+   "name": "سوق الزل والفصال"
+  },
+  {
+   "id": "dash",
+   "name": "لوحات الإدارة والتاجر"
+  }
+ ],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 260,
+   "w": 1600,
+   "h": 1000,
+   "title": "الفهرس",
+   "page": "base"
+  },
+  "Foundations.dc.html": {
+   "x": 0,
+   "y": 1720,
+   "w": 1440,
+   "h": 1240,
+   "title": "Design tokens",
+   "page": "base"
+  },
+  "Components.dc.html": {
+   "x": 1520,
+   "y": 1720,
+   "w": 1440,
+   "h": 2300,
+   "title": "المكونات",
+   "page": "base"
+  },
+  "Home-mobile.dc.html": {
+   "x": 0,
+   "y": 260,
+   "w": 390,
+   "h": 4000,
+   "title": "Home · جوال",
+   "page": "store"
+  },
+  "Home-desktop.dc.html": {
+   "x": 470,
+   "y": 260,
+   "w": 1440,
+   "h": 2900,
+   "title": "Home · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Home-states.dc.html": {
+   "x": 1990,
+   "y": 260,
+   "w": 1760,
+   "h": 880,
+   "title": "Home · الحالات",
+   "page": "store"
+  },
+  "Category-mobile.dc.html": {
+   "x": 0,
+   "y": 4720,
+   "w": 390,
+   "h": 3000,
+   "title": "Category · جوال",
+   "page": "store"
+  },
+  "Category-filters-mobile.dc.html": {
+   "x": 470,
+   "y": 4720,
+   "w": 390,
+   "h": 1640,
+   "title": "Category-filters · جوال",
+   "page": "store"
+  },
+  "Category-desktop.dc.html": {
+   "x": 940,
+   "y": 4720,
+   "w": 1440,
+   "h": 2200,
+   "title": "Category · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Category-states.dc.html": {
+   "x": 2460,
+   "y": 4720,
+   "w": 1760,
+   "h": 880,
+   "title": "Category · الحالات",
+   "page": "store"
+  },
+  "Product-mobile.dc.html": {
+   "x": 0,
+   "y": 8180,
+   "w": 390,
+   "h": 3700,
+   "title": "Product · جوال",
+   "page": "store"
+  },
+  "Product-mobile-en.dc.html": {
+   "x": 470,
+   "y": 8180,
+   "w": 390,
+   "h": 2100,
+   "title": "Product · جوال LTR",
+   "page": "store"
+  },
+  "Product-desktop.dc.html": {
+   "x": 940,
+   "y": 8180,
+   "w": 1440,
+   "h": 2500,
+   "title": "Product · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Product-states.dc.html": {
+   "x": 2460,
+   "y": 8180,
+   "w": 1760,
+   "h": 880,
+   "title": "Product · الحالات",
+   "page": "store"
+  },
+  "Cart-mobile.dc.html": {
+   "x": 0,
+   "y": 12340,
+   "w": 390,
+   "h": 2400,
+   "title": "Cart · جوال",
+   "page": "store"
+  },
+  "Checkout-mobile.dc.html": {
+   "x": 470,
+   "y": 12340,
+   "w": 390,
+   "h": 2500,
+   "title": "Checkout · جوال",
+   "page": "store"
+  },
+  "Checkout-desktop.dc.html": {
+   "x": 940,
+   "y": 12340,
+   "w": 1440,
+   "h": 1240,
+   "title": "Checkout · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Cart-states.dc.html": {
+   "x": 2460,
+   "y": 12340,
+   "w": 1760,
+   "h": 1720,
+   "title": "Cart · الحالات",
+   "page": "store"
+  },
+  "Login-mobile.dc.html": {
+   "x": 0,
+   "y": 15300,
+   "w": 390,
+   "h": 844,
+   "title": "Login · جوال",
+   "page": "store"
+  },
+  "OTP-mobile.dc.html": {
+   "x": 470,
+   "y": 15300,
+   "w": 390,
+   "h": 844,
+   "title": "OTP · جوال",
+   "page": "store"
+  },
+  "Login-desktop.dc.html": {
+   "x": 940,
+   "y": 15300,
+   "w": 1440,
+   "h": 1100,
+   "title": "Login · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Login-staff-desktop.dc.html": {
+   "x": 2460,
+   "y": 15300,
+   "w": 1440,
+   "h": 900,
+   "title": "Login-staff · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Login-states.dc.html": {
+   "x": 3980,
+   "y": 15300,
+   "w": 1330,
+   "h": 1720,
+   "title": "Login · الحالات",
+   "page": "store"
+  },
+  "Souq-mobile.dc.html": {
+   "x": 0,
+   "y": 260,
+   "w": 390,
+   "h": 4200,
+   "title": "Souq · جوال",
+   "page": "souq"
+  },
+  "Souq-desktop.dc.html": {
+   "x": 470,
+   "y": 260,
+   "w": 1440,
+   "h": 2600,
+   "title": "Souq · ديسكتوب",
+   "page": "souq",
+   "expand": "fill"
+  },
+  "Souq-states.dc.html": {
+   "x": 1990,
+   "y": 260,
+   "w": 1760,
+   "h": 1720,
+   "title": "Souq · الحالات",
+   "page": "souq"
+  },
+  "Bargain-mobile.dc.html": {
+   "x": 0,
+   "y": 4920,
+   "w": 390,
+   "h": 1260,
+   "title": "Bargain · جوال",
+   "page": "souq",
+   "is_interactive": true
+  },
+  "Bargain-desktop.dc.html": {
+   "x": 470,
+   "y": 4920,
+   "w": 1440,
+   "h": 1040,
+   "title": "Bargain · ديسكتوب",
+   "page": "souq",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Bargain-states.dc.html": {
+   "x": 1990,
+   "y": 4920,
+   "w": 1760,
+   "h": 1720,
+   "title": "Bargain · الحالات",
+   "page": "souq"
+  },
+  "RequestNew-mobile.dc.html": {
+   "x": 0,
+   "y": 7100,
+   "w": 390,
+   "h": 1700,
+   "title": "RequestNew · جوال",
+   "page": "souq"
+  },
+  "RequestNew-states.dc.html": {
+   "x": 470,
+   "y": 7100,
+   "w": 1760,
+   "h": 880,
+   "title": "RequestNew · الحالات",
+   "page": "souq"
+  },
+  "Offers-mobile.dc.html": {
+   "x": 0,
+   "y": 9260,
+   "w": 390,
+   "h": 3700,
+   "title": "Offers · جوال",
+   "page": "souq"
+  },
+  "Offers-desktop.dc.html": {
+   "x": 470,
+   "y": 9260,
+   "w": 1440,
+   "h": 1900,
+   "title": "Offers · ديسكتوب",
+   "page": "souq",
+   "expand": "fill"
+  },
+  "Offers-states.dc.html": {
+   "x": 1990,
+   "y": 9260,
+   "w": 1760,
+   "h": 1720,
+   "title": "Offers · الحالات",
+   "page": "souq"
+  },
+  "Admin-desktop.dc.html": {
+   "x": 0,
+   "y": 260,
+   "w": 1440,
+   "h": 1700,
+   "title": "Admin · ديسكتوب",
+   "page": "dash",
+   "expand": "fill"
+  },
+  "Admin-mobile.dc.html": {
+   "x": 1520,
+   "y": 260,
+   "w": 390,
+   "h": 3800,
+   "title": "Admin · جوال",
+   "page": "dash"
+  },
+  "Admin-states.dc.html": {
+   "x": 1990,
+   "y": 260,
+   "w": 1760,
+   "h": 880,
+   "title": "Admin · الحالات",
+   "page": "dash"
+  },
+  "Vendor-desktop.dc.html": {
+   "x": 0,
+   "y": 4520,
+   "w": 1440,
+   "h": 1700,
+   "title": "Vendor · ديسكتوب",
+   "page": "dash",
+   "expand": "fill"
+  },
+  "Vendor-mobile.dc.html": {
+   "x": 1520,
+   "y": 4520,
+   "w": 390,
+   "h": 3600,
+   "title": "Vendor · جوال",
+   "page": "dash"
+  },
+  "Vendor-states.dc.html": {
+   "x": 1990,
+   "y": 4520,
+   "w": 2190,
+   "h": 880,
+   "title": "Vendor · الحالات",
+   "page": "dash"
+  },
+  "VendorInbox-desktop.dc.html": {
+   "x": 0,
+   "y": 8580,
+   "w": 1440,
+   "h": 1560,
+   "title": "VendorInbox · ديسكتوب",
+   "page": "dash",
+   "expand": "fill"
+  },
+  "VendorInbox-mobile.dc.html": {
+   "x": 1520,
+   "y": 8580,
+   "w": 390,
+   "h": 1200,
+   "title": "VendorInbox · جوال",
+   "page": "dash"
+  },
+  "VendorReply-mobile.dc.html": {
+   "x": 1990,
+   "y": 8580,
+   "w": 390,
+   "h": 1640,
+   "title": "VendorReply · جوال",
+   "page": "dash"
+  },
+  "VendorInbox-states.dc.html": {
+   "x": 2460,
+   "y": 8580,
+   "w": 1330,
+   "h": 1720,
+   "title": "VendorInbox · الحالات",
+   "page": "dash"
+  },
+  "VendorBargainSettings-desktop.dc.html": {
+   "x": 0,
+   "y": 10760,
+   "w": 1440,
+   "h": 1120,
+   "title": "VendorBargainSettings · ديسكتوب",
+   "page": "dash",
+   "expand": "fill"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Foundations.dc.html",
+  "Components.dc.html",
+  "Home-mobile.dc.html",
+  "Home-desktop.dc.html",
+  "Home-states.dc.html",
+  "Category-mobile.dc.html",
+  "Category-filters-mobile.dc.html",
+  "Category-desktop.dc.html",
+  "Category-states.dc.html",
+  "Product-mobile.dc.html",
+  "Product-mobile-en.dc.html",
+  "Product-desktop.dc.html",
+  "Product-states.dc.html",
+  "Cart-mobile.dc.html",
+  "Checkout-mobile.dc.html",
+  "Checkout-desktop.dc.html",
+  "Cart-states.dc.html",
+  "Login-mobile.dc.html",
+  "OTP-mobile.dc.html",
+  "Login-desktop.dc.html",
+  "Login-staff-desktop.dc.html",
+  "Login-states.dc.html",
+  "Souq-mobile.dc.html",
+  "Souq-desktop.dc.html",
+  "Souq-states.dc.html",
+  "Bargain-mobile.dc.html",
+  "Bargain-desktop.dc.html",
+  "Bargain-states.dc.html",
+  "RequestNew-mobile.dc.html",
+  "RequestNew-states.dc.html",
+  "Offers-mobile.dc.html",
+  "Offers-desktop.dc.html",
+  "Offers-states.dc.html",
+  "Admin-desktop.dc.html",
+  "Admin-mobile.dc.html",
+  "Admin-states.dc.html",
+  "Vendor-desktop.dc.html",
+  "Vendor-mobile.dc.html",
+  "Vendor-states.dc.html",
+  "VendorInbox-desktop.dc.html",
+  "VendorInbox-mobile.dc.html",
+  "VendorReply-mobile.dc.html",
+  "VendorInbox-states.dc.html",
+  "VendorBargainSettings-desktop.dc.html"
+ ],
+ "notes": {
+  "base_r0": {
+   "x": 0,
+   "y": 0,
+   "text": "الفهرس والمبادئ",
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "base"
+  },
+  "base_r1": {
+   "x": 0,
+   "y": 1460,
+   "text": "الهوية والمكونات",
+   "kind": "title1",
+   "maxW": 2960,
+   "page": "base"
+  },
+  "store_r0": {
+   "x": 0,
+   "y": 0,
+   "text": "الرئيسية /",
+   "kind": "title1",
+   "maxW": 3750,
+   "page": "store"
+  },
+  "store_r1": {
+   "x": 0,
+   "y": 4460,
+   "text": "التصنيف والفلاتر /c/[slug]",
+   "kind": "title1",
+   "maxW": 4220,
+   "page": "store"
+  },
+  "store_r2": {
+   "x": 0,
+   "y": 7920,
+   "text": "صفحة المنتج /p/[slug] (ومعها نسخة LTR إنجليزية)",
+   "kind": "title1",
+   "maxW": 4220,
+   "page": "store"
+  },
+  "store_r3": {
+   "x": 0,
+   "y": 12080,
+   "text": "السلة والدفع /cart → /checkout",
+   "kind": "title1",
+   "maxW": 4220,
+   "page": "store"
+  },
+  "store_r4": {
+   "x": 0,
+   "y": 15040,
+   "text": "الدخول و OTP /login",
+   "kind": "title1",
+   "maxW": 5310,
+   "page": "store"
+  },
+  "souq_r0": {
+   "x": 0,
+   "y": 0,
+   "text": "السوق الحي /souq",
+   "kind": "title1",
+   "maxW": 3750,
+   "page": "souq"
+  },
+  "souq_r1": {
+   "x": 0,
+   "y": 4660,
+   "text": "نافذة اطلب سعرك /p/[slug]?bargain=1",
+   "kind": "title1",
+   "maxW": 3750,
+   "page": "souq"
+  },
+  "souq_r2": {
+   "x": 0,
+   "y": 6840,
+   "text": "طلب منتج بسعرك /souq/request/new",
+   "kind": "title1",
+   "maxW": 2230,
+   "page": "souq"
+  },
+  "souq_r3": {
+   "x": 0,
+   "y": 9000,
+   "text": "مقارنة عروض الفصال /account/requests/[number]",
+   "kind": "title1",
+   "maxW": 3750,
+   "page": "souq"
+  },
+  "dash_r0": {
+   "x": 0,
+   "y": 0,
+   "text": "لوحة الإدارة /admin",
+   "kind": "title1",
+   "maxW": 3750,
+   "page": "dash"
+  },
+  "dash_r1": {
+   "x": 0,
+   "y": 4260,
+   "text": "لوحة التاجر /vendor",
+   "kind": "title1",
+   "maxW": 4180,
+   "page": "dash"
+  },
+  "dash_r2": {
+   "x": 0,
+   "y": 8320,
+   "text": "صندوق طلبات الأسعار /vendor/requests",
+   "kind": "title1",
+   "maxW": 3790,
+   "page": "dash"
+  },
+  "dash_r3": {
+   "x": 0,
+   "y": 10500,
+   "text": "إعدادات الفصال في نموذج المنتج",
+   "kind": "title1",
+   "maxW": 1440,
+   "page": "dash"
+  }
+ },
+ "designSystems": []
+}

@@ -1,0 +1,17 @@
+# gitleaks config (auto-loaded from the repo root by .github/workflows/security.yml).
+# Default rules + a narrow allowlist for the documented DEV-ONLY local values
+# (docker-compose.yml, .env.example, CI test env). Those services bind to
+# 127.0.0.1 / exist only inside a CI runner. Never add a real-looking value here:
+# if a real secret is found, rotate it, do not allowlist it.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "dev-only local credentials (see docs/runbooks/local-dev.md)"
+# stopwords match inside the extracted secret
+stopwords = [
+  '''_dev_only''',
+  '''-dev-secret-change-me''',
+  '''-dev-access''',
+  '''postgres_ci_only''',
+]

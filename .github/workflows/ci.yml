@@ -1,0 +1,313 @@
+# -----------------------------------------------------------------------------
+# CI — lint, typecheck, unit (Vitest + Postgres), build, e2e (Playwright), infra.
+#
+# Safe before P1-01: the `detect` job checks for package.json + package-lock.json
+# and for each npm script. Jobs whose prerequisites are missing are SKIPPED (not
+# failed) and the run summary says why. They switch on by themselves when
+# backend-engineer adds the project and the scripts named in
+# docs/runbooks/notes-for-backend.md (lint, typecheck, test, build, test:e2e,
+# db:migrate:deploy, db:seed).
+#
+# Branch protection (owner, once the GitHub repo exists): require the single
+# check "ci-ok" (and "security-ok" from security.yml).
+# -----------------------------------------------------------------------------
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  CI: "true"
+  TZ: UTC
+  # Test-only values. Nothing here is a real secret; CI never uses live keys.
+  APP_ENV: test
+  APP_URL: http://localhost:3000
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+  AUTH_URL: http://localhost:3000
+  PAYMENTS_MODE: sandbox
+  SMS_PROVIDER: console
+  WHATSAPP_PROVIDER: console
+  EMAIL_PROVIDER: console
+  JOB_SCHEDULER: local
+  REALTIME_PROVIDER: sse
+  STORAGE_PROVIDER: s3
+  S3_ENDPOINT: http://localhost:8333
+  S3_PUBLIC_ENDPOINT: http://localhost:8333
+  S3_REGION: us-east-1
+  S3_FORCE_PATH_STYLE: "true"
+  S3_ACCESS_KEY_ID: suqalzl-dev-access
+  S3_SECRET_ACCESS_KEY: suqalzl-dev-secret-change-me
+  S3_BUCKET_PUBLIC: suqalzl-public
+  S3_BUCKET_PRIVATE: suqalzl-private
+  DATABASE_URL: postgresql://suqalzl_app:suqalzl_app_dev_only@localhost:5432/suqalzl_test
+  DIRECT_URL: postgresql://suqalzl_migrator:suqalzl_migrator_dev_only@localhost:5432/suqalzl_test
+  TEST_DATABASE_URL: postgresql://suqalzl_app:suqalzl_app_dev_only@localhost:5432/suqalzl_test
+  TEST_DIRECT_URL: postgresql://suqalzl_migrator:suqalzl_migrator_dev_only@localhost:5432/suqalzl_test
+
+jobs:
+  detect:
+    name: detect project state
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      node: ${{ steps.d.outputs.node }}
+      lint: ${{ steps.d.outputs.lint }}
+      typecheck: ${{ steps.d.outputs.typecheck }}
+      test: ${{ steps.d.outputs.test }}
+      build: ${{ steps.d.outputs.build }}
+      e2e: ${{ steps.d.outputs.e2e }}
+      prisma: ${{ steps.d.outputs.prisma }}
+      migrate: ${{ steps.d.outputs.migrate }}
+      seed: ${{ steps.d.outputs.seed }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: d
+        name: Detect package.json, lockfile and npm scripts
+        run: |
+          set -euo pipefail
+          node_ready=false
+          if [ -f package.json ] && [ -f package-lock.json ]; then node_ready=true; fi
+          echo "node=$node_ready" >> "$GITHUB_OUTPUT"
+          has() { [ "$node_ready" = true ] && node -e "process.exit(require('./package.json').scripts?.['$1'] ? 0 : 1)"; }
+          for pair in lint:lint typecheck:typecheck test:test build:build e2e:test:e2e migrate:db:migrate:deploy seed:db:seed; do
+            out="${pair%%:*}"; script="${pair#*:}"
+            if has "$script"; then echo "$out=true" >> "$GITHUB_OUTPUT"; else echo "$out=false" >> "$GITHUB_OUTPUT"; fi
+          done
+          if [ "$node_ready" = true ] && [ -f prisma/schema.prisma ]; then echo "prisma=true" >> "$GITHUB_OUTPUT"; else echo "prisma=false" >> "$GITHUB_OUTPUT"; fi
+          {
+            echo "### Project state"
+            if [ "$node_ready" = true ]; then
+              echo "package.json + package-lock.json found. Jobs run for the npm scripts that exist."
+            else
+              echo "No package.json/package-lock.json yet (P1-01 not merged). Node jobs are **skipped**, not failed."
+              echo "Only the infra checks run."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_OUTPUT"
+
+  infra:
+    name: infra checks (workflows, shell, compose)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint (GitHub workflow files)
+        run: docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7.12 -color
+      - name: shellcheck
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files '*.sh')
+          if [ "${#files[@]}" -gt 0 ]; then shellcheck --severity=warning "${files[@]}"; fi
+      - name: docker compose config (with .env.example)
+        run: |
+          cp .env.example .env
+          docker compose config --quiet
+          docker compose --profile app config --quiet
+      - name: JSON config files parse
+        run: |
+          for f in docker/seaweedfs/s3.json .vscode/extensions.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" && echo "ok $f"
+          done
+      - name: .env.example contains no filled secrets
+        run: |
+          # Every *SECRET*, *TOKEN*, *_KEY and *PASSWORD* must be empty, except the
+          # documented dev-only local defaults.
+          bad=$(grep -E '^[A-Z0-9_]*(SECRET|TOKEN|_KEY|PASSWORD|_KEYS)[A-Z0-9_]*=.+' .env.example \
+            | grep -vE '^(POSTGRES_SUPERUSER_PASSWORD|DB_APP_PASSWORD|DB_MIGRATOR_PASSWORD|S3_ACCESS_KEY_ID|S3_SECRET_ACCESS_KEY|FIELD_ENCRYPTION_KEY_ID)=' || true)
+          if [ -n "$bad" ]; then echo "::error::.env.example has non-empty secret values:"; echo "$bad" | cut -d= -f1; exit 1; fi
+          echo "ok"
+
+  lint:
+    needs: detect
+    if: needs.detect.outputs.lint == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+
+  typecheck:
+    needs: detect
+    if: needs.detect.outputs.typecheck == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: prisma validate + generate
+        if: needs.detect.outputs.prisma == 'true'
+        run: |
+          npx --no-install prisma validate
+          npx --no-install prisma generate
+      - run: npm run typecheck
+
+  unit:
+    name: unit (Vitest + Postgres 16)
+    needs: detect
+    if: needs.detect.outputs.test == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_ci_only
+          POSTGRES_DB: suqalzl
+          TZ: UTC
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Bootstrap roles, test DB and extensions (same script as docker compose)
+        env:
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGPASSWORD: postgres_ci_only
+          POSTGRES_USER: postgres
+          POSTGRES_DB: suqalzl
+          POSTGRES_TEST_DB: suqalzl_test
+        run: bash docker/postgres/init/10-roles-databases-extensions.sh
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Generate per-run test secrets
+        run: |
+          for k in AUTH_SECRET OTP_HMAC_SECRET FIELD_ENCRYPTION_KEY; do echo "$k=$(openssl rand -base64 32)" >> "$GITHUB_ENV"; done
+          echo "CRON_SECRET=$(openssl rand -hex 24)" >> "$GITHUB_ENV"
+          echo "FIELD_ENCRYPTION_KEY_ID=v1" >> "$GITHUB_ENV"
+      - name: Migrate test database
+        if: needs.detect.outputs.migrate == 'true'
+        run: npm run db:migrate:deploy
+      - run: npm test
+
+  build:
+    needs: detect
+    if: needs.detect.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Generate per-run build secrets
+        run: |
+          for k in AUTH_SECRET OTP_HMAC_SECRET FIELD_ENCRYPTION_KEY; do echo "$k=$(openssl rand -base64 32)" >> "$GITHUB_ENV"; done
+          echo "CRON_SECRET=$(openssl rand -hex 24)" >> "$GITHUB_ENV"
+      - name: prisma generate
+        if: needs.detect.outputs.prisma == 'true'
+        run: npx --no-install prisma generate
+      - run: npm run build
+
+  e2e:
+    name: e2e (Playwright on the docker compose stack)
+    needs: [detect]
+    if: needs.detect.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Start postgres + storage + mail (same compose file as local dev)
+        run: |
+          cp .env.example .env
+          docker compose up -d --wait --wait-timeout 180 postgres storage mail
+          docker compose ps
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Generate per-run test secrets
+        run: |
+          {
+            for k in AUTH_SECRET OTP_HMAC_SECRET FIELD_ENCRYPTION_KEY; do echo "$k=$(openssl rand -base64 32)"; done
+            echo "CRON_SECRET=$(openssl rand -hex 24)"
+            echo "SUPER_ADMIN_PASSWORD=ci-$(openssl rand -hex 12)"
+            echo "SUPER_ADMIN_EMAIL=admin@example.com"
+            echo "MOYASAR_WEBHOOK_SECRET=$(openssl rand -hex 24)"
+          } >> "$GITHUB_ENV"
+      - name: Playwright browsers
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Migrate + seed test database
+        if: needs.detect.outputs.migrate == 'true'
+        run: |
+          npm run db:migrate:deploy
+          if [ "${{ needs.detect.outputs.seed }}" = "true" ]; then npm run db:seed; fi
+      - name: Build
+        if: needs.detect.outputs.build == 'true'
+        run: npm run build
+      - name: Run e2e
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+        run: npm run test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Service logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail 200
+
+  ci-ok:
+    name: ci-ok
+    if: always()
+    needs: [detect, infra, lint, typecheck, unit, build, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: All required jobs passed or were skipped
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in success|skipped) ;; *) echo "::error::a job ended with '$r'"; exit 1 ;; esac
+          done

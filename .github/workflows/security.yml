@@ -1,0 +1,129 @@
+# -----------------------------------------------------------------------------
+# Security — secret scan (gitleaks), dependency vulnerabilities (npm audit +
+# OSV-Scanner), and GitHub dependency review on PRs.
+#
+# Safe before P1-01: gitleaks always runs; the dependency jobs skip cleanly when
+# there is no package-lock.json. Also runs weekly so new CVEs in unchanged
+# dependencies are caught.
+# Tools are downloaded as pinned release binaries and verified against the
+# release's SHA-256 checksum file. No third-party action gets repo secrets.
+# -----------------------------------------------------------------------------
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 2 * * 0" # Sunday 02:17 UTC (05:17 Riyadh)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  GITLEAKS_VERSION: 8.30.1
+  OSV_SCANNER_VERSION: 2.7.1
+
+jobs:
+  gitleaks:
+    name: secrets (gitleaks, full history)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install gitleaks ${{ env.GITLEAKS_VERSION }} (checksum verified)
+        run: |
+          set -euo pipefail
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          tgz="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          cd "$RUNNER_TEMP"
+          curl -sSfLO "$base/$tgz"
+          curl -sSfLO "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          grep " ${tgz}\$" "gitleaks_${GITLEAKS_VERSION}_checksums.txt" | sha256sum -c -
+          tar -xzf "$tgz" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Scan git history (values redacted in the log)
+        run: gitleaks git --redact --no-banner --verbose --exit-code 1 .
+
+  dependencies:
+    name: dependencies (npm audit + OSV-Scanner)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: lock
+        run: |
+          if [ -f package-lock.json ]; then echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "No package-lock.json yet (P1-01 not merged): dependency audit skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.lock.outputs.present == 'true'
+        with:
+          node-version-file: .nvmrc
+      - name: npm audit — fail on high/critical in production dependencies
+        if: steps.lock.outputs.present == 'true'
+        run: npm audit --omit=dev --audit-level=high
+      - name: npm audit — full report (dev dependencies included, informational)
+        if: steps.lock.outputs.present == 'true'
+        continue-on-error: true
+        run: npm audit --audit-level=moderate
+      - name: Install OSV-Scanner ${{ env.OSV_SCANNER_VERSION }} (checksum verified)
+        if: steps.lock.outputs.present == 'true'
+        run: |
+          set -euo pipefail
+          base="https://github.com/google/osv-scanner/releases/download/v${OSV_SCANNER_VERSION}"
+          cd "$RUNNER_TEMP"
+          curl -sSfLO "$base/osv-scanner_linux_amd64"
+          curl -sSfLO "$base/osv-scanner_SHA256SUMS"
+          grep " osv-scanner_linux_amd64\$" osv-scanner_SHA256SUMS | sha256sum -c -
+          install -m 0755 osv-scanner_linux_amd64 "$RUNNER_TEMP/osv-scanner"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: OSV-Scanner (lockfiles, recursive)
+        if: steps.lock.outputs.present == 'true'
+        run: osv-scanner scan source --recursive --allow-no-lockfiles .
+
+  dependency-review:
+    name: dependency review (PR diff)
+    # GitHub's dependency review needs the dependency graph; on PRIVATE repos it
+    # also needs GitHub Advanced Security / Code Security (paid). Enable by setting
+    # the repository variable DEPENDENCY_REVIEW_ENABLED=true once available.
+    if: >-
+      github.event_name == 'pull_request' &&
+      (github.event.repository.private == false || vars.DEPENDENCY_REVIEW_ENABLED == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5.0.1
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: never
+
+  security-ok:
+    name: security-ok
+    if: always()
+    needs: [gitleaks, dependencies, dependency-review]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in success|skipped) ;; *) echo "::error::a job ended with '$r'"; exit 1 ;; esac
+          done

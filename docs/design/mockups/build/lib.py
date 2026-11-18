@@ -13,6 +13,7 @@ C = dict(
     subg='#E8F1EA', wabg='#F8EEDC', dabg='#F8E7E3', infbg='#E6EEF4',
     # tokens.md 1.0 additions
     b8='#3B2B21', b6='#5C4334', g50='#FAF3E3', g3='#DDBE7C', s300='#BCAA92', d3='#F0A08F',
+    wa6='#16803E', wa7='#15783A',   # tokens 1.1 whatsapp / whatsapp-hover (FAB only)
     line='#8F7B66',      # --input (sand-500): field borders, 4.04:1 on white
     ctl='#6E5240',       # checkbox / radio border (brown-500) 7.13:1
     ondark='#BCAA92',    # muted-foreground inside inverse scope (sand-300)
@@ -125,11 +126,26 @@ def fmt(v, compact=False):
         s = s[:-3]
     return s
 
-def sar(v, size=15, w=700, c=None, compact=False, strike=False):
+# Saudi riyal sign U+20C1 (tokens 8.4). The official SAMA glyph is not available in this environment,
+# so the sign is drawn as a labelled dashed PLACEHOLDER of the exact size/position: height 0.698em
+# (= Plex digit height), on the baseline, LEFT of the number in both directions, U+00A0 between.
+RIYAL_PH = ('<span class="riyal" role="img" aria-label="%s" title="مكان رمز الريال الرسمي U+20C1 (placeholder حتى يُضاف ملف ساما)" '
+            'style="display: inline-block; width: 0.62em; height: 0.698em; border: 1px dashed currentColor; border-radius: 2px; vertical-align: baseline; box-sizing: border-box"></span>')
+
+def riyal(lang='ar'):
+    return RIYAL_PH % ('ريال سعودي' if lang == 'ar' else 'Saudi riyal')
+
+def price_markup(amount, lang='ar'):
+    if lang == 'ar':
+        return '<bdi class="price" dir="rtl" style="white-space: nowrap"><bdi dir="ltr">%s</bdi>\u00a0%s</bdi>' % (amount, riyal('ar'))
+    return '<bdi class="price" dir="ltr" style="white-space: nowrap">%s\u00a0<bdi dir="ltr">%s</bdi></bdi>' % (riyal('en'), amount)
+
+def sar(v, size=15, w=700, c=None, compact=False, strike=False, lang='ar'):
     c = c or C['ink']
-    inner = '<bdi dir="ltr">%s</bdi>\u00a0<span aria-hidden="true">ر.س</span><span class="sr">ريال</span>' % fmt(v, compact)
+    inner = price_markup(fmt(v, compact), lang)
     if strike:
-        return ('<span style="font-size: %dpx; font-weight: %d; color: %s; white-space: nowrap"><span class="sr">السعر قبل الخصم </span><s>%s</s></span>' % (size, w, c, inner))
+        return ('<span style="font-size: %dpx; font-weight: %d; color: %s; white-space: nowrap"><span class="sr">%s</span><s>%s</s></span>' % (
+            size, w, c, 'السعر قبل الخصم ' if lang == 'ar' else 'Was ', inner))
     return '<span style="font-size: %dpx; font-weight: %d; color: %s; white-space: nowrap">%s</span>' % (size, w, c, inner)
 
 def num(t):
@@ -137,12 +153,14 @@ def num(t):
 
 # ---------------------------------------------------------------- buttons
 def btn(label, kind='primary', size='md', icon=None, full=False, href=None, disabled=False, icon_end=None, extra=''):
-    h = {'xs': 36, 'sm': 44, 'md': 44, 'lg': 52}[size]
-    fs = {'xs': 14, 'sm': 14, 'md': 16, 'lg': 16}[size]
-    px = {'xs': 12, 'sm': 14, 'md': 18, 'lg': 22}[size]
+    size = {'sm': 'md', 'xs': 'dense'}.get(size, size)   # tokens 1.1: sizes are md 44 / lg 52 / dense 36
+    h = {'dense': 36, 'md': 44, 'lg': 52}[size]
+    fs = {'dense': 14, 'md': 16, 'lg': 16}[size]
+    px = {'dense': 12, 'md': 16, 'lg': 22}[size]
     k = {
         'primary': (C['ink'], C['s50'], C['ink']),
         'gold': (C['g5'], C['ink'], C['g5']),
+        'primary-inverse': (C['g5'], C['ink'], C['g5']),   # Button variant=primary rendered inside data-surface=inverse
         'secondary': ('transparent', C['ink'], C['ink']),
         'bargain': (C['w'], C['g7'], C['g5']),
         'bargain-dark': ('transparent', C['g5'], C['g5']),
@@ -160,7 +178,7 @@ def btn(label, kind='primary', size='md', icon=None, full=False, href=None, disa
              'border-radius: 8px; border: %s solid %s; background: %s; color: %s; font-family: inherit; font-size: %dpx; font-weight: 600; '
              'text-decoration: none; white-space: nowrap; cursor: pointer;%s%s') % (
         h, px, bw, bd, bg, fg, fs, ' width: 100%;' if full else '', extra)
-    inner = (ic(icon, 18 if size != 'sm' else 16) if icon else '') + '<span>%s</span>' % label + (ic(icon_end, 18) if icon_end else '')
+    inner = (ic(icon, 16 if size == 'dense' else 18) if icon else '') + '<span>%s</span>' % label + (ic(icon_end, 18) if icon_end else '')
     if href:
         return '<a href="%s" style="%s">%s</a>' % (href, style, inner)
     return '<button type="button"%s style="%s">%s</button>' % (' disabled="disabled"' if disabled else '', style, inner)
@@ -241,17 +259,29 @@ def timer_inline(t, tone='warning', icon='clock', label=None):
         fg, ic(icon, 16), ('<span>%s</span>' % label) if label else '', t)
 
 def stockbar(left, total, dark=False, urgent=False):
+    # StockMeter (tokens 11.3): text carries the info, the bar is decorative. low (<= 3) -> urgent fill.
+    urgent = urgent or (0 < left <= 3)
     pct = max(4, int(round(100.0 * (total - left) / total)))
     track = C['b7'] if dark else C['s200']
     fill = (C['g5'] if dark else C['b7']) if not urgent else (C['d3'] if dark else C['da'])
     fg = C['s50'] if dark else C['ink']
     sub = C['ondark'] if dark else C['mu']
     return ('<div style="display: flex; flex-direction: column; gap: 6px">'
-            '<div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: %s; font-weight: 600">باقي %s قطع</span>'
+            '<div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: %s; font-weight: 600">%s</span>'
             '<span style="color: %s">بيع %s من %s</span></div>'
-            '<div role="progressbar" aria-label="المباع من الكمية" aria-valuemin="0" aria-valuemax="%d" aria-valuenow="%d" style="height: 6px; border-radius: 999px; background: %s; overflow: hidden">'
+            '<div aria-hidden="true" style="height: 6px; border-radius: 999px; background: %s; overflow: hidden">'
             '<div style="width: %d%%; height: 100%%; background: %s; border-radius: 999px"></div></div></div>') % (
-        fg, num(left), sub, num(total - left), num(total), total, total - left, track, pct, fill)
+        (C['d3'] if dark else C['da']) if urgent else fg, qty_text(left), sub, num(total - left), num(total), track, pct, fill)
+
+def qty_text(n):
+    # Arabic plural (ICU in messages): قطعة / قطعتان / قطع / قطعة (11+)
+    if n == 1:
+        return 'باقي قطعة واحدة'
+    if n == 2:
+        return 'باقي قطعتان'
+    if 3 <= n <= 10:
+        return 'باقي %s قطع' % num(n)
+    return 'باقي %s قطعة' % num(n)
 
 # ------------------------------------------------------------------ forms
 def field(label, value='', ph='', suffix=None, helper=None, error=None, fid='f', big=False, prefix_icon=None, success=None):
@@ -431,8 +461,9 @@ def cat_rail(active=None, dark=True):
     return out + '</nav>'
 
 def wa_float(bottom=24):
-    return ('<a href="#" aria-label="تواصل معنا عبر واتساب" style="position: absolute; bottom: %dpx; inset-inline-end: 16px; width: 52px; height: 52px; border-radius: 50%%; background: %s; color: %s; '
-            'display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(22,18,14,.10); z-index: 30">%s</a>') % (bottom, C['su'], C['w'], ic('msg', 24))
+    # WhatsAppFab (tokens 1.1): whatsapp #16803E, hover #15783A, 56x56, shadow-md, no motion, end side.
+    return ('<a href="#" class="wa" aria-label="تواصل معنا عبر واتساب" style="position: absolute; bottom: %dpx; inset-inline-end: 16px; width: 56px; height: 56px; border-radius: 50%%; background: %s; color: %s; '
+            'display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(22,18,14,.10); z-index: 30">%s</a>') % (bottom, C['wa6'], C['w'], ic('msg', 26))
 
 def footer_m():
     links = ['من نحن', 'الأسئلة الشائعة', 'الشحن والتوصيل', 'الاسترجاع والاستبدال', 'الخصوصية', 'الشروط والأحكام', 'بِع في سوق الزل']
@@ -482,9 +513,9 @@ def footer_d():
                '<div aria-label="طرق الدفع المتاحة" style="display: flex; gap: 6px">' + ''.join('<span style="padding: 4px 10px; border: 1px solid %s; border-radius: 4px; font-size: 12px; direction: ltr">%s</span>' % (C['b5'], p) for p in pays) + '</div>', 16, 'center', 'space-between', True)
     return out + '</div></footer>'
 
-def ribbon(text='بيانات توضيحية'):
-    return ('<div style="position: absolute; top: 0; inset-inline-end: 0; z-index: 20; background: %s; color: %s; font-size: 12px; font-weight: 600; padding: 4px 10px; border-end-start-radius: 8px; pointer-events: none" aria-hidden="true">%s</div>'
-            % (C['g5'], C['ink'], text))
+def ribbon(text='بيانات توضيحية · المربع المتقطع = مكان رمز الريال الرسمي (مؤقت)'):
+    return ('<div style="position: absolute; top: 0; inset-inline-end: 0; z-index: 20; background: %s; color: %s; font-size: 12px; font-weight: 600; padding: 4px 10px; border-end-start-radius: 8px; pointer-events: none; display: flex; align-items: center; gap: 6px" aria-hidden="true">'
+            '<span style="display: inline-block; width: 0.62em; height: 0.698em; border: 1px dashed currentColor; border-radius: 2px"></span>%s</div>' % (C['g5'], C['ink'], text))
 
 def breadcrumbs(items):
     out = '<nav aria-label="مسار التصفح"><ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 13px">'
@@ -563,23 +594,23 @@ def deal_card_row(d, holes=None):
         acts = row(btn('نبّهني بعروض مشابهة', 'secondary', 'sm', 'bell'), 8)
         stock = '<p style="margin: 0; font-size: 13px; color: %s">بيعت كل القطع (%s)</p>' % (C['mu'], num(d['total']))
     else:
-        tone = 'danger' if urgent else 'warning'
+        tone = 'warning' if (d['t'][0] == 0 and d['t'][1] < 10) else 'neutral'
         timer = timer_inline('%02d:%02d:%02d' % d['t'] if not holes else holes, tone, 'clock', 'ينتهي خلال ')
         stock = stockbar(d['left'], d['total'], False, urgent)
-        a = btn('اشترِ الآن', 'gold', 'sm', extra=' flex: 1;')
+        a = btn('اشترِ الآن', 'primary', 'md', extra=' flex: 1; padding: 0 12px;')
         if d.get('bargain'):
-            a += btn('فاصل', 'bargain', 'sm', 'hand', href='Bargain-mobile.dc.html')
+            a += btn('فاصل', 'bargain', 'md', 'hand', href='Bargain-mobile.dc.html', extra=' padding: 0 12px;')
         acts = row(a, 8)
     return ('<article style="display: flex; gap: 12px; padding: 12px; background: %s; border: 1px solid %s; border-radius: 8px">%s'
             '<div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0">%s%s'
             '<h3 style="margin: 0; font-size: 14px; line-height: 22px; font-weight: 600"><a href="#" style="color: %s; text-decoration: none">%s</a></h3>'
             '<div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap">%s%s</div>%s%s</div></article>') % (
-        C['w'], C['da'] if urgent else C['s200'], img, timer, vendor_line(d), C['ink'], d['name'],
+        C['w'], C['s200'], img, timer, vendor_line(d), C['ink'], d['name'],
         sar(d['price'], 16, 700), sar(d['was'], 13, 400, C['mu'], False, True), stock, acts)
 
 def deal_card_feature(d, holes=None, dark=True):
     """Hero flash deal on brown-900."""
-    acts = btn('اشترِ الآن', 'gold', 'md', extra=' flex: 1;')
+    acts = btn('اشترِ الآن', 'primary-inverse', 'md', extra=' flex: 1;')
     if d.get('bargain'):
         acts += btn('فاصل', 'bargain-dark', 'md', 'hand', href='Bargain-mobile.dc.html')
     return ('<article style="display: flex; flex-direction: column; gap: 14px; padding: 16px; background: %s; border: 1px solid %s; border-radius: 12px">'
@@ -700,6 +731,7 @@ s{text-decoration-thickness:1px}
 .skel{animation:szsk 1.4s ease-in-out infinite}
 @keyframes szsk{0%,100%{opacity:1}50%{opacity:.55}}
 @media (prefers-reduced-motion: reduce){.pulse,.skel{animation:none}}
+.wa{transition:none}.wa:hover{background:#15783A !important}
 </style>
 </helmet>"""
 
@@ -736,9 +768,18 @@ def _norm_style(m):
         st += ' line-height: %dpx' % LH[f]
     return 'style="%s"' % st.strip()
 
+_NUM_RS = re.compile(r'(\u2212?[0-9][0-9,]*(?:\.[0-9]+)?)(?:\s|\u00a0)?ر\.س')
+
+def _riyal_text(m):
+    t = m.group(1)
+    t = _NUM_RS.sub(lambda n: price_markup(n.group(1), 'ar'), t)
+    t = t.replace('ر.س', riyal('ar'))
+    return '>' + t + '<'
+
 def normalize(html):
-    """Enforce tokens.md 3.3: one type scale (12..36), its line-heights, weights 400/600/700."""
-    return re.sub(r'style="([^"]*)"', _norm_style, html)
+    """Enforce tokens.md 3.3 (type scale 12..36, line-heights, weights 400/600/700) and 8.4 (riyal sign instead of text)."""
+    html = re.sub(r'style="([^"]*)"', _norm_style, html)
+    return re.sub(r'>([^<>]*ر\.س[^<>]*)<', _riyal_text, html)
 
 def doc(title, body, w, h, fluid=False, js=None, bg=None, dark_surface=False, lang='ar'):
     d = 'rtl' if lang == 'ar' else 'ltr'
@@ -747,8 +788,19 @@ def doc(title, body, w, h, fluid=False, js=None, bg=None, dark_surface=False, la
     else:
         root = '<div dir="%s" lang="%s" style="position: relative; width: %dpx; height: %dpx; overflow: hidden; background: %s; color: %s; font-family: %s; font-size: 16px; line-height: 26px; display: flex; flex-direction: column">' % (d, lang, w, h, bg or C['s50'], C['ink'], FONT)
     props = '{"$preview":{"width":%d,"height":%d}}' % (w, h)
-    rib = ribbon() if lang == 'ar' else ribbon('Illustrative data')
+    rib = ribbon() if lang == 'ar' else ribbon('Illustrative data · dashed box = official riyal sign (placeholder)')
     html = ('<!doctype html>\n<html lang="%s" dir="%s">\n<head>\n<meta charset="utf-8">\n<title>%s</title>\n<script src="./support.js"></script>\n</head>\n<body>\n<x-dc>\n%s\n%s%s%s</div>\n</x-dc>\n'
             '<script type="text/x-dc" data-dc-script data-props=\'%s\'>\n%s\n</script>\n</body>\n</html>\n') % (
         lang, d, title, HELMET, root, rib, normalize(body), props, js or STATIC_JS)
     return html
+
+
+def otp6(vals='', err=False, fid='otp', label='رمز التحقق'):
+    """InputOTP (D20): ONE real input (autocomplete=one-time-code) drawn over 6 visual boxes. 24px (input-lg)."""
+    vals = (vals + '      ')[:6]
+    boxes = ''.join('<span style="width: 48px; height: 56px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; background: %s; border: %s solid %s; font-size: 24px; font-weight: 700; color: %s">%s</span>' % (
+        C['w'], '2px' if (v.strip() or err or i == len(vals.rstrip())) else '1px', C['da'] if err else (C['ink'] if (v.strip() or i == len(vals.rstrip())) else C['line']), C['ink'], v.strip()) for i, v in enumerate(vals))
+    return ('<div style="position: relative; display: flex; justify-content: center"><label for="%s" class="sr">%s من 6 أرقام</label>'
+            '<div aria-hidden="true" style="display: flex; gap: 8px; direction: ltr">%s</div>'
+            '<input id="%s" value="%s" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr"%s style="position: absolute; inset: 0; width: 100%%; opacity: 0; font-size: 24px; border: 0; background: transparent">'
+            '</div>') % (fid, label, boxes, fid, vals.strip(), ' aria-invalid="true"' if err else '')

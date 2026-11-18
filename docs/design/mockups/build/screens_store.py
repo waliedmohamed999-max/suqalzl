@@ -20,7 +20,7 @@ def cover():
              ('السعر أولاً، والثقة دائماً', 'السعر شامل الضريبة واضح في كل بطاقة، واسم التاجر وتقييمه بجانب كل عرض (O8).'),
              ('السوق حي بلا ضجيج', 'العدادات والكميات تتحدث لحظياً، لكن العروض الجديدة تظهر بزر "اعرضها" ولا تقفز الصفحة.'),
              ('الفصال عادل وسري', 'التاجر لا يرى عروض غيره، والعميل لا يرى أي حد أدنى. كل خطوة لها عداد ومهلة واضحة.'),
-             ('عربي أولاً', 'RTL كامل، خصائص منطقية، الأرقام في <bdi>، وأهداف لمس 44px، وتباين AA لكل نص.')]
+             ('عربي أولاً', 'RTL كامل، خصائص منطقية، الأرقام معزولة الاتجاه، وأهداف لمس 44px، وتباين AA لكل نص.')]
     p = ''.join(col('<h3 style="margin: 0; font-size: 16px; font-weight: 700; color: %s">%s</h3><p style="margin: 0; font-size: 14px; line-height: 22px; color: %s">%s</p>' % (C['s50'], a, C['ondark'], b), 4) for a, b in princ)
     body = ('<div data-surface="dark" style="flex: 1; background: %s; padding: 64px 72px; display: flex; gap: 64px">'
             '<div style="flex: 1.1; display: flex; flex-direction: column; gap: 28px">%s'
@@ -76,8 +76,21 @@ def foundations():
             '<div style="display: flex; flex-direction: column; gap: 12px"><h2 style="margin: 0; font-size: 20px">الزوايا والظلال</h2><div style="display: flex; gap: 16px; flex-wrap: wrap">%s%s</div></div>'
             '<div style="display: flex; flex-direction: column; gap: 8px"><h2 style="margin: 0; font-size: 20px">الزخرفة</h2>%s<p style="margin: 0; font-size: 13px; color: %s">خط ذهبي رفيع بمعيّن في الوسط، بـ CSS فقط. يُستخدم فاصلاً للأقسام الفاخرة (الهيرو، الفوتر) ولا يُكرر في كل قسم.</p></div>'
             '<div style="display: flex; flex-direction: column; gap: 8px"><h2 style="margin: 0; font-size: 20px">الحركة</h2><p style="margin: 0; font-size: 13px; line-height: 22px; color: %s">120ms للضغط، 200ms للقوائم، 320ms لفتح النوافذ والـ Sheet. الدخول ease-standard والخروج ease-exit. نبض "مباشر" كل 1.6s، ووميض "باقي X" مرة واحدة 600ms. مع reduced-motion يبقى تحديث أرقام العداد فقط.</p></div>'
-            '</section></div></div>') % (C['g7'], C['mu'], s, se, t, sp, rd, sh, ornament(C['g6'], 80), C['mu'], C['mu'])
-    OUT['Foundations.dc.html'] = doc('الهوية و Design tokens', body, 1440, 1240)
+            '</section></div>%s</div>') % (C['g7'], C['mu'], s, se, t, sp, rd, sh, ornament(C['g6'], 80), C['mu'], C['mu'], riyal_section())
+    OUT['Foundations.dc.html'] = doc('الهوية و Design tokens', body, 1440, 1720)
+
+def riyal_section():
+    ex = lambda cap, html: '<div style="display: flex; flex-direction: column; gap: 6px; padding: 14px; background: %s; border: 1px solid %s; border-radius: 8px"><span style="font-size: 12px; color: %s">%s</span>%s</div>' % (C['w'], C['s200'], C['mu'], cap, html)
+    en = '<div dir="ltr" lang="en">%s</div>'
+    cells = ''.join((
+        ex('بطاقة 16px', sar(1850, 16)), ex('صفحة المنتج 24px', sar(1850, 24)), ex('حملة 36px', sar(1850, 36)),
+        ex('قبل الخصم (muted، مشطوب)', sar(2200, 16, 400, C['mu'], strike=True)), ex('سالب في كشف الحساب', '<span style="font-size: 16px; font-weight: 700">%s</span>' % price_markup('\u2212150.00')),
+        ex('مختصر في اللوحات', '<span style="font-size: 20px; font-weight: 700">486.2 ألف\u00a0%s</span>' % riyal()), ex('English LTR', en % sar(1850, 16, lang='en')),
+        ex('على الداكن (currentColor)', '<div data-surface="inverse" style="background: %s; padding: 8px 10px; border-radius: 6px">%s</div>' % (C['b9'], sar(1387.5, 20, 700, C['s50'])))))
+    return ('<section style="display: flex; flex-direction: column; gap: 14px; padding: 24px; border: 1.5px dashed %s; border-radius: 12px; background: %s">'
+            '<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap"><h2 style="margin: 0; font-size: 20px">رمز الريال السعودي U+20C1</h2>%s</div>'
+            '<p style="margin: 0; font-size: 14px; color: %s; max-width: 980px">المربع المتقطع في كل اللوحات <strong>ليس شكل الرمز</strong>: هو مكانه وحجمه فقط (ارتفاع 0.698em = ارتفاع الأرقام، على خط الأساس، يسار الرقم في العربي والإنجليزي، وبينهما مسافة U+00A0، بلون النص نفسه، ولا يُعكس). ملف ساما الرسمي لم يُنزّل لأن الموقع محجوب عن بيئة العمل، ولم نرسم الرمز أو ننسخه من مصدر غير رسمي. عند وصول الملف إلى docs/design/assets/riyal-sign/ يُبنى خط Souq Riyal Sign (tokens 8.4.3) ويحل محل المربع تلقائياً في المكون Price.</p>'
+            '<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">%s</div></section>') % (C['g6'], C['g50'], pill('مؤقت حتى ملف ساما الرسمي', 'warning', 'alert'), C['b7'], cells)
 
 def components():
     def blk(t, inner, note=None):
@@ -377,9 +390,9 @@ def bargain_form(interactive=True, desktop=False):
     price_val = '{{priceText}}' if interactive else '1,650'
     pf = ('<div style="display: flex; flex-direction: column; gap: 8px"><label for="bp" style="font-size: 14px; font-weight: 700">سعرك للقطعة</label>'
           '<div style="display: flex; align-items: center; gap: 8px; min-height: 60px; padding: 0 16px; border-radius: 8px; border: 1.5px solid %s; background: %s">'
-          '<input id="bp" inputmode="numeric" value="%s"%s aria-describedby="bp-d" style="flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font-family: inherit; font-size: 26px; font-weight: 700; color: %s; font-variant-numeric: tabular-nums">'
+          '<input id="bp" inputmode="numeric" dir="ltr" value="%s"%s aria-describedby="bp-d" style="flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font-family: inherit; font-size: 24px; text-align: end; font-weight: 700; color: %s; font-variant-numeric: tabular-nums">'
           '<span style="font-size: 15px; color: %s; font-weight: 600">ر.س</span></div>'
-          '<p id="bp-d" style="margin: 0; font-size: 13px; color: %s; line-height: 20px">أقل سعر نقبله لطلبات هذا المنتج %s. التجار يردون عليك بالقبول أو بسعر مضاد.</p></div>') % (
+          '<p id="bp-d" style="margin: 0; font-size: 13px; color: %s; line-height: 20px">أقل سعر يُقبل في طلبات هذا المنتج %s (حد عام لكل العملاء). التجار يردون عليك بالقبول أو بسعر مضاد.</p></div>') % (
         C['ink'], C['w'], price_val, ' onChange="{{onPrice}}"' if interactive else '', C['ink'], C['mu'], C['mu'], sar(925, 13, 600, C['b7']))
     quick = '<div role="group" aria-label="اقتراحات سريعة" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">'
     for i, (lab, v) in enumerate((('−5%', 1757), ('−10%', 1665), ('−15%', 1572), ('−20%', 1480))):
@@ -451,9 +464,8 @@ def bargain_states():
                 '<div role="dialog" aria-modal="true" style="position: absolute; inset-inline: 0; bottom: 0; background: %s; border-radius: 12px 12px 0 0; display: flex; flex-direction: column; max-height: 92%%">'
                 '<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 8px 4px 16px"><h2 style="margin: 0; font-size: 18px; font-weight: 700">%s</h2>%s</div>'
                 '<div style="padding: 8px 16px 20px; display: flex; flex-direction: column; gap: 16px">%s</div>%s</div>') % (C['s50'], title, icbtn('x', 'إغلاق'), inner, foot)
-    otp = sheet(txt('نحتاج نتحقق من جوالك قبل ما نرسل طلبك للتجار. هذا يحمي التجار من الطلبات الوهمية.', 14, c=C['b7']) + field('رقم الجوال', '05x xxx xxxx', prefix_icon='phone', fid='o1', success='أرسلنا رمزاً من 4 أرقام') +
-                '<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; font-weight: 600">رمز التحقق</span><div role="group" aria-label="رمز التحقق" style="display: flex; gap: 10px; direction: ltr; justify-content: center">%s</div><span style="font-size: 13px; color: %s; text-align: center">إعادة الإرسال بعد <bdi>00:42</bdi></span></div>' % (
-                    ''.join('<input aria-label="الرقم %d" value="%s" inputmode="numeric" style="width: 56px; height: 56px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid %s; border-radius: 8px; background: %s; font-family: inherit">' % (i + 1, v, C['ink'] if v else C['line'], C['w']) for i, v in enumerate(('4', '7', '', ''))), C['mu']) +
+    otp = sheet(txt('نحتاج نتحقق من جوالك قبل ما نرسل طلبك للتجار. هذا يحمي التجار من الطلبات الوهمية.', 14, c=C['b7']) + field('رقم الجوال', '05x xxx xxxx', prefix_icon='phone', fid='o1', success='أرسلنا رمزاً من 6 أرقام') +
+                '<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; font-weight: 600">رمز التحقق</span>%s<span style="font-size: 14px; color: %s; text-align: center">إعادة الإرسال بعد <bdi dir="ltr">00:42</bdi></span></div>' % (otp6('47', fid='bo'), C['mu']) +
                 btn('تحقق وأرسل الطلب', 'primary', 'lg', full=True), 'تحقق من جوالك')
     low = sheet(field('سعرك للقطعة', '400', suffix='ر.س', fid='l1', big=True, error='السعر أقل من الحد المسموح لطلبات هذا المنتج. جرّب 925 ر.س أو أكثر.') +
                 txt('الحد يحمي التجار من الطلبات غير الواقعية، وهو نفسه لكل العملاء. ما له علاقة بأقل سعر يقبله أي تاجر.', 13, c=C['mu']) + btn('أرسل الطلب للتجار', 'primary', 'lg', 'send', True, disabled=True))
@@ -461,11 +473,13 @@ def bargain_states():
     sending = sheet('<div style="display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 24px 0"><span aria-hidden="true" class="pulse" style="width: 56px; height: 56px; border-radius: 50%%; border: 3px solid %s; border-top-color: %s"></span><p role="status" style="margin: 0; font-size: 15px; font-weight: 600">نرسل طلبك للتجار…</p><p style="margin: 0; font-size: 13px; color: %s">لا تقفل الصفحة. الزر معطل لمنع الإرسال المكرر.</p></div>' % (C['s200'], C['ink'], C['mu']) + btn('جارٍ الإرسال…', 'primary', 'lg', full=True, disabled=True))
     ok = sheet(state_panel('وصل طلبك لـ 13 تاجراً', 'طلب رقم <bdi>PR-10023</bdi>. نبلغك برسالة أول ما يوصلك عرض، وعادةً أول رد يوصل خلال ساعة.', 'check',
                            btn('تابع العروض', 'primary', 'md', href='Offers-mobile.dc.html', full=True) + btn('رجوع للمنتج', 'ghost', 'md', full=True), 'success', '<div style="margin-top: 6px">%s</div>' % timer_inline('47:59:12', 'info', 'clock', 'ينتهي الطلب خلال ')), 'تم الإرسال')
-    auto = sheet(state_panel('تم قبول سعرك فوراً', 'صاحب المنتج يقبل هذا السعر تلقائياً. حجزنا لك القطعتين بسعر 1,800.00 ر.س للقطعة.', 'zap',
-                             '<div style="display: flex; justify-content: center">%s</div>' % countdown(23, 59, 41, False, 'md', 'مهلة الدفع') + btn('ادفع الآن', 'primary', 'lg', 'lock', True, href='Cart-mobile.dc.html') + btn('لاحقاً من طلباتي', 'ghost', 'md', full=True), 'success'), 'قبول تلقائي')
+    # D22: auto-accept is delayed randomly 2-10 min server-side, so there is NO instant "accepted" state.
+    # The submit response is identical whatever the price; an accepted offer arrives later like any other offer.
+    dup = sheet(state_panel('عندك طلب مفتوح على هذا المنتج', 'طلب <bdi dir="ltr">PR-10023</bdi> ما زال مفتوحاً (طلب واحد لكل منتج). تابع عروضه من هناك.', 'hand',
+                            btn('افتح الطلب', 'primary', 'md', full=True, href='Offers-mobile.dc.html') + btn('رجوع للمنتج', 'ghost', 'md', full=True), 'info'), 'اطلب سعرك')
     neterr = sheet(field('سعرك للقطعة', '1,650', suffix='ر.س', fid='n1', big=True) + banner('ما وصل طلبك', 'انقطع الاتصال قبل الإرسال. بياناتك محفوظة، جرّب مرة ثانية.', 'danger', 'wifi-off') + btn('إعادة الإرسال', 'primary', 'lg', 'refresh', True))
     panels = (phone_panel('تحقق الجوال قبل الإرسال (O9)', otp, kind='قبل الإرسال') + phone_panel('خطأ تحقق: السعر خارج النطاق', low, kind='خطأ') + phone_panel('حد الطلبات المفتوحة', quota, kind='فارغ/حد') +
-              phone_panel('جارٍ الإرسال', sending, kind='تحميل') + phone_panel('خطأ شبكة / مهلة', neterr, kind='مهلة') + phone_panel('نجاح: وصل للتجار', ok, kind='نجاح') + phone_panel('نجاح: قبول تلقائي (autoAccept)', auto, kind='نجاح'))
+              phone_panel('جارٍ الإرسال', sending, kind='تحميل') + phone_panel('خطأ شبكة / مهلة', neterr, kind='مهلة') + phone_panel('نجاح: وصل للتجار', ok, kind='نجاح') + phone_panel('طلب مفتوح موجود (O9)', dup, kind='حد'))
     body = '<div style="padding: 40px; display: grid; grid-template-columns: repeat(4, 390px); gap: 40px">%s</div>' % panels
     OUT['Bargain-states.dc.html'] = doc('نافذة اطلب سعرك — الحالات', body, 1760, 1720)
 

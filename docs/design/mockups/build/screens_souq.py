@@ -95,14 +95,14 @@ def souq_m():
 def deal_card_v(d, holes=None):
     sold = d.get('sold')
     urgent = d.get('urgent')
-    acts = (btn('اشترِ الآن', 'gold', 'md', extra=' flex: 1;') + (btn('فاصل', 'bargain', 'md', 'hand', href='Bargain-desktop.dc.html') if d.get('bargain') else '')) if not sold else btn('نبّهني بعروض مشابهة', 'secondary', 'md', 'bell', True)
-    timer = pill('انتهى العرض', 'neutral', 'clock') if sold else timer_inline(holes or ('%02d:%02d:%02d' % d['t']), 'danger' if urgent else 'warning', 'clock', 'ينتهي خلال ')
+    acts = (btn('اشترِ الآن', 'primary', 'md', extra=' flex: 1;') + (btn('فاصل', 'bargain', 'md', 'hand', href='Bargain-desktop.dc.html') if d.get('bargain') else '')) if not sold else btn('نبّهني بعروض مشابهة', 'secondary', 'md', 'bell', True)
+    timer = pill('انتهى العرض', 'neutral', 'clock') if sold else timer_inline(holes or ('%02d:%02d:%02d' % d['t']), 'warning' if (d['t'][0] == 0 and d['t'][1] < 10) else 'neutral', 'clock', 'ينتهي خلال ')
     over = ('<span style="position: absolute; inset: 0; background: rgba(251,247,240,.78); display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 15px; font-weight: 700">نفدت الكمية</span>') if sold else ''
     return ('<article style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: %s; border: 1px solid %s; border-radius: 12px; min-width: 0">'
             '<div style="position: relative">%s<span style="position: absolute; top: 8px; inset-inline-start: 8px">%s</span>%s</div>%s%s'
             '<h3 style="margin: 0; font-size: 15px; line-height: 24px; font-weight: 600; min-height: 48px"><a href="#" style="color: %s; text-decoration: none">%s</a></h3>'
             '<div style="display: flex; align-items: baseline; gap: 8px">%s%s</div>%s<div style="display: flex; gap: 8px">%s</div></article>') % (
-        C['w'], C['da'] if urgent else C['s200'], art(d['k'], ratio='4 / 3', radius=8), disc(pct_of(d)), over, timer, vendor_line(d), C['ink'], d['name'],
+        C['w'], C['s200'], art(d['k'], ratio='4 / 3', radius=8), disc(pct_of(d)), over, timer, vendor_line(d), C['ink'], d['name'],
         sar(d['price'], 18, 700), sar(d['was'], 13, 400, C['mu'], False, True), stockbar(d['left'], d['total'], False, urgent) if not sold else '<p style="margin: 0; font-size: 13px; color: %s">بيعت كل القطع</p>' % C['mu'], acts)
 
 def souq_d():
@@ -113,7 +113,7 @@ def souq_d():
         '<div style="display: flex; align-items: center; gap: 12px"><span style="font-size: 14px; color: %s">ينتهي خلال</span>%s</div>' % (C['ondark'], countdown(0, 42, 18, True, 'lg', holes=('{{c1.h}}', '{{c1.m}}', '{{c1.s}}'))) +
         vendor_line(D[0], True) + '<h3 style="margin: 0; font-size: 24px; line-height: 36px; color: %s">%s</h3>' % (C['s50'], D[0]['name']) +
         '<div style="display: flex; align-items: baseline; gap: 12px">%s%s</div>' % (sar(1387.5, 30, 700, C['s50'], True), sar(1850, 16, 400, C['ondark'], False, True)) + stockbar(4, 20, True) +
-        '<div style="display: flex; gap: 10px">%s%s</div>' % (btn('اشترِ الآن', 'gold', 'lg', extra=' flex: 1;'), btn('فاصل', 'bargain-dark', 'lg', 'hand', href='Bargain-desktop.dc.html')))
+        '<div style="display: flex; gap: 10px">%s%s</div>' % (btn('اشترِ الآن', 'primary-inverse', 'lg', extra=' flex: 1;'), btn('فاصل', 'bargain-dark', 'lg', 'hand', href='Bargain-desktop.dc.html')))
     grid = '<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">%s</div>' % (
         deal_card_v(D[1], '{{c2.all}}') + deal_card_v(D[2], '{{c3.all}}') + deal_card_v(D[3]) + deal_card_v(D[4], '{{c4.all}}') + deal_card_v(D[5], '{{c5.all}}') + deal_card_v(dict(D[0], k='sword', name='سيف عربي مطلي — غمد مزخرف', vendor='سيوف الأنموذج', platform=False, r=4.8, price=5780, was=6800, left=1, total=3), '{{c6.all}}'))
     steps = ''.join('<li style="display: flex; gap: 12px"><span style="width: 28px; height: 28px; flex: none; border-radius: 50%%; border: 1px solid %s; color: %s; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">%s</span><span style="font-size: 14px; line-height: 22px">%s</span></li>' % (
@@ -149,13 +149,13 @@ def souq_states():
 # ============================================================== OFFERS
 OFFERS = [
     dict(v='دار المثال', av='د', r=4.8, n=212, badges=[('أسرع رد', 'gold'), ('قبول 92%', 'neutral')], status=('قبل سعرك', 'success'), prod='منتج مشابه: بشت حساوي يدوي — زري ذهبي',
-         unit=1500, qty=2, ship=35, eta='2–3 أيام', total=3035, exp='{{c7.all}}', round_='الجولة 1 من 3', best=True,
+         unit=1500, qty=2, ship=35, eta='2–3 أيام', total=3035, exp='{{c7.all}}', round_='باقي لك 3 ردود مع هذا التاجر', best=True,
          tl=[('أنت', 'طلبت', 1500, 'أمس 9:14 م'), ('التاجر', 'قبل سعرك', 1500, 'أمس 9:31 م')], kind='accept'),
     dict(v='سوق الزل', av='ز', platform=True, badges=[('صاحب المنتج', 'gold')], status=('سعر مضاد', 'warning'), prod='المنتج نفسه',
-         unit=1650, qty=2, ship=30, eta='1–2 يوم', total=3330, exp='{{c4.all}}', round_='الجولة 1 من 3',
+         unit=1650, qty=2, ship=30, eta='1–2 يوم', total=3330, exp='{{c4.all}}', round_='باقي لك 3 ردود مع هذا التاجر',
          tl=[('أنت', 'طلبت', 1500, 'أمس 9:14 م'), ('التاجر', 'رد بسعر', 1650, 'اليوم 8:02 ص')], kind='counter', open_counter=True),
     dict(v='مشغل العيّنة', av='م', r=4.5, n=58, badges=[('قبول 71%', 'neutral')], status=('بانتظار رد التاجر', 'info'), prod='منتج مشابه: بشت حساوي — صوف ياباني',
-         unit=1700, qty=2, ship=0, eta='4–6 أيام', total=3400, exp='{{c8.all}}', round_='الجولة 2 من 3',
+         unit=1700, qty=2, ship=0, eta='4–6 أيام', total=3400, exp='{{c8.all}}', round_='باقي لك ردّان مع هذا التاجر',
          tl=[('أنت', 'طلبت', 1500, 'أمس 9:14 م'), ('التاجر', 'رد بسعر', 1700, 'أمس 11:40 م'), ('أنت', 'رديت بسعر', 1560, 'اليوم 10:05 ص')], kind='waiting'),
 ]
 
@@ -191,14 +191,14 @@ def offer_card(o, compact=False):
         acts = btn('اقبل 1,650 ر.س', 'primary', 'md', 'check', True)
         if o.get('open_counter'):
             acts += ('<div style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1.5px solid %s; border-radius: 8px; background: %s">%s'
-                     '<p style="margin: 0; font-size: 12px; color: %s; line-height: 18px">بعد ردك يبقى لك جولة واحدة مع هذا التاجر. التاجر ما يشوف عروض غيره.</p><div style="display: flex; gap: 8px">%s%s</div></div>') % (
-                C['ink'], C['w'], field('سعرك المضاد للقطعة', '1,575', suffix='ر.س', helper='الجولة 2 من 3 · الإجمالي 3,180.00 ر.س مع الشحن', fid='cf', big=True), C['mu'],
+                     '<p style="margin: 0; font-size: 12px; color: %s; line-height: 18px">التاجر ما يشوف عروض غيره، ولا يشوف ردودك على التجار الآخرين.</p><div style="display: flex; gap: 8px">%s%s</div></div>') % (
+                C['ink'], C['w'], field('سعرك المضاد للقطعة', '1,575', suffix='ر.س', helper='بعد ردك يبقى لك ردّان · الإجمالي 3,180.00 ر.س مع الشحن', fid='cf', big=True), C['mu'],
                 btn('أرسل السعر', 'primary', 'md', 'send', extra=' flex: 1;'), btn('إلغاء', 'ghost', 'md'))
         else:
             acts += row(btn('سعر مضاد', 'secondary', 'md', 'hand', extra=' flex: 1;') + btn('رفض', 'ghost', 'md', extra=' flex: 1;'), 8)
     else:
         acts = ('<div style="display: flex; gap: 8px; align-items: center; padding: 10px 12px; background: %s; border-radius: 8px; font-size: 13px; color: %s">%s<span>أرسلت <strong>1,560 ر.س</strong>. ننتظر رد التاجر، ونبلغك فوراً.</span></div>' % (C['infbg'], C['inf'], ic('clock', 18))) + \
-            row(btn('اقبل 1,700 ر.س', 'secondary', 'md', extra=' flex: 1;') + btn('اسحب ردي', 'ghost', 'md', extra=' flex: 1;'), 8)
+            btn('اسحب ردي', 'secondary', 'md', 'return', True) + '<p style="margin: 0; font-size: 12px; color: %s">لقبول سعر التاجر السابق (1,700.00 ر.س) اسحب ردك أولاً.</p>' % C['mu']
     return ('<article aria-label="عرض %s" style="display: flex; flex-direction: column; background: %s; border: %s solid %s; border-radius: 12px; overflow: hidden; min-width: 0">%s'
             '<div style="display: flex; flex-direction: column; gap: 14px; padding: 16px">%s%s%s%s%s%s%s</div></article>') % (
         o['v'], C['w'], '1.5px' if o.get('best') else '1px', C['g5'] if o.get('best') else C['s200'], strip, head, prod, brk, tot, meta, '<details open="open" style="font-size: 13px"><summary style="min-height: 32px; cursor: pointer; font-weight: 600; color: %s">سجل الجولات</summary><div style="padding-top: 8px">%s</div></details>' % (C['b7'], timeline(o['tl'])), acts)
@@ -259,12 +259,12 @@ def offers_states():
         btn('ادفع الآن', 'primary', 'lg', 'lock', True, href='Cart-mobile.dc.html'))
     expired = hd + state_panel('انتهت مدة الطلب', 'مرّت 48 ساعة بدون قبول أي عرض. تقدر تعيد الطلب بنفس السعر أو تعدّله.', 'clock', btn('أعد الطلب', 'primary', 'md', 'refresh', True) + btn('عدّل السعر', 'secondary', 'md', full=True), 'warning')
     rounds = hd + '<div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">%s%s</div>' % (
-        banner('وصلت آخر جولة مع هذا التاجر', 'استخدمت 3 جولات من 3. تقدر تقبل آخر سعر (1,600 ر.س) أو ترفضه.', 'info', 'info'), row(btn('اقبل 1,600 ر.س', 'primary', 'md', extra=' flex: 1;') + btn('رفض', 'ghost', 'md'), 8) +
+        banner('استخدمت كل ردودك مع هذا التاجر', 'رديت 3 مرات من 3. تقدر تقبل آخر سعر منه (1,600.00 ر.س) أو ترفضه.', 'info', 'info'), row(btn('اقبل 1,600 ر.س', 'primary', 'md', extra=' flex: 1;') + btn('رفض', 'ghost', 'md'), 8) +
         '<p style="margin: 0; font-size: 13px; color: %s">زر "سعر مضاد" يختفي ولا يظهر معطلاً، والسبب مكتوب.</p>' % C['mu'])
     lockx = hd + state_panel('انتهت مهلة الدفع', 'ما اكتمل الدفع خلال 24 ساعة، فأُلغي الحجز ورجع المخزون للتاجر. العروض الأخرى أُغلقت.', 'lock', btn('اطلب سعرك من جديد', 'primary', 'md', 'hand', True) + btn('اشترِ بالسعر الحالي', 'secondary', 'md', full=True), 'warning')
     err = hd + '<div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">%s</div>' % banner('ما تم القبول', 'التاجر سحب العرض أو انتهت صلاحيته قبل لحظات. باقي العروض ما زالت متاحة.', 'danger', 'alert', btn('حدّث العروض', 'secondary', 'sm', 'refresh'))
     panels = (phone_panel('تحميل', load, kind='تحميل') + phone_panel('فارغ: بانتظار أول عرض', wait, kind='فارغ') + phone_panel('تأكيد القبول', confirm, kind='تأكيد') + phone_panel('بعد القبول: PriceLock', accepted, kind='نجاح') +
-              phone_panel('انتهاء مدة الطلب (48 س)', expired, kind='مهلة') + phone_panel('انتهاء مهلة الدفع (PriceLock)', lockx, kind='مهلة') + phone_panel('حد الجولات', rounds, kind='حد') + phone_panel('خطأ: العرض لم يعد متاحاً', err, kind='خطأ'))
+              phone_panel('انتهاء مدة الطلب (48 س)', expired, kind='مهلة') + phone_panel('انتهاء مهلة الدفع (PriceLock)', lockx, kind='مهلة') + phone_panel('حد الردود (maxRounds لكل طرف)', rounds, kind='حد') + phone_panel('خطأ: العرض لم يعد متاحاً', err, kind='خطأ'))
     body = '<div style="padding: 40px; display: grid; grid-template-columns: repeat(4, 390px); gap: 40px">%s</div>' % panels
     OUT['Offers-states.dc.html'] = doc('مقارنة العروض — الحالات', body, 1760, 1720, js=timer_js(TJ))
 
@@ -276,7 +276,7 @@ def cart_item(k, name, opts, price, qty, special=None, locked=False, limit=None,
             C['infbg'], pill('سعر فصال مقفول', 'info', 'lock'), timer_inline(holes or '23:12:09', 'info', 'clock', 'ينتهي الحجز ')))
     elif special == 'flash':
         sp = ('<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; background: %s; border-radius: 6px">%s%s</div>' % (
-            C['wabg'], pill('سعر عرض الساعة', 'warning', 'zap'), timer_inline(holes or '00:12:48', 'warning', 'clock', 'محجوز ')))
+            C['wabg'], pill('سعر عرض الساعة', 'warning', 'zap'), timer_inline(holes or '00:12:48', 'warning', 'clock', 'السعر ثابت ')))
     lim = '<span style="font-size: 12px; color: %s">%s</span>' % (C['mu'], limit) if limit else ''
     return ('<article style="display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border-bottom: 1px solid %s"><div style="display: flex; gap: 12px"><div style="width: 80px; flex: none">%s</div>'
             '<div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0"><h3 style="margin: 0; font-size: 14px; line-height: 22px; font-weight: 600">%s</h3><span style="font-size: 12px; color: %s">%s</span>%s%s</div>'
@@ -295,7 +295,7 @@ def shipment(n, vendor, platform, eta, fee, items):
 def cart_items():
     return (shipment(1, 'سوق الزل', True, '1–2 يوم', 25, cart_item('agal', 'عقال مرعز أسود — شغل يدوي', 'مقاس 58', 185, 1) + cart_item('saffron', 'زعفران سوبر نقي — 10 جرام', 'علبة زجاج', 145, 2)) +
             shipment(2, 'دار المثال', False, '2–3 أيام', 35, cart_item('bisht', 'بشت حساوي يدوي — زري ذهبي', 'مقاس 56 · أسود · من طلب PR-10023', 1500, 2, 'lock', True, 'الكمية والسعر مقفولان حسب العرض المقبول', '{{c7.all}}')) +
-            shipment(3, 'مباخر النموذج', False, '2–4 أيام', 30, cart_item('mabkhara', 'مبخرة نحاس مطعّمة', 'مقاس متوسط', 512, 1, 'flash', True, 'حد العرض: قطعة واحدة لكل عميل', '{{c3.all}}')))
+            shipment(3, 'مباخر النموذج', False, '2–4 أيام', 30, cart_item('mabkhara', 'مبخرة نحاس مطعّمة', 'مقاس متوسط', 512, 1, 'flash', True, 'السعر ثابت لك والكمية تتأكد عند الدفع · قطعة واحدة لكل عميل', '{{c3.all}}')))
 
 def summary(compact=False, coupon=True):
     r = lambda a, b, strong=False: '<div style="display: flex; justify-content: space-between; font-size: %dpx; %s"><span style="color: %s">%s</span>%s</div>' % (16 if strong else 14, 'font-weight: 700;' if strong else '', C['ink'] if strong else C['mu'], a, b)
@@ -310,12 +310,13 @@ def cart_m():
         C['w'], C['s200'], btn('إتمام الطلب · 4,077.00 ر.س', 'primary', 'lg', 'lock', True, href='Checkout-mobile.dc.html')))
     body = (header_m(back='#', title='السلة (6)') +
             '<div style="padding: 16px 16px 120px; display: flex; flex-direction: column; gap: 14px">%s%s%s</div>' % (
-                banner('السعر المقفول وسعر العرض لهما مهلة', 'أكمل الدفع قبل انتهاء العداد. بعد المهلة يرجع السعر للحالي وقد تتغير الكمية المتاحة.', 'info', 'clock'), cart_items(), summary()) + sticky)
+                banner('السعر المقفول وسعر العرض لهما مهلة', 'أكمل الدفع قبل انتهاء العداد. بعدها يرجع العنصر بالسعر الحالي (لو متوفر) ونوضح لك الفرق.', 'info', 'clock'), cart_items(), summary()) + sticky)
     OUT['Cart-mobile.dc.html'] = doc('السلة — جوال', body, 390, 2400, js=timer_js(TJ))
 
 def steps_bar(cur=2):
-    labels = ['العنوان', 'الشحن', 'الدفع', 'المراجعة']
-    out = '<ol aria-label="خطوات الدفع" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">'
+    labels = ['العنوان والشحن', 'الدفع والمراجعة', 'تم الطلب']   # 3 steps (frontend review #16)
+    cur = min(cur, 2)
+    out = '<ol aria-label="خطوات الدفع" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">'
     for i, l in enumerate(labels):
         done, on = i < cur, i == cur
         out += ('<li%s style="display: flex; flex-direction: column; gap: 6px"><span aria-hidden="true" style="height: 3px; border-radius: 999px; background: %s"></span>'
@@ -340,6 +341,12 @@ def pay_methods():
          radio_row('تابي', 'قسّمها على 4 دفعات بدون فوائد · 1,019.25 ر.س شهرياً', False, 'pm5', 'pm') + radio_row('تمارا', 'ادفع لاحقاً أو قسّمها · 1,019.25 ر.س شهرياً', False, 'pm6', 'pm'))
     return ('<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px"><legend style="padding: 0 0 10px; font-size: 18px; font-weight: 700">طريقة الدفع</legend>%s</fieldset>' % m)
 
+def shipments_preview():
+    rows = ''.join('<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px solid %s; font-size: 14px"><span>%s</span><span style="color: %s">%s</span>%s</div>' % (
+        C['s100'], v, C['mu'], e, sar(f, 14, 600)) for v, e, f in (('شحنة 1 · سوق الزل', '1–2 يوم', 25), ('شحنة 2 · دار المثال', '2–3 أيام', 35), ('شحنة 3 · مباخر النموذج', '2–4 أيام', 30)))
+    return ('<section style="display: flex; flex-direction: column; gap: 6px; padding: 24px; background: %s; border: 1px solid %s; border-radius: 12px"><h2 style="margin: 0; font-size: 18px">الشحنات إلى الرياض</h2>'
+            '<p style="margin: 0; font-size: 14px; color: %s">الرسوم والمدة لكل تاجر تُحسب من العنوان. لا يوجد اختيار شركة شحن للعميل.</p>%s</section>') % (C['w'], C['s200'], C['mu'], rows)
+
 def checkout_header():
     return ('<header style="background: %s; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; min-height: 60px">%s<span style="display: inline-flex; align-items: center; gap: 6px; color: %s; font-size: 13px">%sدفع آمن</span></header>' % (
         C['ink'], logo(True, 17), C['ondark'], ic('lock', 16, C['g5'])))
@@ -348,9 +355,9 @@ def checkout_m():
     sticky = ('<div style="position: absolute; bottom: 0; inset-inline: 0; z-index: 6; background: %s; border-top: 1px solid %s; padding: 10px 16px 16px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 -4px 16px rgba(22,18,14,.08)">%s'
               '<p style="margin: 0; font-size: 12px; color: %s; text-align: center">بالضغط توافق على <a href="#">الشروط والأحكام</a> و<a href="#">سياسة الاسترجاع</a></p></div>') % (C['w'], C['s200'], btn('ادفع 4,077.00 ر.س', 'primary', 'lg', 'lock', True), C['mu'])
     body = (checkout_header() + '<div style="padding: 16px 16px 150px; display: flex; flex-direction: column; gap: 14px">%s%s%s%s%s%s</div>' % (
-        steps_bar(2), done_step('العنوان', 'المنزل · محمد ع. · الرياض، حي الملقا، شارع [اسم الشارع] · <bdi>05x xxx xx12</bdi>'),
-        done_step('الشحن', '3 شحنات: سوق الزل (1–2 يوم، 25 ر.س) · دار المثال (2–3 أيام، 35 ر.س) · مباخر النموذج (2–4 أيام، 30 ر.س)'),
-        banner('حجوزات الأسعار سارية', 'سعر الفصال محجوز 23:12:09 وسعر عرض الساعة 00:12:48.', 'info', 'lock'), pay_methods(), summary(coupon=False)) + sticky)
+        steps_bar(1), done_step('العنوان والشحن', 'المنزل · محمد ع. · الرياض، حي الملقا · <bdi dir="ltr">05X XXX XX12</bdi><br>3 شحنات: سوق الزل (1–2 يوم، 25.00 ر.س) · دار المثال (2–3 أيام، 35.00 ر.س) · مباخر النموذج (2–4 أيام، 30.00 ر.س)'),
+        '',
+        banner('الأسعار المتفق عليها سارية', 'سعر الفصال محجوز لك 23:12:09، وسعر عرض الساعة ثابت 00:12:48 (الكمية تتأكد عند الدفع).', 'info', 'lock'), pay_methods(), summary(coupon=False)) + sticky)
     OUT['Checkout-mobile.dc.html'] = doc('الدفع (Checkout) — جوال', body, 390, 2500)
 
 def checkout_d():
@@ -370,8 +377,8 @@ def checkout_d():
             ('bisht', 'بشت حساوي يدوي × 2', 'دار المثال', pill('سعر فصال مقفول', 'info', 'lock'), 3000), ('mabkhara', 'مبخرة نحاس مطعّمة × 1', 'مباخر النموذج', pill('عرض الساعة', 'warning', 'zap'), 512))), summary())
     body = checkout_header().replace('padding: 8px 16px', 'padding: 8px 32px') + ('<main style="padding: 24px 32px 64px"><div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">'
             '<div style="max-width: 640px">%s</div><div style="display: flex; gap: 32px; align-items: flex-start"><div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px">%s'
-            '<section style="padding: 18px 24px; border: 1px solid %s; border-radius: 12px; color: %s; font-size: 15px; font-weight: 600">2. الشحن</section><section style="padding: 18px 24px; border: 1px solid %s; border-radius: 12px; color: %s; font-size: 15px; font-weight: 600">3. الدفع</section></div>%s</div></div></main>') % (
-        steps_bar(0), addr, C['s200'], C['mu'], C['s200'], C['mu'], side)
+            '<section style="padding: 18px 24px; border: 1px solid %s; border-radius: 12px; color: %s; font-size: 15px; font-weight: 600">2. الدفع والمراجعة</section></div>%s</div></div></main>') % (
+        steps_bar(0), addr + shipments_preview(), C['s200'], C['mu'], side)
     OUT['Checkout-desktop.dc.html'] = doc('الدفع (Checkout) — ديسكتوب', body, 1440, 1240, fluid=True)
 
 def cart_states():
@@ -382,8 +389,8 @@ def cart_states():
         banner('ما اكتمل الدفع', 'ما انخصم منك شيء، وحجزنا منتجاتك 30 دقيقة. جرّب مرة ثانية أو اختر طريقة دفع أخرى.', 'danger', 'alert'),
         radio_row('مدى', 'تم رفض العملية من البنك', True, 'e1', 'e'), radio_row('Apple Pay', None, False, 'e2', 'e')) + '<div style="padding: 0 16px">%s</div>' % btn('حاول الدفع مرة ثانية', 'primary', 'lg', 'refresh', True)
     lockx = hd + '<div style="padding: 16px; display: flex; flex-direction: column; gap: 14px">%s%s</div>' % (
-        banner('انتهى حجز سعر الفصال', 'انتهت مهلة 24 ساعة لعرض دار المثال، فشلنا العنصر من السلة ورجع المخزون للتاجر.', 'warning', 'lock', row(btn('اطلب سعرك من جديد', 'secondary', 'sm', 'hand'), 8)),
-        shipment(1, 'سوق الزل', True, '1–2 يوم', 25, cart_item('agal', 'عقال مرعز أسود — شغل يدوي', 'مقاس 58', 185, 1)))
+        banner('انتهى حجز سعر الفصال', 'انتهت مهلة 24 ساعة لعرض دار المثال، فرجع البشت بسعره الحالي 1,790.00 ر.س بدل 1,500.00 ر.س. تقدر تكمل أو تحذفه أو تطلب سعرك من جديد.', 'warning', 'lock', row(btn('اطلب سعرك من جديد', 'secondary', 'md', 'hand'), 8)),
+        shipment(2, 'دار المثال', False, '2–3 أيام', 35, cart_item('bisht', 'بشت حساوي يدوي — زري ذهبي', 'مقاس 56 · أسود', 1790, 2)))
     flash = hd + '<div style="padding: 16px; display: flex; flex-direction: column; gap: 14px">%s%s</div>' % (
         banner('انتهى حجز عرض الساعة', 'سعر المبخرة رجع من 512.00 إلى 640.00 ر.س. حدّثنا الإجمالي، وتقدر تكمل أو تحذفها.', 'warning', 'clock'),
         shipment(3, 'مباخر النموذج', False, '2–4 أيام', 30, cart_item('mabkhara', 'مبخرة نحاس مطعّمة', 'مقاس متوسط', 640, 1)))

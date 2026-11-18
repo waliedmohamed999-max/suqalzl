@@ -11,7 +11,7 @@ OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'canvas
 PAGES = [
     ('base', 'الأساسيات', [('الفهرس والمبادئ', ['Main']), ('الهوية والمكونات', ['Foundations', 'Components'])]),
     ('store', 'المتجر', [
-        ('الرئيسية /', ['Home-mobile', 'Home-desktop', 'Home-states']),
+        ('الرئيسية / والقائمة الجانبية للجوال', ['Home-mobile', 'Home-desktop', 'Home-states', 'Menu-mobile', 'Menu-states']),
         ('التصنيف والفلاتر /c/[slug]', ['Category-mobile', 'Category-filters-mobile', 'Category-desktop', 'Category-states']),
         ('صفحة المنتج /p/[slug] (ومعها نسخة LTR إنجليزية)', ['Product-mobile', 'Product-mobile-en', 'Product-desktop', 'Product-states']),
         ('السلة والدفع /cart → /checkout', ['Cart-mobile', 'Checkout-mobile', 'Checkout-desktop', 'Cart-states']),
@@ -80,7 +80,7 @@ def main():
             f.write(html)
     canvas = {
         'v': 3,
-        'createdOnFiles': {'v': 1, 'at': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')},
+        'createdOnFiles': {'v': 1, 'at': '2026-11-17T23:42:39Z'},
         'title': 'سوق الزل — تصاميم P0',
         'launch': {'view': 'canvas', 'page': 'base'},
         'pages': pages,

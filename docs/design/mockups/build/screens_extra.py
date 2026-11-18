@@ -23,6 +23,9 @@ def phone_field(val='', err=None, fid='ph'):
     return out + '</div>'
 
 def otp_boxes(vals, err=False):
+    return otp6(''.join(vals), err)
+
+def _old_otp_boxes(vals, err=False):
     return ('<div role="group" aria-label="رمز التحقق من 4 أرقام" style="display: flex; gap: 12px; justify-content: center; direction: ltr">%s</div>' % ''.join(
         '<input aria-label="الرقم %d" value="%s" inputmode="numeric" autocomplete="%s" maxlength="1" style="width: 60px; height: 60px; text-align: center; font-size: 24px; font-weight: 700; border: %s solid %s; border-radius: 8px; background: %s; font-family: inherit">' % (
             i + 1, v, 'one-time-code' if i == 0 else 'off', '2px' if (v or err) else '1px', C['da'] if err else (C['ink'] if v else C['line']), C['w']) for i, v in enumerate(vals)))
@@ -38,10 +41,10 @@ def login_m():
 def otp_m():
     body = (header_m(back='Login-mobile.dc.html', title='رمز التحقق', search=False).replace(icbtn('bag', 'السلة', True, 3), '') +
             '<div style="padding: 32px 16px; display: flex; flex-direction: column; gap: 20px; align-items: stretch">'
-            '<div style="display: flex; flex-direction: column; gap: 6px; text-align: center"><h1 style="margin: 0; font-size: 24px">أدخل الرمز</h1><p style="margin: 0; font-size: 16px; color: %s">أرسلنا رمزاً من 4 أرقام إلى <bdi dir="ltr">+966 55 123 4567</bdi></p>'
+            '<div style="display: flex; flex-direction: column; gap: 6px; text-align: center"><h1 style="margin: 0; font-size: 24px">أدخل الرمز</h1><p style="margin: 0; font-size: 16px; color: %s">أرسلنا رمزاً من 6 أرقام إلى <bdi dir="ltr">+966 55 123 4567</bdi></p>'
             '<a href="Login-mobile.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600">تغيير الرقم</a></div>%s'
             '<p role="status" style="margin: 0; font-size: 14px; color: %s; text-align: center">إعادة الإرسال بعد <bdi dir="ltr">00:42</bdi></p>%s%s</div>') % (
-        C['mu'], otp_boxes(('4', '7', '1', '')), C['mu'], btn('تحقق ودخول', 'primary', 'lg', full=True),
+        C['mu'], otp_boxes(('4', '7', '1', '9', '0', '')), C['mu'], btn('تحقق ودخول', 'primary', 'lg', full=True),
         '<p style="margin: 0; font-size: 12px; color: %s; text-align: center">الرمز صالح 5 دقائق. يُعبأ تلقائياً من الرسالة على الأجهزة التي تدعم ذلك.</p>' % C['mu'])
     OUT['OTP-mobile.dc.html'] = doc('رمز التحقق OTP — جوال', body, 390, 844)
 
@@ -67,10 +70,10 @@ def staff_d():
 def login_states():
     hd = header_m(back='#', title='رمز التحقق', search=False).replace(icbtn('bag', 'السلة', True, 3), '')
     wrong = hd + '<div style="padding: 32px 16px; display: flex; flex-direction: column; gap: 16px">%s<p role="alert" style="margin: 0; display: flex; gap: 6px; justify-content: center; font-size: 14px; color: %s">%s<span>الرمز غير صحيح. باقي لك 3 محاولات.</span></p>%s</div>' % (
-        otp_boxes(('4', '7', '1', '9'), True), C['da'], ic('alert', 16), btn('تحقق ودخول', 'primary', 'lg', full=True))
-    sending = hd + '<div style="padding: 32px 16px; display: flex; flex-direction: column; gap: 16px">%s%s</div>' % (otp_boxes(('', '', '', '')), btn('جارٍ التحقق…', 'primary', 'lg', full=True, disabled=True))
+        otp_boxes(('4', '7', '1', '9', '0', '3'), True), C['da'], ic('alert', 16), btn('تحقق ودخول', 'primary', 'lg', full=True))
+    sending = hd + '<div style="padding: 32px 16px; display: flex; flex-direction: column; gap: 16px">%s%s</div>' % (otp_boxes(('4', '7', '1', '9', '0', '3')), btn('جارٍ التحقق…', 'primary', 'lg', full=True, disabled=True))
     locked = hd + state_panel('محاولات كثيرة', 'لحماية حسابك أوقفنا إرسال الرموز لهذا الرقم مؤقتاً. حاول مرة ثانية بعد ساعة.', 'lock', '<p style="margin: 0; font-size: 14px; color: %s">تقدر تطلب رمزاً جديداً بعد <bdi dir="ltr">58:12</bdi></p>' % C['mu'] + btn('تواصل معنا', 'secondary', 'md', 'msg', True), 'danger')
-    expired = hd + '<div style="padding: 32px 16px; display: flex; flex-direction: column; gap: 16px">%s%s%s</div>' % (otp_boxes(('4', '7', '', '')), banner('انتهت صلاحية الرمز', 'مرّت 5 دقائق. اطلب رمزاً جديداً وأكمل.', 'warning', 'clock'), btn('أرسل رمزاً جديداً', 'primary', 'lg', 'refresh', True))
+    expired = hd + '<div style="padding: 32px 16px; display: flex; flex-direction: column; gap: 16px">%s%s%s</div>' % (otp_boxes(('4', '7', '1', '', '', '')), banner('انتهت صلاحية الرمز', 'مرّت 5 دقائق. اطلب رمزاً جديداً وأكمل.', 'warning', 'clock'), btn('أرسل رمزاً جديداً', 'primary', 'lg', 'refresh', True))
     badphone = header_m(back='#', title='تسجيل الدخول', search=False).replace(icbtn('bag', 'السلة', True, 3), '') + '<div style="padding: 24px 16px; display: flex; flex-direction: column; gap: 16px">%s%s</div>' % (
         phone_field('12 345', 'الرقم ناقص. اكتب 9 أرقام تبدأ بـ 5.', 'phe'), btn('أرسل رمز التحقق', 'primary', 'lg', full=True))
     neterr = header_m(back='#', title='تسجيل الدخول', search=False).replace(icbtn('bag', 'السلة', True, 3), '') + '<div style="padding: 24px 16px; display: flex; flex-direction: column; gap: 16px">%s%s%s</div>' % (
@@ -119,10 +122,7 @@ def request_states():
 
 # ========================================================= LTR (English)
 def sar_en(v, size=16, w=700, c=None, strike=False):
-    inner = '<span aria-hidden="true">SAR</span><span class="sr">Saudi riyals</span> %s' % fmt(v)
-    if strike:
-        return '<span style="font-size: %dpx; font-weight: %d; color: %s; white-space: nowrap"><span class="sr">Was </span><s>%s</s></span>' % (size, w, c or C['mu'], inner)
-    return '<span style="font-size: %dpx; font-weight: %d; color: %s; white-space: nowrap">%s</span>' % (size, w, c or C['ink'], inner)
+    return sar(v, size, w, c or (C['mu'] if strike else C['ink']), strike=strike, lang='en')
 
 def product_en():
     hdr = ('<header data-surface="inverse-strong" style="background: %s; padding: 6px 8px; display: flex; align-items: center; gap: 4px">%s<div style="flex: 1; display: flex; justify-content: center">'
@@ -152,13 +152,52 @@ def product_en():
             '<fieldset style="border: 0; margin: 0; padding: 0"><legend style="padding: 0 0 10px; font-size: 14px; font-weight: 700">Size: 56</legend>%s</fieldset>'
             '<fieldset style="border: 0; margin: 0; padding: 0"><legend style="padding: 0 0 10px; font-size: 14px; font-weight: 700">Colour: Black</legend>%s</fieldset>'
             '<div style="display: flex; gap: 10px">%s%s</div>%s<div>%s</div>'
-            '<p style="margin: 0; font-size: 12px; color: %s; line-height: 20px">LTR check: start = left. Chevrons point right, the wishlist sits top-right (end), the WhatsApp button moves to the right (end), and prices read "SAR 1,850.00".</p></div>') % (
+            '<p style="margin: 0; font-size: 12px; color: %s; line-height: 20px">LTR check: start = left. Chevrons point right, the wishlist sits top-right (end), the WhatsApp button moves to the right (end), and the riyal sign sits left of the number (same as Arabic).</p></div>') % (
         C['g7'], ic('seal', 14), stars(4.8, 38, 14).replace('التقييم', 'Rated').replace(' من 5', ' of 5').replace(' تقييم', ' reviews'), sar_en(1850, 24), sar_en(2200, 16, 400, strike=True), disc_en, C['mu'], opts,
         row(swatch('Black', '#1B1714', True) + swatch('Brown', '#5A3D2B') + swatch('Navy', '#1F2A44') + swatch('Beige', '#D8C3A0'), 6, wrap=True),
         stepper(1, 'Quantity').replace('زيادة الكمية', 'Increase quantity').replace('إنقاص الكمية', 'Decrease quantity'), btn('Add to cart', 'primary', 'lg', 'bag', extra=' flex: 1;'), barg, acc, C['mu']) + sticky + wa_float(96).replace('تواصل معنا عبر واتساب', 'Chat with us on WhatsApp')
     OUT['Product-mobile-en.dc.html'] = doc('Product page — mobile (English, LTR)', body, 390, 2100, lang='en')
 
+def menu_sheet(logged=True):
+    acct = (('<div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: %s; border-radius: 8px">%s<div style="display: flex; flex-direction: column; flex: 1"><strong style="font-size: 16px">أهلاً، محمد</strong>'
+             '<span style="font-size: 12px; color: %s"><bdi dir="ltr">+966 55 XXX XX12</bdi></span></div><a href="#" style="min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 600">حسابي</a></div>') % (C['s100'], avatar('م', s=40), C['mu'])) if logged else \
+        ('<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; background: %s; border-radius: 8px"><strong style="font-size: 16px">ادخل برقم جوالك</strong><span style="font-size: 14px; color: %s">تابع طلباتك وطلبات الأسعار والمفضلة.</span>%s</div>' % (
+            C['s100'], C['mu'], btn('تسجيل الدخول', 'primary', 'md', full=True, href='Login-mobile.dc.html')))
+    item = lambda icon, t, extra='', href='#': ('<a href="%s" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 4px; color: %s; text-decoration: none; font-size: 16px; border-bottom: 1px solid %s">%s<span style="flex: 1">%s</span>%s%s</a>' % (
+        href, C['ink'], C['s100'], icon, t, extra, ic('chev-l', 16, C['mu'])))
+    cats = ''.join(item('<span style="width: 32px; flex: none">%s</span>' % art(k, ratio='1 / 1', radius=4, label=n), n, href='Category-mobile.dc.html') for k, n in CATS[1:10])
+    souq = ('<a href="Souq-mobile.dc.html" data-surface="inverse" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 14px; border-radius: 8px; background: %s; color: %s; text-decoration: none; font-size: 16px; font-weight: 700">%s<span style="flex: 1">سوق الزل</span>%s%s</a>' % (
+        C['b9'], C['s50'], ic('zap', 20, C['g5']), live_badge(True), ic('chev-l', 16, C['g5'])))
+    acc = ''.join(item(ic(i, 20, C['b7']), t, ('<span style="min-width: 22px; height: 20px; padding: 0 6px; border-radius: 999px; background: %s; color: %s; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">%s</span>' % (C['g5'], C['ink'], num(b))) if b else '') for i, t, b in (
+        ('bag', 'طلباتي', None), ('hand', 'طلبات الأسعار والفصال', '3'), ('heart', 'المفضلة', None), ('pin', 'العناوين', None))) if logged else ''
+    help_ = ''.join(item(ic(i, 20, C['b7']), t) for i, t in (('truck', 'الشحن والتوصيل'), ('return', 'الاسترجاع والاستبدال'), ('info', 'الأسئلة الشائعة'), ('store', 'بِع في سوق الزل')))
+    lang = ('<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px"><span style="font-size: 14px; color: %s">اللغة</span>'
+            '<div role="group" aria-label="اللغة" style="display: inline-flex; border: 1px solid %s; border-radius: 8px; overflow: hidden">'
+            '<button type="button" aria-pressed="true" style="min-height: 44px; padding: 0 16px; border: 0; background: %s; color: %s; font-family: inherit; font-size: 14px; font-weight: 600">العربية</button>'
+            '<button type="button" aria-pressed="false" lang="en" style="min-height: 44px; padding: 0 16px; border: 0; background: %s; color: %s; font-family: inherit; font-size: 14px">English</button></div></div>') % (C['mu'], C['line'], C['ink'], C['s50'], C['w'], C['ink'])
+    sec = lambda t, inner: '<section style="display: flex; flex-direction: column"><h3 style="margin: 0 0 4px; font-size: 12px; font-weight: 600; color: %s">%s</h3>%s</section>' % (C['mu'], t, inner)
+    return ('<div aria-hidden="true" style="position: absolute; inset: 0; background: %s"></div>'
+            '<nav role="dialog" aria-modal="true" aria-label="القائمة" style="position: absolute; top: 0; bottom: 0; inset-inline-start: 0; width: 336px; background: %s; display: flex; flex-direction: column; box-shadow: 0 12px 32px rgba(22,18,14,.16); z-index: 50">'
+            '<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 8px 16px; border-bottom: 1px solid %s">%s%s</div>'
+            '<div style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 20px">%s%s%s%s%s%s</div>'
+            '<div style="padding: 12px 16px 16px; border-top: 1px solid %s">%s</div></nav>') % (
+        C['scrim'], C['s50'], C['s200'], logo(False, 18), icbtn('x', 'إغلاق القائمة'), acct, souq, sec('التصنيفات', cats), sec('حسابي', acc) if logged else '', sec('المساعدة', help_), lang,
+        C['s200'], btn('تواصل معنا عبر واتساب', 'secondary', 'md', 'msg', True))
+
+def menu_m():
+    body = header_m() + '<div style="flex: 1; background: %s"></div>' % C['s100'] + menu_sheet(True)
+    OUT['Menu-mobile.dc.html'] = doc('القائمة الجانبية — جوال', body, 390, 1320)
+
+def menu_states():
+    guest = header_m() + '<div style="flex: 1; background: %s"></div>' % C['s100'] + menu_sheet(False)
+    err = header_m() + '<div style="flex: 1; background: %s"></div>' % C['s100'] + menu_sheet(True).replace(
+        '>التصنيفات</h3>', '>التصنيفات</h3>' + banner('تعذّر تحميل التصنيفات', 'نعرض آخر قائمة محفوظة.', 'warning', 'alert', btn('إعادة المحاولة', 'secondary', 'md', 'refresh')), 1)
+    panels = phone_panel('زائر غير مسجل', guest, 1320, kind='حالة') + phone_panel('خطأ: تعذّر تحميل التصنيفات', err, 1320, kind='خطأ')
+    body = '<div style="padding: 40px; display: flex; gap: 40px">%s</div>' % panels
+    OUT['Menu-states.dc.html'] = doc('القائمة الجانبية — الحالات', body, 900, 1440)
+
 def build():
+    menu_m(); menu_states()
     login_m(); otp_m(); login_d(); staff_d(); login_states()
     request_new(); request_states(); product_en()
     return OUT

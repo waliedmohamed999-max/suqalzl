@@ -60,13 +60,13 @@ def sales_chart(h=220):
 def queue_row(icon, title, sub, tone_pill, btn_label):
     return ('<li style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid %s"><span style="width: 40px; height: 40px; border-radius: 8px; background: %s; color: %s; display: inline-flex; align-items: center; justify-content: center; flex: none">%s</span>'
             '<div style="display: flex; flex-direction: column; flex: 1; min-width: 0"><span style="font-size: 14px; font-weight: 600">%s</span><span style="font-size: 12px; color: %s">%s</span></div>%s%s</li>') % (
-        C['s100'], C['s100'], C['b7'], ic(icon, 20), title, C['mu'], sub, tone_pill, btn(btn_label, 'secondary', 'xs'))
+        C['s100'], C['s100'], C['b7'], ic(icon, 20), title, C['mu'], sub, tone_pill, btn(btn_label, 'secondary', 'dense'))
 
 # ============================================================== ADMIN
 def admin_main(mobile=False):
     k = [kpi2('المبيعات', money_c('486.2 ألف ر.س'), '+12%', True, None, 'chart'), kpi2('الطلبات', money_c(num('1,284')), '+8%', True, None, 'bag'),
          kpi2('متوسط السلة', money_c('378.65 ر.س'), '−3%', False, None, 'tag'), kpi2('عملاء جدد', money_c(num('312')), '+21%', True, None, 'users'),
-         kpi2('عمولات المنصة', money_c('31.4 ألف ر.س'), '+10%', True, 'على قيمة المنتجات بعد الخصم', 'wallet'),
+         kpi2('عمولات المنصة', money_c('31.4 ألف ر.س'), '+10%', True, 'على الصافي قبل الضريبة', 'wallet'),
          kpi2('مستحقات التجار', '<div style="display: flex; gap: 16px"><div style="display: flex; flex-direction: column"><span style="font-size: 12px; color: %s">معلّق</span>%s</div><div style="display: flex; flex-direction: column"><span style="font-size: 12px; color: %s">متاح للتحويل</span>%s</div></div>' % (
              C['mu'], money_c('64.3 ألف ر.س', 20), C['mu'], money_c('18.9 ألف ر.س', 20, C['su'])), None, True, 'الدفعة القادمة: الأحد · 18 تاجراً', 'wallet', True)]
     kg = '<div style="display: grid; grid-template-columns: repeat(%s, minmax(0, 1fr)); gap: 12px">%s</div>' % ('2' if mobile else '3', ''.join(k))
@@ -130,8 +130,8 @@ def dash_states(kind):
 
 # ============================================================== VENDOR
 INBOX = [
-    dict(k='bisht', t='بشت حساوي مقاس 56 · أسود', typ=('من تصنيفك', 'neutral'), city='الرياض', qty=2, price=1500, timer='{{c1.all}}', flags=[('أقل من حدك الأدنى', 'warning', 'alert')], new=True, sel=True),
-    dict(k='bisht', t='بشت ملكي شتوي — صوف ناعم', typ=('على منتجك', 'accent'), city='جدة', qty=1, price=2100, timer='{{c3.all}}', flags=[('سعر مضاد من العميل · جولة 2/3', 'info', 'hand')], new=True),
+    dict(k='bisht', t='بشت حساوي مقاس 56 · أسود', typ=('من تصنيفك', 'neutral'), city='الرياض', qty=2, price=1500, timer='{{c1.all}}', flags=[], new=True, sel=True),
+    dict(k='bisht', t='بشت ملكي شتوي — صوف ناعم', typ=('على منتجك', 'accent'), city='جدة', qty=1, price=2100, timer='{{c3.all}}', flags=[('سعر مضاد من العميل · باقي لك ردّان', 'info', 'hand'), ('أقل من حدك الأدنى', 'warning', 'alert')], new=True),
     dict(k='shal', t='طلب مفتوح: بشت أطفال بزري فضي', typ=('طلب مفتوح', 'info'), city='الدمام', qty=3, price=600, timer='{{c4.all}}', flags=[], new=True),
     dict(k='bisht', t='بشت صيفي خفيف — كتان', typ=('على منتجك', 'accent'), city='مكة', qty=1, price=900, timer='{{c5.all}}', flags=[('المهلة تنتهي قريباً', 'danger', 'clock')], new=False),
 ]
@@ -166,8 +166,10 @@ def reply_form(compact=False):
         seg += ('<button type="button" role="radio" aria-checked="%s" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border-radius: 8px; border: %s solid %s; background: %s; font-family: inherit; font-size: 14px; font-weight: 600; color: %s">%s%s</button>') % (
             'true' if on else 'false', '2px' if on else '1px', C['ink'] if on else C['line'], C['w'], C['ink'], ic(icn, 18), l)
     seg += '</div>'
-    prod = select('منتجك المطابق', 'بشت حساوي يدوي — زري ذهبي · 1,790.00 ر.س · المخزون 4', 'mp', 'من منتجاتك المنشورة في تصنيف البشوت فقط')
-    price = field('سعرك للقطعة', '1,650', suffix='ر.س', fid='vp', big=True, helper='سعر العميل 1,500.00 ر.س · حدك الأدنى 1,600.00 ر.س')
+    prod = ('<div style="display: grid; grid-template-columns: %s; gap: 10px">%s%s</div>' % ('1fr' if compact else '1.2fr 1fr',
+            select('منتجك المطابق', 'بشت حساوي يدوي — زري ذهبي', 'mp', 'من منتجاتك المنشورة في تصنيف البشوت فقط'),
+            select('الخيار (variant)', 'مقاس 56 · أسود · 1,790.00 ر.س · المخزون 4', 'mv', 'الكمية لا تتجاوز مخزون هذا الخيار')))
+    price = field('سعرك للقطعة (شامل الضريبة)', '1,650', suffix='ر.س', fid='vp', big=True, helper='سعر العميل 1,500.00 ر.س · حدك الأدنى لهذا الخيار 1,600.00 ر.س')
     quick = row(''.join('<button type="button" style="min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1px solid %s; background: %s; font-family: inherit; font-size: 14px; color: %s">%s</button>' % (C['line'], C['w'], C['ink'], t) for t in (
         'سعر العميل', '<bdi dir="ltr">+5%</bdi> · 1,575', '<bdi dir="ltr">+10%</bdi> · 1,650', 'حدك الأدنى · 1,600')), 8, wrap=True)
     meta = '<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">%s%s%s</div>' % (
@@ -176,9 +178,12 @@ def reply_form(compact=False):
             '<textarea id="vn" rows="3" aria-describedby="vn-d" placeholder="مثال: الخياطة يدوية والتسليم بعلبة هدية" style="border: 1px solid %s; border-radius: 8px; padding: 10px 14px; font-family: inherit; font-size: 16px; background: %s; resize: vertical"></textarea>'
             '<p id="vn-d" style="margin: 0; font-size: 12px; color: %s">ممنوع أرقام الجوال والإيميل والروابط وحسابات التواصل. الاتفاق والدفع داخل المنصة فقط.</p></div>') % (C['line'], C['w'], C['mu'])
     r = lambda a, b, s='': '<div style="display: flex; justify-content: space-between; font-size: 14px; %s"><span style="color: %s">%s</span>%s</div>' % (s, C['mu'], a, b)
-    summ = ('<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: %s; border-radius: 8px">%s%s%s%s</div>') % (
-        C['s100'], r('إجمالي العرض للعميل', sar(3335, 16, 700)), r('العمولة التقديرية (10%)', '<span style="font-size: 14px; color: %s"><bdi dir="ltr">−330.00</bdi> ر.س</span>' % C['ink']),
-        r('صافيك التقديري', sar(3005, 16, 700, C['su'])), '<p style="margin: 0; font-size: 12px; color: %s">العمولة على سعر الصفقة النهائي، ونسبتها النهائية حسب قرار O7.</p>' % C['mu'])
+    # Money is never computed in the UI: previewOffer() on the server returns these (debounce 400ms).
+    summ = ('<div aria-live="polite" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: %s; border-radius: 8px">%s%s%s%s%s</div>') % (
+        C['s100'], r('إجمالي العرض للعميل (شامل الضريبة والشحن)', sar(3335, 16, 700)), r('قيمة المنتجات قبل الضريبة', sar(2869.57, 14, 600)),
+        r('العمولة التقديرية (10% من السعر قبل الضريبة)', '<span style="font-size: 14px; color: %s"><bdi dir="ltr">\u2212286.96</bdi> ر.س</span>' % C['ink']),
+        r('صافيك التقديري من المنتجات', sar(2582.61, 16, 700, C['su'])),
+        '<p style="margin: 0; display: flex; gap: 6px; font-size: 12px; color: %s">%s<span>تقديري من السيرفر حسب معادلة المالية (O7)، ويتحدث مع كل تعديل. الشحن وضريبتك خارج هذا الرقم، والنهائي في كشف الحساب.</span></p>' % (C['mu'], ic('info', 14)))
     commit = ('<div style="display: flex; gap: 10px; padding: 12px 14px; border: 1px solid %s; border-radius: 8px; font-size: 14px; line-height: 22px">%s<span>إذا قبل العميل، العرض ملزم لك بالسعر والكمية لمدة 24 ساعة. الإلغاء بعد الدفع يُسجل في تقييمك الداخلي.</span></div>') % (C['g5'], ic('lock', 20, C['g7']))
     return seg, prod, price, quick, meta, note, summ, commit
 
@@ -201,7 +206,7 @@ def inbox_d():
         C['w'], C['s200'], inbox_tabs(), C['s200'], chip('على منتجاتي', icon='box'), chip('ينتهي قريباً', icon='clock'), ''.join(inbox_row(r) for r in INBOX))
     det = '<section aria-label="تفاصيل الطلب والرد" style="flex: 1 1 520px; min-width: 0; padding: 24px; background: %s; border: 1px solid %s; border-radius: 12px">%s</section>' % (C['s50'], C['s200'], reply_detail())
     extra = ('<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">%s<span style="font-size: 14px; color: %s">صندوق وارد لحظي · الطلبات من تصنيفاتك المسموحة فقط</span>'
-             '<span style="margin-inline-start: auto">%s</span></div>') % (live_badge(False), C['mu'], btn('إعدادات الفصال', 'secondary', 'xs', 'gear', href='VendorBargainSettings-desktop.dc.html'))
+             '<span style="margin-inline-start: auto">%s</span></div>') % (live_badge(False), C['mu'], btn('إعدادات الفصال', 'secondary', 'dense', 'gear', href='VendorBargainSettings-desktop.dc.html'))
     body = shell('vendor', 'requests', '<div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap">%s%s</div>' % (lst, det), 'طلبات الأسعار', ['لوحة التاجر', 'طلبات الأسعار'], False, extra)
     OUT['VendorInbox-desktop.dc.html'] = doc('صندوق طلبات الأسعار — ديسكتوب', body, 1440, 1560, fluid=True, js=timer_js(TJ))
 
@@ -212,17 +217,21 @@ def inbox_m():
 
 def reply_m():
     seg, prod, price, quick, meta, note, summ, commit = reply_form(True)
-    meta = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">%s%s</div>%s' % (field('الكمية', '2', fid='vqm', helper='≤ مخزونك'), field('الشحن', '35', suffix='ر.س', fid='vsm'), select('مدة التوصيل', '2–3 أيام', 'vem'))
-    sheet = ('<div role="dialog" aria-modal="true" aria-labelledby="vr" style="position: absolute; inset-inline: 0; bottom: 0; top: 48px; background: %s; border-radius: 12px 12px 0 0; display: flex; flex-direction: column; box-shadow: 0 12px 32px rgba(22,18,14,.16)">'
-             '<div style="display: flex; justify-content: center; padding: 8px 0 0"><span aria-hidden="true" style="width: 40px; height: 4px; border-radius: 999px; background: %s"></span></div>'
-             '<div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 4px 16px"><div style="display: flex; flex-direction: column"><h2 id="vr" style="margin: 0; font-size: 18px">رد سريع</h2><span style="font-size: 12px; color: %s">بشت حساوي مقاس 56 · يطلب 1,500.00 ر.س × 2</span></div>%s</div>'
-             '<div style="padding: 0 16px 8px; display: flex; align-items: center; justify-content: space-between"><span style="font-size: 14px; color: %s">باقي على مهلة ردك</span>%s</div>'
-             '<div style="flex: 1; overflow-y: auto; padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 16px">%s%s%s%s%s%s%s%s</div>'
-             '<div style="padding: 12px 16px 20px; border-top: 1px solid %s; background: %s">%s</div></div>') % (
-        C['s50'], C['line'], C['mu'], icbtn('x', 'إغلاق'), C['mu'], timer_inline('{{c1.all}}', 'warning', 'clock'),
-        banner('أقل من حدك الأدنى', 'حدك السري 1,600.00 ر.س. يظهر لك فقط.', 'warning', 'eye-off'), seg, prod, price, quick, meta, summ, commit, C['s200'], C['w'], btn('أرسل العرض · 3,335.00 ر.س', 'primary', 'lg', 'send', True))
-    body = m_top('طلبات الأسعار', 'vendor', '5') + '<div style="flex: 1; background: %s"></div>' % C['s100'] + '<div aria-hidden="true" style="position: absolute; inset: 0; background: %s"></div>' % C['scrim'] + sheet
-    OUT['VendorReply-mobile.dc.html'] = doc('الرد السريع على طلب سعر — جوال', body, 390, 1640, js=timer_js(TJ))
+    meta = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">%s%s</div>%s' % (field('الكمية', '2', fid='vqm', helper='≤ مخزون الخيار'), field('الشحن', '35', suffix='ر.س', fid='vsm'), select('مدة التوصيل', '2–3 أيام', 'vem'))
+    head = ('<header data-surface="inverse" style="background: %s; padding: 6px 8px; display: flex; align-items: center; gap: 4px">'
+            '<a href="VendorInbox-mobile.dc.html" aria-label="رجوع للصندوق" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; color: %s">%s</a>'
+            '<div style="flex: 1; display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 16px; color: %s">الرد على <bdi dir="ltr">PR-10023</bdi></h1><span style="font-size: 12px; color: %s">صفحة كاملة /vendor/requests/[number]</span></div></header>') % (
+        C['b9'], C['s50'], ic('chev-r', 22), C['s50'], C['ondark'])
+    req = ('<section style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: %s; border: 1px solid %s; border-radius: 8px">'
+           '<div style="display: flex; justify-content: space-between; gap: 8px"><strong style="font-size: 16px">بشت حساوي مقاس 56 · أسود</strong>%s</div>'
+           '<span style="font-size: 14px; color: %s">من تصنيفك · الرياض · يطلب %s × %s</span>'
+           '<div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 14px; color: %s">باقي على مهلة ردك</span>%s</div></section>') % (
+        C['w'], C['s200'], pill('جديد', 'info'), C['mu'], sar(1500, 14, 700), num(2), C['mu'], timer_inline('{{c1.all}}', 'warning', 'clock'))
+    bar = '<div style="position: absolute; bottom: 0; inset-inline: 0; background: %s; border-top: 1px solid %s; padding: 10px 16px 16px; z-index: 10">%s</div>' % (C['w'], C['s200'], btn('أرسل العرض · 3,335.00 ر.س', 'primary', 'lg', 'send', True))
+    body = head + ('<div style="padding: 16px 16px 120px; display: flex; flex-direction: column; gap: 16px">%s%s%s%s%s%s%s%s%s%s'
+                   '<p style="margin: 0; font-size: 12px; color: %s">المدخلات تُحفظ كمسودة لو خرجت من الصفحة قبل الإرسال.</p></div>') % (
+        req, seg, prod, banner('أقل من حدك الأدنى', 'حدك لهذا الخيار 1,600.00 ر.س. يظهر لك فقط.', 'warning', 'eye-off'), price, quick, meta, note, summ, commit, C['mu']) + bar
+    OUT['VendorReply-mobile.dc.html'] = doc('الرد على طلب سعر (صفحة كاملة) — جوال', body, 390, 2300, js=timer_js(TJ))
 
 def inbox_states():
     top = m_top('طلبات الأسعار', 'vendor', '5')
@@ -255,14 +264,14 @@ def vendor_main(mobile=False):
     kg = '<div style="display: grid; grid-template-columns: repeat(%s, minmax(0, 1fr)); gap: 12px">%s%s</div>' % ('1' if mobile else '4', ''.join(k), '<div style="%s">%s</div>' % ('' if mobile else '', kpi2('رصيدك', bal, None, True, None, 'wallet', True)))
     reqs = panel('طلبات أسعار تنتظر ردك (5)', ''.join(inbox_row(dict(r, sel=False)) for r in INBOX[:3]), 'افتح الصندوق', 0, ' padding-top: 16px;').replace('padding: 0px;', 'padding: 16px 0 0;').replace('<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><h2', '<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 16px"><h2', 1)
     orders = panel('طلبات تحتاج تجهيز', table(['رقم الطلب', 'المنتجات', 'المدينة', 'الحالة', 'منذ', ''], [
-        [num('SZ-100231-2'), 'بشت ملكي × 1', 'جدة', pill('جديد', 'info'), '9 س', btn('ابدأ التجهيز', 'secondary', 'xs')],
-        [num('SZ-100228-3'), 'بشت حساوي × 2', 'الرياض', pill('قيد التجهيز', 'accent', 'sparkle' if False else 'box'), '1 يوم', btn('جاهز للشحن', 'secondary', 'xs')],
-        [num('SZ-100219-1'), 'بشت صيفي × 1', 'الدمام', pill('جاهز للشحن', 'accent', 'box'), '1 يوم', btn('أدخل رقم التتبع', 'secondary', 'xs')]], 'طلبات تحتاج تجهيز', 560), 'كل الطلبات')
+        [num('SZ-100231-2'), 'بشت ملكي × 1', 'جدة', pill('جديد', 'info'), '9 س', btn('ابدأ التجهيز', 'secondary', 'dense')],
+        [num('SZ-100228-3'), 'بشت حساوي × 2', 'الرياض', pill('قيد التجهيز', 'accent', 'sparkle' if False else 'box'), '1 يوم', btn('جاهز للشحن', 'secondary', 'dense')],
+        [num('SZ-100219-1'), 'بشت صيفي × 1', 'الدمام', pill('جاهز للشحن', 'accent', 'box'), '1 يوم', btn('أدخل رقم التتبع', 'secondary', 'dense')]], 'طلبات تحتاج تجهيز', 560), 'كل الطلبات')
     deals = panel('عروضك في سوق الزل', ''.join('<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-bottom: 1px solid %s"><div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 14px; font-weight: 600">%s</span>%s</div>%s</div>' % (
         C['s100'], n, p, sb) for n, p, sb in (('عرض ساعة: بشت ملكي −15%', pill('مباشر', 'danger', 'zap'), stockbar(3, 10)), ('عرض الأسبوع: بشت صيفي −10%', pill('بانتظار الموافقة', 'warning', 'clock'), '<span style="font-size: 12px; color: %s">يبدأ السبت 9:00 ص</span>' % C['mu']))) +
         btn('أنشئ عرضاً', 'secondary', 'md', 'plus', True), 'كل العروض')
     payout = panel('آخر تحويل', '%s<p style="margin: 0; font-size: 14px; color: %s">تم التحويل 12 نوفمبر · المرجع <bdi dir="ltr">TRX-[المرجع]</bdi></p><div style="display: flex; gap: 8px; flex-wrap: wrap">%s%s</div>' % (
-        money_c('12,400.00 ر.س', 24), C['mu'], btn('عرض الإيصال', 'secondary', 'xs', 'file'), btn('كشف الحساب', 'ghost', 'xs', 'file')))
+        money_c('12,400.00 ر.س', 24), C['mu'], btn('عرض الإيصال', 'secondary', 'dense', 'file'), btn('كشف الحساب', 'ghost', 'dense', 'file')))
     stock = panel('مخزون منخفض', '<ul style="list-style: none; margin: 0; padding: 0">%s</ul>' % ''.join('<li style="display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px solid %s; font-size: 14px"><span>%s</span>%s</li>' % (C['s100'], n, pill(t, tone, 'alert')) for n, t, tone in (('بشت حساوي — مقاس 62 أسود', 'نفد', 'danger'), ('بشت ملكي — مقاس 54 بني', 'باقي 2', 'warning'))))
     if mobile:
         return '<div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">%s%s%s%s%s%s</div>' % (chk, kg, reqs, orders, deals, payout)
@@ -277,17 +286,31 @@ def vendor_m():
     body = m_top('الرئيسية', 'vendor', '5') + vendor_main(True)
     OUT['Vendor-mobile.dc.html'] = doc('لوحة التاجر — جوال', body, 390, 3600, js=timer_js(TJ))
 
+def variant_table():
+    rows = [('مقاس 54 · أسود', 1790, 3, '1,600', '1,740', None), ('مقاس 56 · أسود', 1790, 4, '1,600', '1,500', 'لازم يكون أعلى من الحد الأدنى (1,600.00 ر.س) وأقل من سعر البيع (1,790.00 ر.س).'),
+            ('مقاس 58 · أسود', 1790, 0, '', '', None), ('مقاس 56 · بني', 1890, 2, '1,700', '', None)]
+    cell = lambda fid, lab, v, err: ('<div style="display: flex; flex-direction: column; gap: 4px"><div style="display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 10px; border-radius: 8px; border: 1px solid %s; background: %s;%s">'
+                                '<input id="%s" aria-label="%s" dir="ltr" inputmode="decimal" value="%s" placeholder="—"%s style="flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font-family: inherit; font-size: 16px; text-align: end"><span style="font-size: 14px; color: %s">ر.س</span></div>%s</div>') % (
+        C['da'] if err else C['line'], C['w'], (' box-shadow: 0 0 0 1px %s;' % C['da']) if err else '', fid, lab, v, ' aria-invalid="true"' if err else '', C['mu'],
+        ('<span style="font-size: 12px; color: %s; line-height: 18px">%s</span>' % (C['da'], err)) if err else '')
+    body = []
+    for i, (n, pr, st, fl, aa, err) in enumerate(rows):
+        body.append([n, '<span style="display: block; text-align: end">%s</span>' % sar(pr, 14, 600), pill('نفد', 'neutral') if st == 0 else num(st),
+                     cell('fl%d' % i, 'الحد الأدنى، %s' % n, fl, None), cell('aa%d' % i, 'سعر القبول التلقائي، %s' % n, aa, err)])
+    head = ('<div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: %s">%sالحد الأدنى والقبول التلقائي سريان لكل خيار ولا يظهران للعميل في أي مكان</div>' % (C['b7'], ic('eye-off', 14)))
+    return head + table(['الخيار', 'السعر', 'المخزون', 'حدك الأدنى للقطعة', 'سعر القبول التلقائي'], body, 'إعدادات الفصال لكل خيار', 640)
+
 def bargain_settings():
     form = ('<section style="display: flex; flex-direction: column; gap: 18px; padding: 24px; background: %s; border: 1px solid %s; border-radius: 12px">'
             '<div style="display: flex; align-items: center; gap: 10px"><span style="color: %s">%s</span><h2 style="margin: 0; font-size: 20px">إعدادات الفصال لهذا المنتج</h2></div>%s'
-            '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">%s%s</div>'
+            '%s%s'
             '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">%s%s</div>%s%s</section>') % (
         C['w'], C['s200'], C['g7'], ic('hand', 22), toggle('اسمح للعملاء بطلب سعرهم على هذا المنتج', True, 'يظهر زر "اطلب سعرك" في صفحة المنتج وزر "فاصل" في عروضه'),
-        '<div style="display: flex; flex-direction: column; gap: 6px">%s<span style="display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 600; color: %s">%sسري: لا يظهر للعميل في أي مكان</span></div>' % (
-            field('حدك الأدنى للقطعة', '1,600', suffix='ر.س', fid='fl', helper='الطلبات الأقل منه توصلك مع تنبيه، وتقرر أنت.'), C['b7'], ic('eye-off', 14)),
-        field('سعر القبول التلقائي', '1,500', suffix='ر.س', fid='aa', error='لازم يكون أعلى من حدك الأدنى (1,600.00 ر.س) وأقل من سعر البيع (1,790.00 ر.س).'),
+        variant_table(),
+        '<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center"><span style="font-size: 14px; color: %s">تعبئة سريعة:</span>%s%s%s</div>' % (
+            C['mu'], btn('الحد الأدنى = 90% من السعر', 'secondary', 'dense'), btn('القبول التلقائي = 97% من السعر', 'secondary', 'dense'), btn('طبّق الصف الأول على الكل', 'ghost', 'dense')),
         select('أقصى عدد جولات', '3 جولات (افتراضي)', 'mr', 'لكل طرف مع كل عميل'), select('مهلة الرد على العرض', '24 ساعة (افتراضي)', 'rw', 'بعدها يُغلق العرض تلقائياً'),
-        banner('كيف يُستخدم القبول التلقائي', 'أي طلب سعره ≥ سعر القبول التلقائي يُقبل فوراً باسمك، ويُحجز المخزون للعميل 24 ساعة. اتركه فارغاً لو تبي تراجع كل طلب بنفسك.', 'info', 'zap'),
+        banner('كيف يُستخدم القبول التلقائي', 'أي طلب سعره ≥ سعر القبول التلقائي لخياره يصل عليه عرض مقبول باسمك تلقائياً خلال دقائق (توقيت عشوائي حتى لا يُستنتج السعر)، ويُحجز المخزون للعميل 24 ساعة. اترك الخانة فارغة لو تبي تراجع كل طلب بنفسك. المبالغ تُحفظ مبلغاً لكل خيار حتى لو استخدمت التعبئة بالنسبة.', 'info', 'zap'),
         row(btn('حفظ الإعدادات', 'primary', 'md', 'check') + btn('إلغاء', 'ghost', 'md'), 10))
     preview = ('<aside style="flex: 0 1 360px; min-width: 300px; display: flex; flex-direction: column; gap: 14px"><section style="display: flex; flex-direction: column; gap: 12px; padding: 18px; background: %s; border: 1px solid %s; border-radius: 12px">'
                '<h2 style="margin: 0; font-size: 16px">كيف يشوفها العميل</h2><div style="max-width: 200px">%s</div><p style="margin: 0; font-size: 12px; color: %s">العميل يشوف شارة "يقبل الفصال" فقط. الحد الأدنى وسعر القبول التلقائي لا يظهران له.</p></section>'

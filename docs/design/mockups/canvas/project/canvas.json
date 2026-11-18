@@ -2,7 +2,7 @@
  "v": 3,
  "createdOnFiles": {
   "v": 1,
-  "at": "2026-11-17T23:51:06Z"
+  "at": "2026-11-17T23:42:39Z"
  },
  "title": "سوق الزل — تصاميم P0",
  "launch": {
@@ -40,7 +40,7 @@
    "x": 0,
    "y": 1720,
    "w": 1440,
-   "h": 1240,
+   "h": 1720,
    "title": "Design tokens",
    "page": "base"
   },
@@ -75,6 +75,22 @@
    "w": 1760,
    "h": 880,
    "title": "Home · الحالات",
+   "page": "store"
+  },
+  "Menu-mobile.dc.html": {
+   "x": 3830,
+   "y": 260,
+   "w": 390,
+   "h": 1320,
+   "title": "Menu · جوال",
+   "page": "store"
+  },
+  "Menu-states.dc.html": {
+   "x": 4300,
+   "y": 260,
+   "w": 900,
+   "h": 1440,
+   "title": "Menu · الحالات",
    "page": "store"
   },
   "Category-mobile.dc.html": {
@@ -382,7 +398,7 @@
    "x": 1990,
    "y": 8580,
    "w": 390,
-   "h": 1640,
+   "h": 2300,
    "title": "VendorReply · جوال",
    "page": "dash"
   },
@@ -396,7 +412,7 @@
   },
   "VendorBargainSettings-desktop.dc.html": {
    "x": 0,
-   "y": 10760,
+   "y": 11340,
    "w": 1440,
    "h": 1120,
    "title": "VendorBargainSettings · ديسكتوب",
@@ -411,6 +427,8 @@
   "Home-mobile.dc.html",
   "Home-desktop.dc.html",
   "Home-states.dc.html",
+  "Menu-mobile.dc.html",
+  "Menu-states.dc.html",
   "Category-mobile.dc.html",
   "Category-filters-mobile.dc.html",
   "Category-desktop.dc.html",
@@ -471,9 +489,9 @@
   "store_r0": {
    "x": 0,
    "y": 0,
-   "text": "الرئيسية /",
+   "text": "الرئيسية / والقائمة الجانبية للجوال",
    "kind": "title1",
-   "maxW": 3750,
+   "maxW": 5200,
    "page": "store"
   },
   "store_r1": {
@@ -566,7 +584,7 @@
   },
   "dash_r3": {
    "x": 0,
-   "y": 10500,
+   "y": 11080,
    "text": "إعدادات الفصال في نموذج المنتج",
    "kind": "title1",
    "maxW": 1440,

@@ -3,6 +3,7 @@
 > هذا الملف هو **المرجع الوحيد** لكل الإيجنتس. أي قرار غير مذكور هنا يُرفع للـ CEO قبل التنفيذ.
 > ضع الملف في جذر المستودع باسم `SPEC.md` وانسخ قسم "قواعد العمل للإيجنتس" إلى `CLAUDE.md`.
 > **آخر تحديث: 2026-11-18** — دُمجت قرارات المالك (2026-11-17) والتعديلات المعتمدة من `docs/decisions.md` §5 بصياغة المختصين. التعديلات المرتبطة بقرار متأجل أو بانتظار المالك **لم تُدمج** وهي في قسم 15. سجل الحالات: `docs/decisions.md` §0 و§5.1.
+> **تحديث 2026-11-18 (مساءً):** قرارا المالك D31 (التحقق للإدارة والتجار) و D32 (سطر التقسيط)، وقرارات الـ CEO D33، ونتيجة P1-00 (D34، 54/54)، ودمج تعديلات SPEC التقنية من `spikes/p1-00/REPORT.md` §7 (فرع `agent/backend/p1-00-spike`) بصياغة backend-engineer في §2 و§4 و§5.1 و§6.8 و§9 و§10 و§11. سجل الدمج: `docs/decisions.md` §10.
 
 ---
 
@@ -53,6 +54,10 @@
 | D28 | **(2026-11-18) التصميم الحالي معتمد** (الهوية، التوكنات v1.1، الشاشات في `docs/design/`)، مع إمكانية تعديلات لاحقة. بوابة G1 **معتمدة**. |
 | D29 | **(2026-11-18، 10:01) لغة اللوحات:** لوحة الإدارة ولوحة التاجر **بالعربي فقط عند الإطلاق**، والمتجر عربي + إنجليزي. البنية جاهزة لإضافة الإنجليزي للوحات لاحقاً (كل النصوص في `messages/*.json`)، بدون ترجمة إنجليزية للوحات الآن. |
 | D30 | **(2026-11-18، 10:01) بناء الواجهة بالتوازي:** frontend-engineer يبني المكونات بالتوازي مع الباك إند باستخدام بيانات تجريبية مولّدة من مخططات Zod **داخل الاختبارات و Storybook/صفحات dev فقط**، وليس في واجهات الإنتاج (القاعدة 7 في CLAUDE.md سارية على الإنتاج). P1-02 يبدأ بمجرد أن يعمل backend-engineer هيكل المشروع في بداية P1-01. |
+| D31 | **(2026-11-18) التحقق لدخول الإدارة والتجار — "انشأ الاتنين بس هنفعل واحدة فقط دلوقتي":** يُبنى الاتنين: (1) الدخول بالإيميل وكلمة السر، و(2) التحقق بخطوتين (2FA) برمز OTP على الجوال المسجل بنفس محرك OTP (قسم 9) مع خيار **"تذكر هذا الجهاز 30 يوماً"**. الـ 2FA وراه إعداد `staffTwoFactorEnabled` (**افتراضي `false`**)، وطريقة الدخول الواحدة المفعّلة عند البداية وراها إعداد `staffLoginMethod` (`PASSWORD` \| `PHONE_OTP`، **افتراضي `PASSWORD`**)، فالتبديل بدون تعديل كود. الدخول عند البداية بطريقة واحدة فقط. **تأكيد الطريقة المفعّلة بانتظار المالك (O14)**؛ حتى يرد: كلمة السر، و 2FA مقفول. الإعداد يشمل `SUPER_ADMIN` و `STAFF` و `VENDOR_OWNER` و `VENDOR_STAFF`؛ `staffLogin` يرجع `requires2fa` (`spikes/p1-00/REPORT.md` §8-1). |
+| D32 | **(2026-11-18) سطر التقسيط (تابي وتمارا) أداة تسويق لكل الزوار:** يظهر على صفحة المنتج والسلة لكل الزوار، وليس للمؤهلين فقط. الموافقة الفعلية على العميل من تابي أو تمارا وقت الدفع. الصياغة **لا توعد بالموافقة** (مثال: "قسّطها مع تابي أو تمارا")، و**لا يُعرض رقم قسط** على منتج أو سلة فوق سقف المزود. زر الدفع بالتقسيط في الـ checkout يبقى حسب تأهيل المزود (6.2 البند 13). مرتبط بملاحظات legal-contracts: الشروط 5-2 (التقسيط يخضع لموافقة المزود وحدوده) و R-02 (حظر الإعلان المضلل، ولا رسوم إضافية على وسيلة الدفع، والتاجر لا يرفع سعره لعملاء التقسيط). الصياغة النهائية: arabic-content-seo بمراجعة legal-contracts. |
+| D33 | **(2026-11-18) قرارات نطاق من الـ CEO** (`spikes/p1-00/REPORT.md` §8، اعتماد توصيات backend-engineer): (1) **انتهاء مهلة PriceLock والعنصر في السلة:** يتحول لعنصر عادي بالسعر الحالي مع بانر يوضح الفرق، أو "غير متاح"، ولا يُمسح من السلة بدون علم العميل؛ الحذف بـ dialog تأكيد ثم `release()`. (2) **أزرار "نبّهني"** (عند التوفر، بعروض مشابهة، عند بدء العرض) **مخفية عند الإطلاق**، ولا يُبنى لها نموذج بيانات الآن. (3) **فلاتر الكتالوج عند الإطلاق:** السعر والتاجر والأعلام (قابل للفصال، عليه خصم، متوفر)؛ فلاتر الخصائص (taxonomy موحدة) لاحقاً. الحيثيات: `docs/decisions.md` §10.2. |
+| D34 | **(2026-11-18) T10 — العزل و RLS (نتيجة P1-00، 54/54):** طبقتان: طبقة الخدمة أساسية، و RLS بـ `FORCE` و `SET LOCAL` داخل `withCtx` طبقة رفض ثانية؛ بدون سياق لا بيانات. Realtime: `LISTEN/NOTIFY` مع جدول outbox. **محسوم من ناحية backend-engineer؛ مراجعة devops-engineer لم تتم بعد** (المهمة مشتركة). النص في §2 و§4 و§6.8. |
 
 ### قرارات مفتوحة أو متأجلة (2026-11-18)
 
@@ -67,6 +72,7 @@
 | O11 | السيوف (المسار، حد القيمة العالية، التأمين) | **بانتظار المالك** (تابع للشحن) | D26 | backend-engineer + legal-contracts |
 | O12 | الضمان سنتين مقابل الحجز (T7) | **بانتظار المالك** | لا احتياطي (الوضع الحالي) | finance-zatca |
 | O13 | الكوبون العام: `maxDiscount` إلزامي؟ ومن يتحمل `FREE_SHIPPING` لصاحب الشحن الذاتي؟ | **بانتظار المالك** | — (قسم 15) | finance-zatca |
+| O14 | طريقة الدخول الواحدة المفعّلة للإدارة والتجار عند البداية: كلمة السر أم OTP بالجوال؟ (D31) | **بانتظار المالك** | `staffLoginMethod = PASSWORD`، `staffTwoFactorEnabled = false` | backend-engineer |
 
 ---
 
@@ -78,7 +84,11 @@
 - **UI:** Tailwind CSS + shadcn/ui + lucide-react — RTL افتراضي — خط **IBM Plex Sans Arabic فقط بثلاثة أوزان (400/600/700)** وحذف Tajawal (design-system-performance، `docs/design/tokens.md` 1.1)
 - **i18n:** next-intl (ar افتراضي، en) — المتجر عربي + إنجليزي؛ `/admin` و `/vendor` عربي فقط عند الإطلاق ونصوصهما في ملفات الترجمة (D29)
 - **DB:** **PostgreSQL 16** + Prisma ORM + Prisma Migrate. التطوير على Postgres محلي بـ `docker compose`. أي ميزة نستخدمها تكون من Postgres نفسه (SEQUENCE، triggers، exclusion constraints بـ `btree_gist`، `LISTEN/NOTIFY`، RLS) وليست من مزود
-- **Auth:** Better Auth (أو Auth.js) — دخول بالجوال + OTP، وإيميل/كلمة مرور للإدارة والتجار، مع جلسات من السيرفر
+  - **دوران في القاعدة** (`spikes/p1-00/REPORT.md` §3 و§7): `suq_owner` مالك الجداول ويشغّل الـ migrations بس. `suq_app` دور التشغيل: `NOBYPASSRLS`، مش مالك، ومن غير `DELETE` ولا `TRUNCATE`. `DATABASE_URL` للـ migrations و `APP_DATABASE_URL` للتشغيل.
+  - `FORCE` بيطبق RLS على المالك نفسه، فالـ seed يمشي عبر `suq_app` في سياق `system`.
+  - الـ IDs `gen_random_uuid()` من القاعدة.
+  - RLS يتضاف مع كل جدول في نفس الـ migration اللي بيعمله.
+- **Auth:** Better Auth (أو Auth.js) — دخول بالجوال + OTP للعملاء، وإيميل/كلمة مرور للإدارة والتجار، مع جلسات من السيرفر. **التحقق بخطوتين (D31):** OTP على الجوال المسجل بنفس المحرك + "تذكر هذا الجهاز 30 يوماً"، خلف `staffTwoFactorEnabled` (افتراضي `false`) و `staffLoginMethod` (افتراضي `PASSWORD`)
 - **Storage:** خلف interface `StorageProvider` (S3-compatible): bucket عام للصور وbucket خاص للوثائق بروابط موقعة مؤقتة. التطوير على خادم S3-compatible محلي داخل `docker compose` (يختاره devops-engineer)
 - **Validation:** Zod — **Forms:** react-hook-form — **Tables:** TanStack Table — **Charts:** Recharts
 - **Email:** Resend + react-email (قوالب عربية)
@@ -88,6 +98,8 @@
 - **Shipping:** interface `ShippingProvider` بتنفيذ واحد الآن: **يدوي** (D17). تنفيذ مزود يُضاف لاحقاً خلف نفس الـ interface (O4)
 - **Jobs/Cron:** interface `JobScheduler` يستدعي `POST /api/cron/<job>` (المحفّز يختلف حسب الاستضافة)، + جدول `Job` مع leasing (`FOR UPDATE SKIP LOCKED`) و heartbeat و idempotency (`devops.md` §6.5). في التطوير: محفّز محلي
 - **Realtime:** interface `RealtimeProvider`. **مرحلة 1:** SSE من Next.js + Postgres `LISTEN/NOTIFY` (بمكتبة `pg` مش Prisma). لاحقاً حسب الحمل: Centrifugo خلف نفس الـ interface (`devops.md` §5.2). صلاحية الاشتراك في القناة تتفحص على السيرفر، والقنوات منفصلة لكل جمهور (6.8)
+  - **NOTIFY مع جدول outbox**، مش NOTIFY لوحده (`spikes/p1-00/REPORT.md` §4): الحدث بيتبعت بعد الـ COMMIT بس، واللي فات بيترجع بـ `Last-Event-ID`، ومفيش حدث بيضيع لو اتصال LISTEN وقع. العقد الكامل في 6.8.
+  - **نقاط تشغيل (devops-engineer):** اتصال LISTEN مباشر مش من pooler؛ `compress: false` في Next.js وهيدر `X-Accel-Buffering: no`؛ مهلة الطلب في الاستضافة أطول من 15 دقيقة؛ stream واحد لكل تبويب.
 - **Search:** Postgres Full-text + تطبيع عربي (لاحقاً Meilisearch)
 - **Testing:** Vitest (unit) + Playwright (e2e) + axe-core + أداة حمل لاختبارات التزامن (k6 أو سكربت متوازي)
 - **Monitoring:** Sentry + سجل أخطاء — **تنظيف البيانات الشخصية إلزامي** (`sendDefaultPii: false`، و `beforeSend` يمسح الجوال والإيميل والعنوان والآيبان). بقاء Sentry أو استبداله بـ GlitchTip يتبع رأي المحامي في P8
@@ -149,7 +161,16 @@
 - كل Server Action وكل Route Handler يبدأ بـ `requirePermission(...)` من `lib/permissions.ts`.
 - أي استعلام في `/vendor` يأخذ `vendorId` **من الجلسة على السيرفر**، ولا يقبله من العميل أبداً.
 - التاجر لا يرى جوال/إيميل العميل إلا الحقول اللازمة للشحن (الاسم، المدينة، العنوان، جوال الاستلام) وفقط للطلبات الفرعية الخاصة به.
-- **طبقة العزل الأساسية في السيرفر** (`docs/decisions/backend.md` C2-أ): `vendorId` من الجلسة + repository لكل نطاق (`vendorScope(vendorId)`) + اختبارات العزل (سيناريو 5 و 8). RLS في Postgres (بـ `SET LOCAL app.vendor_id` داخل الـ transaction) **طبقة إضافية** حسب نتيجة spike أول P1 (بين backend-engineer و devops-engineer).
+- **طبقة العزل الأساسية في السيرفر** (`docs/decisions/backend.md` C2-أ): `vendorId` من الجلسة + repository لكل نطاق (`vendorScope(vendorId)`) + اختبارات العزل (سيناريو 5 و 8).
+- **RLS — القرار النهائي (T10، D34، `spikes/p1-00/REPORT.md` §3 و§7):** الطبقتين معتمدين: الخدمة أساسية، و RLS بـ `SET LOCAL` طبقة رفض تانية، ولو مفيش سياق مفيش بيانات.
+  - `ENABLE` و `FORCE` على كل الجداول، مع سياسات staff/vendor/customer/public و `WITH CHECK`. `variant_negotiation_settings` مفيهوش أي سياسة للعميل.
+  - دور التشغيل `NOBYPASSRLS` (§2 DB).
+  - `withCtx(ctx, fn)` بس: transaction واحدة لكل طلب، تبدأ بـ `set_config('app.role'|'app.vendor_id'|'app.user_id', …, true)`. السياق من الجلسة الموقّعة بس. ممنوع `set_config` على مستوى الجلسة (بيتسرب بين الطلبات على نفس الاتصال).
+  - رفع الصلاحية: `asSystem()` صريح، في أضيق عدد من الأماكن.
+  - RLS هنا بيحمي من الـ bugs مش من SQL injection، علشان كده ممنوع `$queryRawUnsafe` و `$executeRawUnsafe`.
+  - سياسة الكتالوج العام معناها إن RLS مش هيمسك bug **قراءة** منتجات تجار تانيين المنشورة في لوحة التاجر؛ اختبارات طبقة الخدمة إلزامية.
+  - الآيبان محمي بـ `omit` و DTO، مش بـ RLS.
+  - متوافق مع pooler في وضع transaction.
 - **DTOs بمخطط Zod للمخرجات** (`.strict()`) و **Prisma global `omit`** لـ `VariantNegotiationSettings.floorPrice` و `autoAcceptPrice` و `User.passwordHash` و `Vendor.iban` (يُكشف مقنّعاً فقط `SA****1234`) (`backend.md` 5.6).
 - كل عملية حساسة (تغيير حالة طلب، قبول تاجر، تعديل عمولة، تسجيل تحويل) تُكتب في `audit_logs`.
 
@@ -198,7 +219,7 @@
 - `Banner`: imageDesktop, imageMobile, link, titleAr/En, sort, isActive, startsAt?, endsAt?
 - `Page`: slug (privacy, returns, terms, faq, shipping, about, vendor-agreement), titleAr/En, contentAr/En
 - `HomeSection`: type (BANNERS|CATEGORIES|BUNDLES|CATEGORY_PRODUCTS|FEATURED), refId?, sort, isActive
-- `Setting`: key, value (JSON) — مثال: storeInfo، vatRate=1500، defaultCommission=1000، holdDays=7، payoutCycle=WEEKLY، gatewayFeeBearer، shippingRates، whatsappNumber، pixels. **إضافات (G1):** `gatewayFeeBearer` خريطة لكل `paymentMethod`؛ `commissionBase = NET_OF_VAT`؛ `negotiationCommissionBps = null`؛ `payoutWeekday = SUN`؛ `newVendorHoldDays = 14`؛ `platformCouponApprovalBps = 1000`؛ `souqDiscountsRequireLicense = false`؛ `allowNonResidentVendors = false`؛ وإعدادات O9 (D22). قيم O1/O3/O7 افتراضية بانتظار المالك
+- `Setting`: key, value (JSON) — مثال: storeInfo، vatRate=1500، defaultCommission=1000، holdDays=7، payoutCycle=WEEKLY، gatewayFeeBearer، shippingRates، whatsappNumber، pixels. **إضافات (G1):** `gatewayFeeBearer` خريطة لكل `paymentMethod`؛ `commissionBase = NET_OF_VAT`؛ `negotiationCommissionBps = null`؛ `payoutWeekday = SUN`؛ `newVendorHoldDays = 14`؛ `platformCouponApprovalBps = 1000`؛ `souqDiscountsRequireLicense = false`؛ `allowNonResidentVendors = false`؛ وإعدادات O9 (D22). قيم O1/O3/O7 افتراضية بانتظار المالك. **إضافات (D31):** `staffLoginMethod = PASSWORD`، `staffTwoFactorEnabled = false` (O14 بانتظار المالك)
 - `ShippingZone`: name, cities[], baseFee, perKgFee, freeShippingOver?, etaDays
 - `Notification`: userId, type, title, body, link, readAt?
 - `AuditLog`: actorUserId, action, entity, entityId, before (JSON), after (JSON), ip
@@ -242,6 +263,7 @@
 - حالات موسعة (H14): `PaymentStatus`: `INITIATED`، `AUTHORIZED`، `PAID`، `FAILED`، `VOIDED`، `PARTIALLY_REFUNDED`، `REFUNDED`. `OrderStatus` مشتق: `PENDING_PAYMENT`، `PAID`، `PROCESSING`، `PARTIALLY_SHIPPED`، `SHIPPED`، `DELIVERED`، `COMPLETED`، `PARTIALLY_CANCELLED`، `CANCELLED`، `PAID_NEEDS_REVIEW`. `Payment` 1:N مع `Order`
 - `SEQUENCE` لأرقام الطلبات وطلبات السعر والفواتير (M1)؛ `VendorBankChangeRequest` (M2)؛ `storagePath` بدل الروابط للوثائق (M3)؛ `City` و `Address.cityId` (M4)؛ `ProductRevision` (M5، D23)؛ `PriceLock.shippingFee` (M7)؛ `noteRaw` و `noteSanitized` و `ModerationFlag` (M8)؛ فهرس فريد جزئي لطلب واحد مفتوح لكل منتج (M9)؛ `User.deletedAt` + التجهيل (M10)؛ `AuditLog` append-only (M11)؛ M6 و M12 و M13 و M14 كما في الملف
 - `User.phone ~ '^\+9665[0-9]{8}$'` (D23)
+- `RealtimeEvent` (جدول `realtime_events`، outbox الـ Realtime — `spikes/p1-00/REPORT.md` §4 و§7): يكتب فيه `app.publish_event()` (SECURITY DEFINER) ويعمل `pg_notify`؛ دور التشغيل ممنوع من الوصول له مباشرة (`permission denied`). محتاج **cron يمسح كل 24 ساعة** (P5-03). migration الـ spike `0004_realtime_outbox` يبقى `0010_realtime_outbox`.
 
 ---
 
@@ -283,7 +305,7 @@ vendorPayable       = vendorNet + vendorVat
 4. عند `paid`: `Order.paymentStatus=PAID`، الحالة `PAID`، خصم المخزون الفعلي، كل SubOrder إلى `NEW`، تجميد العمولة، إنشاء قيود `PENDING` في الـ ledger، إشعار العميل والتجار والإدارة.
 5. عند الفشل أو انتهاء المهلة: إلغاء الطلب وفك الحجز (cron كل 5 دقائق).
 6. الاسترجاع (Refund) من لوحة الإدارة فقط عبر Moyasar Refund API، كامل أو جزئي لكل SubOrder، مع قيد `REFUND_DEBIT` على التاجر إن كان رصيده دخل.
-7. تابي وتمارا: نفس النمط (session ← redirect ← webhook ← capture/refund)، ويُعرض ويدجت الأقساط في صفحة المنتج والسلة **حسب تأهيل المزود** (البند 13).
+7. تابي وتمارا: نفس النمط (session ← redirect ← webhook ← capture/refund). **سطر التقسيط (D32)** يظهر في صفحة المنتج والسلة **لكل الزوار** كأداة تسويق، وزر الدفع بالتقسيط في الـ checkout **حسب تأهيل المزود** (البند 13).
 
 **تفاصيل التحقق والتنفيذ (`docs/decisions/backend.md` 3.2 و 4.3) — كلها في sandbox حتى P8 (D14):**
 8. **التحقق من webhook Moyasar:** مقارنة `secret_token` بزمن ثابت، ثم **إعادة جلب الدفعة `GET /v1/payments/:id` بالمفتاح السري** ومطابقة `amount` و `currency` و `metadata.orderId` و `status` قبل أي تحول. لأن التحقق سر مشترك وليس توقيعاً، إعادة الجلب إلزامية وليست اختيارية.
@@ -291,7 +313,7 @@ vendorPayable       = vendorNet + vendorVat
 10. **`given_id` = `Payment.id`** لدينا (UUID نولّده قبل الطلب)، فإعادة المحاولة بعد انقطاع الشبكة لا تنشئ دفعة ثانية. `metadata`: `orderId`، `orderNumber`، `env`، بدون بيانات شخصية.
 11. **الإلغاء قبل الشحن:** إذا أُلغي الطلب خلال ساعتين نستخدم void، وبعدها refund. **الاسترجاع الجزئي المتعدد** يحتاج تأكيداً من Moyasar (P8)؛ إن لم يكن مدعوماً فالاسترجاع الثاني تحويل بنكي يدوي للعميل يُسجل بطريقة `MANUAL_BANK_TRANSFER`. وصول `paid` بعد انتهاء حجز المخزون: محاولة إعادة الحجز، وإلا `PAID_NEEDS_REVIEW`.
 12. **تابي/تمارا: "مدفوع" عندنا = تفويض ناجح ومتحقق منه** (`AUTHORIZED` في تابي بعد إعادة الجلب، و `authorised` في تمارا بعد التحقق من JWT وإعادة الجلب)، ثم capture بمطالبة ذرية (`PaymentTransaction` فريد على `paymentId + type=CAPTURE`). تابي: الهيدر السري + IP allowlist + إعادة الجلب. تمارا: JWT بـ HS256 + إعادة الجلب. cron يومي يلغي/يسترجع أي دفعة BNPL مفوّضة وطلبها ملغى.
-13. **إظهار التقسيط:** لا يُعرض زر تابي/تمارا إلا إذا أكدت الجلسة أو الـ eligibility التأهيل، وويدجت الأقساط لا يُعرض للمنتجات فوق سقف المنتج المتاح لدى المزود. (تأكيد سقف ساما والخطط الممتدة في P8.)
+13. **إظهار التقسيط:** لا يُعرض زر تابي/تمارا في الـ checkout إلا إذا أكدت الجلسة أو الـ eligibility التأهيل. **سطر التقسيط في صفحة المنتج والسلة (D32، قرار المالك 2026-11-18):** يظهر لكل الزوار، وصياغته لا توعد بالموافقة (مثال: "قسّطها مع تابي أو تمارا")، لأن الموافقة الفعلية من المزود وقت الدفع؛ ولا يُعرض فيه **رقم قسط** لمنتج أو سلة فوق سقف المزود (فوق السقف: بدون رقم قسط، أو بدون السطر). (تأكيد سقف ساما والخطط الممتدة في P8.)
 14. **cron مطابقة** كل 10–15 دقيقة: كل `Payment` بحالة `INITIATED` أكثر من 10 دقائق تُجلب حالتها من المزود.
 
 ### 6.3 دورة حياة الطلب الفرعي (State Machine)
@@ -389,8 +411,16 @@ DELIVERED → RETURN_REQUESTED → RETURNED
 - **الحد الأدنى السري:** `floorPrice` و `autoAcceptPrice` **لكل variant** (مبلغ بالهللة في `VariantNegotiationSettings`، D23). لو العميل طلب أقل من `floorPrice`، يُرسل للتاجر مع تنبيه "أقل من حدك الأدنى" (`belowYourFloor: boolean` فقط في `PriceRequestVendorDTO`)، ولا يُكشف `floorPrice` للعميل أبداً (لا في الـ API ولا في رسائل الخطأ). طلب سعر تحت `floorPrice` يأخذ نفس الرد ونفس المسار مثل أي طلب آخر، فلا يمكن استنتاج الحد من اختلاف الرد أو زمنه.
 - **القبول التلقائي:** لو سعر العميل ≥ `autoAcceptPrice` على منتج محدد، يُنشأ عرض مقبول تلقائياً (`isAuto`) من صاحب المنتج **بعد تأخير عشوائي 2–10 دقائق** حتى لا يُستنتج `autoAcceptPrice` بالتجربة (D22).
 - **Realtime والسرية (`backend.md` C1):** قنوات منفصلة لكل جمهور: `pr:{requestId}:customer` (العميل فقط)، `pr:{requestId}:vendor:{vendorId}` (خيط هذا التاجر فقط)، `vendor:{vendorId}:inbox`. البث من السيرفر بـ DTO مُصغّر (معرّفات وحالة، والواجهة تجلب التفاصيل من API محمي). صلاحية الاشتراك تتفحص على السيرفر، وممنوع بث تغييرات جداول الفصال مباشرة.
+- **عقد الـ Realtime (outbox + SSE، `spikes/p1-00/REPORT.md` §4 و§8-4 — اتنفذ واتختبر في P1-00):**
+  1. الخدمة تنادي `publish(tx, …)` جوه transaction العمل، والحمولة تعدّي على Zod `.strict()`.
+  2. `app.publish_event()` (SECURITY DEFINER) يكتب في `realtime_events` ويعمل `pg_notify`؛ الإشعار يوصل بعد الـ COMMIT بس.
+  3. `PgListenHub` في Next.js: اتصال `pg` واحد بيعمل LISTEN ويوزّع في الذاكرة حسب الـ topic.
+  4. `GET /api/realtime/stream?topics=`: الصلاحية كلها أو لا شيء (400/401/403 من غير body، أقصى 10 topics)؛ الترتيب subscribe → buffer → replay → flush → `ready`؛ heartbeat كل 25 ثانية؛ السيرفر يقفل الاتصال كل 15 دقيقة علشان الصلاحية تتراجع؛ بعد رجوع اتصال LISTEN الـ streams تعيد إرسال اللي فاتها.
+  - **القنوات:** `souq`، `pr:{requestId}:customer`، `pr:{requestId}:vendor:{vendorId}`، `vendor:{vendorId}:inbox`، `user:{userId}` (UUID الطلب، مش رقم `PR-`).
+  - قناة `souq` تحمل بيانات عامة `deal.updated {dealId,left,status,endsAt,version}`؛ القنوات الخاصة IDs و status و version بس؛ الأحداث `request.created` و `thread.changed` و `request.changed` و `notification.created`؛ الجلسة بالـ cookie علشان `EventSource` (وتطبيق Flutter بـ Bearer و `Last-Event-ID`).
+  - `compress: false` في Next.js، واتصال LISTEN مباشر مش من pooler (§2).
 - **الالتزام:** العرض المقبول ملزم للتاجر بالسعر والكمية لمدة الـ PriceLock. لو ألغاه التاجر بعد الدفع يُسجل عليه في التقييم الداخلي، والإدارة تقدر تعلّق ميزة الفصال له.
-- **مهلات:** طلب السعر ينتهي بعد 48 ساعة، والعرض بعد `responseWindowHours`، والـ PriceLock بعد 24 ساعة بدون دفع (يفك حجز المخزون). كلها عبر cron.
+- **مهلات:** طلب السعر ينتهي بعد 48 ساعة، والعرض بعد `responseWindowHours`، والـ PriceLock بعد 24 ساعة بدون دفع (يفك حجز المخزون). كلها عبر cron. المهلة الفعلية للعرض = `min(offer.expiresAt, request.expiresAt)`. **العنصر في السلة بعد انتهاء الـ PriceLock (D33-1):** يتحول لعنصر عادي بالسعر الحالي مع بانر يوضح الفرق، أو "غير متاح"، ولا يُمسح بدون علم العميل؛ الحذف بـ dialog تأكيد ثم `release()`.
 - **منع التحايل:** حقل الملاحظات يُفلتر من أرقام الجوال والإيميلات والروابط وحسابات السوشيال (regex عربي وإنجليزي وأرقام عربية ٠-٩)، والمحاولات المتكررة تُبلّغ للإدارة. النص الأصلي يُحفظ في `noteRaw` (للإدارة فقط) والمعروض `noteSanitized`، وكل محاولة `ModerationFlag`. كل الاتفاق والدفع داخل المنصة.
 - **حدود العميل (O9 معتمد — D22):** جوال موثّق؛ 5 مفتوحة / 10 يومياً؛ الحساب الجديد بدون طلب مدفوع 2 / 3 لأول 7 أيام؛ طلب مفتوح واحد لكل عميل على نفس المنتج (فهرس فريد جزئي)؛ `targetPrice` لا يقل عن 50% من سعر الـ variant لفصال المنتج، و30% من أقل سعر منشور في التصنيف للطلب المفتوح (يُعرض كحد عام وليس حد التاجر)؛ 30 مستلماً كحد أقصى (صاحب المنتج دائماً + الأعلى في سرعة الرد والقبول)؛ تعليق الفصال 7 أيام بعد 3 محاولات مشاركة وسيلة تواصل خلال 7 أيام؛ Rate limit 5 إنشاءات/10 دقائق لكل حساب و IP. كلها إعدادات.
 - **صياغة الواجهة (D21):** "المتجر" أو "ينفّذه متجر …" وليس "البائع".
@@ -462,6 +492,8 @@ DELIVERED → RETURN_REQUESTED → RETURNED
 - رفع الملفات: أنواع وأحجام محددة، والوثائق في bucket خاص بروابط موقعة مؤقتة.
 - نظام حماية البيانات الشخصية (PDPL): موافقة الكوكيز، سياسة خصوصية، حذف الحساب عند الطلب **بالتجهيل بدل الحذف** (`User.deletedAt`؛ الطلبات والفواتير تبقى بلقطات العنوان)، **تصدير نسخة من بيانات صاحب الحساب**، وسجل الموافقات. (الإقامة داخل المملكة، خطة الحوادث، مدد الاحتفاظ، RoPA و DPIA: قسم 15 → P7/P8.)
 - **OTP:** 6 أرقام بـ `crypto.randomInt`، تخزين hash فقط، `expiresAt` = 5 دقائق، `attempts` ≤ 5 ثم قفل؛ قبول `+9665XXXXXXXX` فقط.
+- **دخول الإدارة والتجار (D31):** كلمة السر + 2FA بنفس محرك OTP و"تذكر هذا الجهاز 30 يوماً"، والـ 2FA مقفول افتراضياً (`staffTwoFactorEnabled = false`) حتى يؤكد المالك (O14).
+- **ممنوع أي استدعاء لمزود خارجي جوه `withCtx`** (transaction الطلب) (`spikes/p1-00/REPORT.md` §7): كل طلب transaction ماسكة اتصال طول وقتها. الاستدعاء الخارجي (بوابة دفع، SMS، إيميل، تخزين…) قبل الـ transaction أو بعد الـ COMMIT (عبر job أو outbox).
 - **أسرار حساسة:** تشفير حقول الآيبان والوثائق الحساسة على مستوى التطبيق بمفتاح منفصل (`FIELD_ENCRYPTION_KEY`) مع key versioning (`devops.md` 6.2).
 - الأداء: Lighthouse ≥ 90 على الجوال للرئيسية والمنتج، next/image، caching/ISR للصفحات العامة، LCP < 2.5s، وميزانية الأداء في `docs/design/tokens.md` §12.
 - الوصولية: WCAG 2.1 AA بالعربي RTL.
@@ -490,6 +522,8 @@ DELIVERED → RETURN_REQUESTED → RETURNED
 
 **تزامن وأمان (`docs/decisions/backend.md` §7):** حجز المخزون (50 طلباً متزامناً على مخزون 5 ← 5 نجاحات)، FLASH (`stockLimit` و `perCustomerLimit` تحت التزامن)، القبول المزدوج، إعادة إرسال الـ webhook (قيد ledger واحد)، **اختبار تسريب آلي** على كل route handler و server action يتحقق أن الرد لا يحتوي `floorPrice` و `autoAcceptPrice` ولا `vendorId` غير تاجر الجلسة، ورفض اشتراك تاجر في قناة Realtime لتاجر آخر. بأداة حمل وليس Playwright فقط.
 
+**اختبارات P1-00 في الـ CI (`spikes/p1-00/REPORT.md` §7 و§9):** اختبارات الـ spike الـ 54 (`isolation.service`، `isolation.rls`، `stock`، `realtime`) تتنقل للـ CI على **Postgres حقيقي** وأساس سيناريو 5 و 8؛ المقارنة العكسية تفضل (النسخة الساذجة للمخزون و `set_config` على مستوى الجلسة)؛ اختبار التسريب يتعمم على كل route؛ اختبار الحمل في P6.
+
 **Unit إضافي:** آلة حالات PriceRequest/PriceOffer، اختيار المستلمين (التصنيف + المعتمدين + عندهم منتج منشور)، قواعد الحد الأدنى والقبول التلقائي، الـ PriceLock، تسعير العروض وحماية السعر المرجعي، فلتر وسائل التواصل.
 
 **Definition of Done لأي مهمة:** الكود يعمل محلياً + الـ types بدون أخطاء + lint نظيف + الاختبارات المتعلقة تنجح + نصوص الواجهة في ملفات الترجمة + لا بيانات وهمية في الواجهة + تحديث `.env.example` والتوثيق + ملخص قصير لما تم وطريقة الاختبار.
@@ -505,8 +539,8 @@ DELIVERED → RETURN_REQUESTED → RETURNED
 | **P0 التجهيز** (منتهية) | حسم القرارات O1–O9 (المعتمد في D11–D28، والباقي في جدول O)؛ اتفاقية التاجر والسياسات v0.2 (مسودات، المحامي في P8)؛ قرار الفاتورة (D11، D13) | ceo، finance-zatca، legal-contracts | — |
 | | هوية بصرية + Design tokens + شاشات رئيسية — **معتمدة** (D28) | designer، design-system-performance | — |
 | **P1 الأساس** | المستودع، Prisma schema كامل (قسم 5 + 5.1)، migrations، seed (التصنيفات، SUPER_ADMIN، الإعدادات بالقيم الافتراضية في جدول O و D22)، Auth + OTP ذاتي، الصلاحيات، layouts، i18n، RTL | backend-engineer، frontend-engineer | P0 design tokens |
-| | spike أول P1: العزل و RLS (`SET LOCAL app.vendor_id`) و SSE + `LISTEN/NOTIFY` على Postgres محلي | backend-engineer + devops-engineer | — |
-| | `docker compose` (Postgres 16 + تخزين S3-compatible محلي)، CI (lint, typecheck, tests) كملفات جاهزة تعمل عند وصول مستودع GitHub من المالك، Sentry بتنظيف PII، interfaces `StorageProvider` و `JobScheduler` و `RealtimeProvider` | devops-engineer | — |
+| | spike أول P1: العزل و RLS (`SET LOCAL app.vendor_id`) و SSE + `LISTEN/NOTIFY` على Postgres محلي — **نفذه backend-engineer: 54/54 (D34)؛ مراجعة devops-engineer باقية** | backend-engineer + devops-engineer | — |
+| | `docker compose` (Postgres 16 + تخزين S3-compatible محلي)، CI (lint, typecheck, tests) كملفات جاهزة تعمل عند وصول مستودع GitHub من المالك، Sentry بتنظيف PII، interfaces `StorageProvider` و `JobScheduler` و `RealtimeProvider`. **من P1-00:** سكربت init للأدوار (`suq_owner` و `suq_app`)، ومصادر الـ binaries والـ images (إتاحة `binaries.prisma.sh` أو `PRISMA_ENGINES_MIRROR`، و registry لـ `postgres:16` في أي بيئة محجوبة) | devops-engineer | — |
 | **P2 المتجر** | الكتالوج، البحث، صفحة المنتج، السلة، الكوبونات (ضابط D18)، Checkout، Moyasar sandbox + webhooks، حساب العميل (تصدير البيانات والتجهيل) | frontend-engineer، backend-engineer | P1 |
 | | نصوص الواجهة، صفحات السياسات (مسودات حتى المحامي في P8)، SEO و JSON-LD | arabic-content-seo | P1 |
 | **P3 لوحة الإدارة** | الأرقام، المنتجات، التصنيفات، الباقات، الطلبات، الاسترجاع، العملاء، المحتوى، الإعدادات، الموظفون، سجل العمليات، **تأسيس الفاتورة** (6.9: النموذج، الترقيم، PDF، QR TLV كهيكل) | frontend-engineer، backend-engineer | P2 |

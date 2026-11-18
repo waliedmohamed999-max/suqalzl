@@ -30,7 +30,9 @@ if (!secret) {
   process.exit(2);
 }
 if (jobs.length === 0) {
-  console.log("[dev-cron] DEV_CRON_JOBS is empty: nothing to trigger. Idling (set it in .env, e.g. DEV_CRON_JOBS=cancel-unpaid-orders).");
+  console.log(
+    "[dev-cron] DEV_CRON_JOBS is empty: nothing to trigger. Idling (set it in .env, e.g. DEV_CRON_JOBS=cancel-unpaid-orders).",
+  );
   if (once) process.exit(0);
   setInterval(() => {}, 1 << 30);
 } else {

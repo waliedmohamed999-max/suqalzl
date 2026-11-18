@@ -159,3 +159,6 @@ CREATE POLICY audit_logs_append ON "audit_logs" FOR INSERT WITH CHECK (app.ctx_r
 
 CREATE POLICY notifications_own_read ON "notifications" FOR SELECT USING ("user_id" = app.user_id());
 CREATE POLICY notifications_own_update ON "notifications" FOR UPDATE USING ("user_id" = app.user_id()) WITH CHECK ("user_id" = app.user_id());
+
+-- a VENDOR session always carries its vendor; others never do
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_scope_vendor" CHECK (("scope" = 'VENDOR') = ("vendor_id" IS NOT NULL));

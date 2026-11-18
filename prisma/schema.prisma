@@ -47,6 +47,14 @@ enum AppLocale {
   en
 }
 
+/// Which door the session came through. A staff/vendor user who logs in with the customer phone
+/// OTP gets a CUSTOMER session: staff powers need the staff login (D31).
+enum SessionScope {
+  CUSTOMER
+  STAFF
+  VENDOR
+}
+
 enum OtpPurpose {
   CUSTOMER_LOGIN
   STAFF_LOGIN
@@ -471,20 +479,21 @@ model User {
 
 /// Server-side session (SPEC §2 "جلسات من السيرفر"). The cookie holds a random token; only its SHA-256 is stored.
 model Session {
-  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tokenHash           String    @unique @map("token_hash")
-  userId              String    @map("user_id") @db.Uuid
+  id                  String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tokenHash           String       @unique @map("token_hash")
+  userId              String       @map("user_id") @db.Uuid
+  scope               SessionScope @default(CUSTOMER)
   /// Vendor context chosen at login (VENDOR_OWNER / VENDOR_STAFF). vendorId for queries ALWAYS comes from here.
-  vendorId            String?   @map("vendor_id") @db.Uuid
+  vendorId            String?      @map("vendor_id") @db.Uuid
   /// D31: when staffTwoFactorEnabled, a staff session is usable only after the second factor.
-  twoFactorPending    Boolean   @default(false) @map("two_factor_pending")
-  twoFactorVerifiedAt DateTime? @map("two_factor_verified_at") @db.Timestamptz(3)
+  twoFactorPending    Boolean      @default(false) @map("two_factor_pending")
+  twoFactorVerifiedAt DateTime?    @map("two_factor_verified_at") @db.Timestamptz(3)
   ip                  String?
-  userAgent           String?   @map("user_agent")
-  expiresAt           DateTime  @map("expires_at") @db.Timestamptz(3)
-  lastSeenAt          DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz(3)
-  revokedAt           DateTime? @map("revoked_at") @db.Timestamptz(3)
-  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  userAgent           String?      @map("user_agent")
+  expiresAt           DateTime     @map("expires_at") @db.Timestamptz(3)
+  lastSeenAt          DateTime     @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+  revokedAt           DateTime?    @map("revoked_at") @db.Timestamptz(3)
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   vendor Vendor? @relation(fields: [vendorId], references: [id], onDelete: Cascade)
@@ -655,8 +664,8 @@ model Vendor {
   createdAt             DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt             DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  owner              User                    @relation("VendorOwner", fields: [ownerUserId], references: [id])
-  city               City?                   @relation(fields: [cityId], references: [id])
+  owner              User                      @relation("VendorOwner", fields: [ownerUserId], references: [id])
+  city               City?                     @relation(fields: [cityId], references: [id])
   sessions           Session[]
   documents          VendorDocument[]
   members            VendorMember[]
@@ -883,32 +892,32 @@ model Job {
 // =====================================================================================
 
 model Product {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id             String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   /// D6: null = Souq AlZal itself (vendor zero).
-  vendorId       String?       @map("vendor_id") @db.Uuid
-  categoryId     String        @map("category_id") @db.Uuid
-  nameAr         String        @map("name_ar")
-  nameEn         String        @map("name_en")
-  slug           String        @unique
+  vendorId       String?                  @map("vendor_id") @db.Uuid
+  categoryId     String                   @map("category_id") @db.Uuid
+  nameAr         String                   @map("name_ar")
+  nameEn         String                   @map("name_en")
+  slug           String                   @unique
   /// sanitized rich text (SPEC §9)
-  descriptionAr  String?       @map("description_ar")
-  descriptionEn  String?       @map("description_en")
-  basePrice      Int           @map("base_price")
-  compareAtPrice Int?          @map("compare_at_price")
-  status         ProductStatus @default(DRAFT)
-  rejectReason   String?       @map("reject_reason")
-  isFeatured     Boolean       @default(false) @map("is_featured")
-  weightGrams    Int           @default(0) @map("weight_grams")
-  seoTitle       String?       @map("seo_title")
-  seoDescription String?       @map("seo_description")
+  descriptionAr  String?                  @map("description_ar")
+  descriptionEn  String?                  @map("description_en")
+  basePrice      Int                      @map("base_price")
+  compareAtPrice Int?                     @map("compare_at_price")
+  status         ProductStatus            @default(DRAFT)
+  rejectReason   String?                  @map("reject_reason")
+  isFeatured     Boolean                  @default(false) @map("is_featured")
+  weightGrams    Int                      @default(0) @map("weight_grams")
+  seoTitle       String?                  @map("seo_title")
+  seoDescription String?                  @map("seo_description")
   /// Maintained by P2-01 (Arabic-normalised full text). GIN index in SQL.
   searchVector   Unsupported("tsvector")? @map("search_vector")
-  ratingAvg      Decimal       @default(0) @map("rating_avg") @db.Decimal(3, 2)
-  ratingCount    Int           @default(0) @map("rating_count")
-  soldCount      Int           @default(0) @map("sold_count")
-  publishedAt    DateTime?     @map("published_at") @db.Timestamptz(3)
-  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt      DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  ratingAvg      Decimal                  @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount    Int                      @default(0) @map("rating_count")
+  soldCount      Int                      @default(0) @map("sold_count")
+  publishedAt    DateTime?                @map("published_at") @db.Timestamptz(3)
+  createdAt      DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   vendor              Vendor?              @relation(fields: [vendorId], references: [id])
   category            Category             @relation(fields: [categoryId], references: [id])
@@ -1006,18 +1015,18 @@ model ProductVariant {
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  product              Product                     @relation(fields: [productId], references: [id])
-  reservations         StockReservation[]
-  priceHistory         PriceHistory[]
-  bundleItems          BundleItem[]
-  cartItems            CartItem[]
-  orderItems           OrderItem[]
-  dealVariants         DealVariant[]
-  negotiationSettings  VariantNegotiationSettings?
-  priceRequests        PriceRequest[]
-  threads              NegotiationThread[]
-  offers               PriceOffer[]
-  priceLocks           PriceLock[]
+  product             Product                     @relation(fields: [productId], references: [id])
+  reservations        StockReservation[]
+  priceHistory        PriceHistory[]
+  bundleItems         BundleItem[]
+  cartItems           CartItem[]
+  orderItems          OrderItem[]
+  dealVariants        DealVariant[]
+  negotiationSettings VariantNegotiationSettings?
+  priceRequests       PriceRequest[]
+  threads             NegotiationThread[]
+  offers              PriceOffer[]
+  priceLocks          PriceLock[]
 
   @@index([productId])
   @@map("product_variants")
@@ -1060,17 +1069,17 @@ model BundleItem {
 
 /// C3: every hold on stock (order checkout 30 min, PriceLock 24 h). Reserve = atomic conditional UPDATE.
 model StockReservation {
-  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  variantId   String            @map("variant_id") @db.Uuid
-  qty         Int
-  sourceType  ReservationSource @map("source_type")
-  sourceId    String            @map("source_id") @db.Uuid
-  status      ReservationStatus @default(ACTIVE)
-  expiresAt   DateTime          @map("expires_at") @db.Timestamptz(3)
-  consumedAt  DateTime?         @map("consumed_at") @db.Timestamptz(3)
-  releasedAt  DateTime?         @map("released_at") @db.Timestamptz(3)
-  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  variantId  String            @map("variant_id") @db.Uuid
+  qty        Int
+  sourceType ReservationSource @map("source_type")
+  sourceId   String            @map("source_id") @db.Uuid
+  status     ReservationStatus @default(ACTIVE)
+  expiresAt  DateTime          @map("expires_at") @db.Timestamptz(3)
+  consumedAt DateTime?         @map("consumed_at") @db.Timestamptz(3)
+  releasedAt DateTime?         @map("released_at") @db.Timestamptz(3)
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   variant ProductVariant @relation(fields: [variantId], references: [id])
 
@@ -1122,29 +1131,29 @@ model Address {
 }
 
 model Coupon {
-  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                   String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   /// uppercase (CHECK)
-  code                String               @unique
-  type                CouponType
+  code                 String               @unique
+  type                 CouponType
   /// PERCENT: bps (1000 = 10%); FIXED: halalas; FREE_SHIPPING: 0
-  value               Int
-  minOrder            Int?                 @map("min_order")
-  maxDiscount         Int?                 @map("max_discount")
+  value                Int
+  minOrder             Int?                 @map("min_order")
+  maxDiscount          Int?                 @map("max_discount")
   /// null = public coupon carried by the platform (SPEC 6.1)
-  vendorId            String?              @map("vendor_id") @db.Uuid
-  appliesToCategoryIds String[]            @default([]) @map("applies_to_category_ids") @db.Uuid
-  usageLimit          Int?                 @map("usage_limit")
-  perUserLimit        Int?                 @map("per_user_limit")
-  usedCount           Int                  @default(0) @map("used_count")
-  startsAt            DateTime             @map("starts_at") @db.Timestamptz(3)
-  endsAt              DateTime             @map("ends_at") @db.Timestamptz(3)
-  isActive            Boolean              @default(false) @map("is_active")
-  approvalStatus      CouponApprovalStatus @default(NOT_REQUIRED) @map("approval_status")
-  approvedByUserId    String?              @map("approved_by_user_id") @db.Uuid
-  approvedAt          DateTime?            @map("approved_at") @db.Timestamptz(3)
-  createdByUserId     String?              @map("created_by_user_id") @db.Uuid
-  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  vendorId             String?              @map("vendor_id") @db.Uuid
+  appliesToCategoryIds String[]             @default([]) @map("applies_to_category_ids") @db.Uuid
+  usageLimit           Int?                 @map("usage_limit")
+  perUserLimit         Int?                 @map("per_user_limit")
+  usedCount            Int                  @default(0) @map("used_count")
+  startsAt             DateTime             @map("starts_at") @db.Timestamptz(3)
+  endsAt               DateTime             @map("ends_at") @db.Timestamptz(3)
+  isActive             Boolean              @default(false) @map("is_active")
+  approvalStatus       CouponApprovalStatus @default(NOT_REQUIRED) @map("approval_status")
+  approvedByUserId     String?              @map("approved_by_user_id") @db.Uuid
+  approvedAt           DateTime?            @map("approved_at") @db.Timestamptz(3)
+  createdByUserId      String?              @map("created_by_user_id") @db.Uuid
+  createdAt            DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   vendor Vendor? @relation(fields: [vendorId], references: [id])
   carts  Cart[]
@@ -1308,12 +1317,12 @@ model OrderItem {
   dealId           String?  @map("deal_id") @db.Uuid
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  subOrder  SubOrder        @relation(fields: [subOrderId], references: [id])
-  variant   ProductVariant? @relation(fields: [variantId], references: [id])
-  bundle    Bundle?         @relation(fields: [bundleId], references: [id])
-  priceLock PriceLock?      @relation(fields: [priceLockId], references: [id])
-  deal      Deal?           @relation(fields: [dealId], references: [id])
-  review    Review?
+  subOrder     SubOrder         @relation(fields: [subOrderId], references: [id])
+  variant      ProductVariant?  @relation(fields: [variantId], references: [id])
+  bundle       Bundle?          @relation(fields: [bundleId], references: [id])
+  priceLock    PriceLock?       @relation(fields: [priceLockId], references: [id])
+  deal         Deal?            @relation(fields: [dealId], references: [id])
+  review       Review?
   invoiceLines TaxInvoiceLine[]
 
   @@index([subOrderId])
@@ -1415,20 +1424,20 @@ model WebhookEvent {
 }
 
 model Return {
-  id               String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  subOrderId       String       @map("sub_order_id") @db.Uuid
-  userId           String       @map("user_id") @db.Uuid
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subOrderId      String       @map("sub_order_id") @db.Uuid
+  userId          String       @map("user_id") @db.Uuid
   /// [{ orderItemId, qty }]
-  items            Json
-  reason           String
+  items           Json
+  reason          String
   /// storage keys (private bucket)
-  photos           String[]     @default([])
-  status           ReturnStatus @default(REQUESTED)
-  refundAmount     Int          @default(0) @map("refund_amount")
-  decidedByUserId  String?      @map("decided_by_user_id") @db.Uuid
-  decisionNote     String?      @map("decision_note")
-  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt        DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  photos          String[]     @default([])
+  status          ReturnStatus @default(REQUESTED)
+  refundAmount    Int          @default(0) @map("refund_amount")
+  decidedByUserId String?      @map("decided_by_user_id") @db.Uuid
+  decisionNote    String?      @map("decision_note")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   subOrder            SubOrder             @relation(fields: [subOrderId], references: [id])
   user                User                 @relation(fields: [userId], references: [id])

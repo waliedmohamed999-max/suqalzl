@@ -93,6 +93,7 @@ END $$;
 CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'STAFF', 'VENDOR_OWNER', 'VENDOR_STAFF', 'CUSTOMER');
 CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'BLOCKED');
 CREATE TYPE "AppLocale" AS ENUM ('ar', 'en');
+CREATE TYPE "SessionScope" AS ENUM ('CUSTOMER', 'STAFF', 'VENDOR');
 CREATE TYPE "OtpPurpose" AS ENUM ('CUSTOMER_LOGIN', 'STAFF_LOGIN', 'STAFF_2FA', 'PHONE_VERIFY');
 CREATE TYPE "ConsentChannel" AS ENUM ('SMS', 'WHATSAPP', 'EMAIL');
 CREATE TYPE "VendorStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED');
@@ -127,6 +128,7 @@ CREATE TABLE "sessions" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "token_hash" TEXT NOT NULL,
     "user_id" UUID NOT NULL,
+    "scope" "SessionScope" NOT NULL DEFAULT 'CUSTOMER',
     "vendor_id" UUID,
     "two_factor_pending" BOOLEAN NOT NULL DEFAULT false,
     "two_factor_verified_at" TIMESTAMPTZ(3),
@@ -646,3 +648,6 @@ CREATE POLICY audit_logs_append ON "audit_logs" FOR INSERT WITH CHECK (app.ctx_r
 
 CREATE POLICY notifications_own_read ON "notifications" FOR SELECT USING ("user_id" = app.user_id());
 CREATE POLICY notifications_own_update ON "notifications" FOR UPDATE USING ("user_id" = app.user_id()) WITH CHECK ("user_id" = app.user_id());
+
+-- a VENDOR session always carries its vendor; others never do
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_scope_vendor" CHECK (("scope" = 'VENDOR') = ("vendor_id" IS NOT NULL));

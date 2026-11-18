@@ -1,6 +1,6 @@
 # Design System و Design Tokens — سوق الزل
 
-> **الحالة:** مقترح للمراجعة في بوابة G1. **النسخة 1.0** بتاريخ 2026-11-17. تحلّ محل المسودة 0.1.
+> **الحالة:** مقترح للمراجعة في بوابة G1. **النسخة 1.1** بتاريخ 2026-11-18 (تطبيق قرارات المالك 2026-11-17: رمز الريال وزر واتساب، وملاحظات designer). تحلّ محل 1.0 والمسودة 0.1.
 > **المالك:** design-system-performance. القرارات البصرية (الهوية والمزاج) بالتنسيق مع `designer`.
 > **المصدر الوحيد للقيم** لملف `src/app/globals.css` (Tailwind v4 + shadcn/ui) في المهمة P1-02. ممنوع أي لون أو مقاس أو مسافة hardcoded خارج هذا الملف.
 > **ملف المراجعة المرافق:** `docs/design/review-design-system.md` (ملاحظات على التصاميم الحالية).
@@ -20,6 +20,28 @@
 | 7 | الألوان الدلالية: `*-bg` = اللون بشفافية 10% | الشفافية تغيّر التباين حسب السطح تحتها، فلا يمكن ضمانه | خلفيات ثابتة بقيم hex (`*-subtle`) ومفحوصة |
 | 8 | لا يوجد نطاق للأسطح الداكنة | البطاقة البيضاء داخل شريط داكن ترث لون النص الفاتح وتختفي | نطاق `data-surface="inverse"` يعيد تعريف المتغيرات نفسها، ونطاق `data-surface="default"` يرجعها للفاتح داخل الداكن (القسم 2.3) |
 | 9 | ظلال `sm` و `md` فقط، بدون z-index ولا حالات طلبات | ناقص | 3 مستويات ظلال، وطبقات z-index، وخريطة لكل حالات الطلبات والفصال والعروض (القسم 2.5) |
+
+### 0.1 ما تغيّر في 1.1 (2026-11-18)
+
+| # | التغيير | السبب | الأقسام |
+|---|---|---|---|
+| 1 | **رمز الريال السعودي الجديد (U+20C1) بدل "ر.س" في الواجهة**، عبر خط صغير بحرف واحد `Souq Riyal Sign` مبني من ملف ساما الرسمي، بـ `unicode-range: U+20C1`. ونص "ر.س" أو `SAR` في القنوات التي لا نتحكم في خطها | قرار المالك 2026-11-17 (`docs/decisions.md` بند 13) | 3.2، 8.4، 9.1، 9.2، 11، 12.2 |
+| 2 | **توكن مستقل لزر واتساب** `whatsapp` = `#16803E` (نفس درجة لون واتساب، أغمق) بدل `success` | قرار المالك "زر أخضر" (بند 12)، وفصل لون علامة خارجية عن معنى "نجاح" | 2.1، 2.2، 2.6، 11.2 |
+| 3 | توكنا `progress-fill` و `progress-fill-urgent`، ومسار داكن `brown-700` في النطاق المعكوس | ملاحظة designer 1 | 2.2، 2.3، 2.6، 11.3 |
+| 4 | `DealCard` داخل الجزر الداكنة يستخدم `primary` (= ذهبي هناك) | ملاحظة designer 2 | 11.3 |
+| 5 | دور `input-lg` (24px) لحقول الـ OTP والسعر الكبير | ملاحظة designer 4 | 3.3، 9.1، 11.1 |
+| 6 | حجم الزر 36px اسمه `dense` (للوحات فقط، ممنوع في المتجر بالـ lint)، وأُلغي `sm` | ملاحظة designer 5، وتعارض بين 11.1 (sm = 36) و README 4.3 (sm = 44) | 4، 10، 11.1 |
+| 7 | 99 زوج تباين بدل 90، و 0 فشل | الأزواج الجديدة أعلاه | 2.6، الملحق أ |
+
+### 0.2 الرد على ملاحظات designer (README القسم 6)
+
+| # | الملاحظة | الرد | ما تغيّر هنا |
+|---|---|---|---|
+| 1 | `progress-fill` غير المستعجل غير معرّف | **موافق.** اختيارك مقاس وصحيح: `brown-700` على `sand-200` = 8.19، و `danger-700` = 4.64، وعلى الداكن `gold-500` على `brown-700` = 4.43 و `danger-300` على `brown-700` = 5.60. غيّرت مسار النطاق المعكوس من `brown-600` إلى `brown-700` كما رسمته (مع `brown-600` كانت النسبة 3.47 فقط). ملاحظة: الشريط زخرفي (`aria-hidden`) والنص "باقي 3 قطع" هو المعلومة (11.3)، لذلك يكون في README `StockMeter` بدل `StockBar` وبدون `role="progressbar"` | `--progress-fill`، `--progress-fill-urgent`، و `--progress-track` المعكوس |
+| 2 | `DealCard` داخل الداكن يستخدم `primary` | **موافق.** أضفت نصاً صريحاً في 11.3: "اشترِ الآن" = `Button variant="primary"`، والنطاق يجعله ذهبياً على الداكن و `ink` على الفاتح، فيبقى قرار "الذهبي داخل السوق فقط" صحيحاً تلقائياً. `variant="gold"` لا يُستخدم في `DealCard` | 11.3 |
+| 3 | واتساب أخضر يجذب أكثر من زر الشراء، والبديل `ink` + ذهبي | **قرار المالك: أخضر** (2026-11-17). نفذته بتوكن مستقل لا بـ `success`، وبلون من نفس درجة واتساب (`#25D366` بعد تغميقه) حتى يُعرف من أول نظرة: أيقونة بيضاء 5.01، وحدود الزر على `sand-50` 4.69، وعلى الجزر الداكنة 3.14 و 3.72. ولتقليل منافسته لزر الشراء: 56×56 فقط، بلا نبض أو حركة، `shadow-md`، مخفي في السلة والدفع، ويرتفع فوق شريط الشراء الثابت. لون `#25D366` الأصلي مرفوض لأن الأيقونة البيضاء عليه 1.98 | 2.1، 2.2، 9.1، 11.2 |
+| 4 | ذكر صريح أن الـ OTP والسعر في الحقول 24px | **موافق.** دور `input-lg` = `text-2xl font-bold` (24/36) بأرقام لاتينية و `dir="ltr"`. يبقى ≥ 16px فلا يكبّر iOS الصفحة | 3.3، 9.1، 11.1 |
+| 5 | تسمية 36px بـ `size="dense"` | **موافق.** الأحجام الآن: `md` 44 (الافتراضي)، `lg` 52، `icon` 44، و `dense` / `icon-dense` 36 للوحات على الديسكتوب فقط. `sm` أُلغي لأنه كان 36 هنا و 44 في README. قاعدة lint تمنع `dense` تحت مسارات المتجر | 4، 10، 11.1 |
 
 ---
 
@@ -49,6 +71,7 @@
 | Warning | `warning-50 #F8EEDC` · `warning-300 #E8B866` · `warning-700 #8A5A0F` |
 | Danger | `danger-50 #F8E7E3` · `danger-300 #F0A08F` · `danger-700 #A23B2A` |
 | Info | `info-50 #E6EEF4` · `info-300 #8DB8D6` · `info-700 #2D5B7A` |
+| WhatsApp (1.1) | `whatsapp-600 #16803E` · `whatsapp-700 #15783A` — نفس درجة لون واتساب `#25D366` (hue 142°)، مغمّقة حتى يصل الأبيض عليها ≥ 5:1. **لزر واتساب فقط** |
 
 > القاعدة: درجة 700 للنص والخلفية الصلبة على الفاتح، ودرجة 50 للخلفية الهادئة، ودرجة 300 للنص على الداكن.
 
@@ -78,6 +101,8 @@
 | `*-subtle` | درجة 50 (و sand-100 للـ neutral) | خلفية شارة الحالة |
 | `discount` / `discount-foreground` | danger-700 / white | شارة نسبة الخصم |
 | `live` | danger-700 | نقطة وشارة "مباشر" |
+| `progress-track` / `progress-fill` / `progress-fill-urgent` | sand-200 / brown-700 / danger-700 | مسار وتعبئة `StockMeter` ("باقي X")، والمستعجل (≤ 3 قطع). الشريط زخرفي والنص هو المعلومة |
+| `whatsapp` / `whatsapp-foreground` / `whatsapp-hover` | whatsapp-600 / white / whatsapp-700 | **زر واتساب العائم فقط.** لا يُعاد تعريفه في النطاق المعكوس (حدوده ≥ 3:1 على الفاتح والداكن). ممنوع استخدامه كلون نجاح أو العكس |
 | `inverse` / `inverse-foreground` | brown-900 / sand-50 | لتلوين سطح داكن من الخارج (الأفضل استخدام النطاق في 2.3) |
 | `chart-1..4` | gold-600 · brown-700 · info-700 · success-700 | سلاسل الرسوم البيانية. **أقصى 4 سلاسل**، وكلها ≥ 3:1 على الأبيض |
 | `sidebar*` | انظر `globals.css` | Sidebar داكن في admin و vendor |
@@ -92,7 +117,7 @@
 | `data-surface="inverse-strong"` | ink | هيدر المتجر |
 | `data-surface="default"` | يرجع للفاتح | بطاقة منتج بيضاء داخل شريط داكن |
 
-القيم داخل النطاق المعكوس: `foreground` sand-50، و `foreground-secondary` sand-200، و `muted-foreground` sand-300، و `card` brown-800، و `border` brown-600، و `primary` **gold-500 بنص ink** (الزر الأساسي على الداكن يصير ذهبياً)، و `ring` gold-500، و `link` gold-300، والحالات بدرجة 300 مع خلفيات subtle ثابتة (success `#3E3B2D`، warning `#4C3824`، danger `#4D342B`، info `#3D3836`).
+القيم داخل النطاق المعكوس: `foreground` sand-50، و `foreground-secondary` sand-200، و `muted-foreground` sand-300، و `card` brown-800، و `border` brown-600، و `primary` **gold-500 بنص ink** (الزر الأساسي على الداكن يصير ذهبياً)، و `ring` gold-500، و `link` gold-300، والحالات بدرجة 300 مع خلفيات subtle ثابتة (success `#3E3B2D`، warning `#4C3824`، danger `#4D342B`، info `#3D3836`)، و `progress-track` brown-700 مع `progress-fill` gold-500 (4.43) و `progress-fill-urgent` danger-300 (5.60). `whatsapp` لا يتغير.
 
 > **لو احتجنا Dark mode كامل لاحقاً:** `<html data-surface="inverse-strong">` يعطي 90% منه، ويبقى فحص الصور والرسوم. التوكنات جاهزة ومفحوصة (الجدول 2.6.2).
 
@@ -153,7 +178,7 @@
 - **التقييم `Review.status`:** PENDING warning · APPROVED success · HIDDEN neutral "مخفي".
 
 ### 2.6 نسب التباين المحسوبة
-محسوبة بسكربت (الملحق أ) وفق صيغة WCAG 2.x للإضاءة النسبية. الحدود: نص 4.5:1، نص كبير 3:1، عناصر واجهة غير نصية 3:1 (حدود الحقول، حلقة التركيز، مؤشرات الحالة، الأيقونات التي تحمل معنى). **النتيجة: 90 زوجاً مستخدماً، 0 فشل.** (تدقيق المسودة الحالية في ملف المراجعة.)
+محسوبة بسكربت (الملحق أ) وفق صيغة WCAG 2.x للإضاءة النسبية. الحدود: نص 4.5:1، نص كبير 3:1، عناصر واجهة غير نصية 3:1 (حدود الحقول، حلقة التركيز، مؤشرات الحالة، الأيقونات التي تحمل معنى). **النتيجة (1.1): 99 زوجاً مستخدماً، 0 فشل.** رمز الريال يرث `currentColor`، فتباينه هو تباين النص الذي حوله (لا أزواج جديدة له). (تدقيق المسودة الحالية في ملف المراجعة.)
 
 #### 2.6.1 الوضع الفاتح (الافتراضي)
 
@@ -203,17 +228,22 @@
 | border-strong (selected option) | `ink` #16120E | `surface` #FFFFFF | ui | 18.63 | AA (ui) |
 | tab indicator (selected) | `ink` #16120E | `surface` #FFFFFF | ui | 18.63 | AA (ui) |
 | checkbox/radio border | `brown-500` #6E5240 | `surface` #FFFFFF | ui | 7.13 | AA (ui) |
-| progress fill (stock left) | `danger-700` #A23B2A | `progress-track` #E6D7BE | ui | 4.64 | AA (ui) |
+| progress-fill (stock left) | `brown-700` #4A3426 | `progress-track` #E6D7BE | ui | 8.19 | AA (ui) |
+| progress-fill-urgent (stock left) | `danger-700` #A23B2A | `progress-track` #E6D7BE | ui | 4.64 | AA (ui) |
 | star icon | `gold-600` #A67F35 | `surface` #FFFFFF | ui | 3.68 | AA (ui) |
 | chart-1 line | `gold-600` #A67F35 | `surface` #FFFFFF | ui | 3.68 | AA (ui) |
 | chart-2 line | `brown-700` #4A3426 | `surface` #FFFFFF | ui | 11.60 | AA (ui) |
 | chart-3 line | `info-700` #2D5B7A | `surface` #FFFFFF | ui | 7.27 | AA (ui) |
 | chart-4 line | `success-700` #2F6B3F | `surface` #FFFFFF | ui | 6.37 | AA (ui) |
-| whatsapp fab icon | `white` #FFFFFF | `success-solid` #2F6B3F | ui | 6.37 | AA (ui) |
+| whatsapp fab icon/label | `white` #FFFFFF | `whatsapp` #16803E | text | 5.01 | AA |
+| whatsapp fab icon/label (hover) | `white` #FFFFFF | `whatsapp-hover` #15783A | text | 5.56 | AA |
+| whatsapp fab boundary | `whatsapp-600` #16803E | `background` #FBF7F0 | ui | 4.69 | AA (ui) |
+| whatsapp fab boundary | `whatsapp-600` #16803E | `surface` #FFFFFF | ui | 5.01 | AA (ui) |
+| whatsapp fab boundary | `whatsapp-600` #16803E | `surface-subtle` #F3EADB | ui | 4.20 | AA (ui) |
 | border-accent (best offer) + label | `gold-500` #C29A4B | `surface` #FFFFFF | deco | 2.62 | decorative |
 | border (divider) | `sand-200` #E6D7BE | `surface` #FFFFFF | deco | 1.42 | decorative |
 
-_53 زوج — فشل: 0_
+_58 زوج — فشل: 0_
 
 #### 2.6.2 النطاق المعكوس (inverse: الهيدر، شريط عروض الساعة، رأس السوق، Sidebar)
 
@@ -230,6 +260,7 @@ _53 زوج — فشل: 0_
 | info text | `info-300` #8DB8D6 | `inverse (brown-900)` #2E2018 | text | 7.46 | AAA |
 | ring (focus, inverse) | `gold-500` #C29A4B | `inverse (brown-900)` #2E2018 | ui | 6.00 | AA (ui) |
 | border-input (inverse) | `sand-500` #8F7B66 | `inverse (brown-900)` #2E2018 | ui | 3.89 | AA (ui) |
+| whatsapp fab boundary (over dark island) | `whatsapp-600` #16803E | `inverse (brown-900)` #2E2018 | ui | 3.14 | AA (ui) |
 | text | `sand-50` #FBF7F0 | `inverse-strong (ink)` #16120E | text | 17.45 | AAA |
 | text-secondary | `sand-200` #E6D7BE | `inverse-strong (ink)` #16120E | text | 13.16 | AAA |
 | text-muted | `sand-300` #BCAA92 | `inverse-strong (ink)` #16120E | text | 8.26 | AAA |
@@ -241,6 +272,7 @@ _53 زوج — فشل: 0_
 | info text | `info-300` #8DB8D6 | `inverse-strong (ink)` #16120E | text | 8.84 | AAA |
 | ring (focus, inverse) | `gold-500` #C29A4B | `inverse-strong (ink)` #16120E | ui | 7.11 | AA (ui) |
 | border-input (inverse) | `sand-500` #8F7B66 | `inverse-strong (ink)` #16120E | ui | 4.61 | AA (ui) |
+| whatsapp fab boundary (over dark island) | `whatsapp-600` #16803E | `inverse-strong (ink)` #16120E | ui | 3.72 | AA (ui) |
 | badge success (inverse subtle) | `success-300` #8FC79C | `success-300@16%/brown-900` #3E3B2D | text | 5.79 | AA |
 | badge success (inverse solid) | `ink` #16120E | `success-300` #8FC79C | text | 9.60 | AAA |
 | badge warning (inverse subtle) | `warning-300` #E8B866 | `warning-300@16%/brown-900` #4C3824 | text | 6.05 | AA |
@@ -256,8 +288,10 @@ _53 زوج — فشل: 0_
 | countdown digits | `gold-500` #C29A4B | `ink` #16120E | text | 7.11 | AAA |
 | nav item active text | `sand-50` #FBF7F0 | `blend gold .16/brown-900` #463420 | text | 11.09 | AAA |
 | sidebar counter | `ink` #16120E | `gold-500` #C29A4B | text | 7.11 | AAA |
+| progress-fill (inverse) | `gold-500` #C29A4B | `progress-track (inverse) brown-700` #4A3426 | ui | 4.43 | AA (ui) |
+| progress-fill-urgent (inverse) | `danger-300` #F0A08F | `progress-track (inverse) brown-700` #4A3426 | ui | 5.60 | AA (ui) |
 
-_37 زوج — فشل: 0_
+_41 زوج — فشل: 0_
 
 **قواعد ملزمة نتجت عن الجدول:**
 - `gold-500` و `gold-600` **ممنوعان كنص على الفاتح** (2.45 و 3.44). النص الذهبي على الفاتح هو `gold-text` (gold-700) فقط.
@@ -290,7 +324,7 @@ _37 زوج — فشل: 0_
 - **تحققت من التشكيل (shaping) بـ HarfBuzz:** نص تجريبي عربي ولاتيني وأرقام أعطى advances مطابقة 100% للخط الكامل وبدون أي `.notdef`.
 - أي حرف خارج الـ core (عربي ممتد نادر) يغطيه وجه ثانٍ `plex-ext` **بدون preload**، والمتصفح لا ينزّله إلا لو ظهر حرف منه في الصفحة.
 - `font-display: swap` مع preload لملفات الـ core الثلاثة فقط.
-- **رمز الريال الجديد U+20C1 غير موجود في الخط** (فحصته بـ fontTools). القرار في القسم 9.4.
+- **رمز الريال الجديد U+20C1 غير موجود في الخط**، ولا في أحدث إصدار رسمي من IBM (`@ibm/plex-sans-arabic@1.1.0`، أكتوبر 2026، Version 1.005: فيه U+FDFC رمز الريال القديم فقط). الحل في القسم 8.4: وجه رابع صغير `Souq Riyal Sign` بحرف واحد (حوالي 1KB) بـ `unicode-range: U+20C1`.
 
 ### 3.3 مقياس الخطوط (Type scale) — مقياس واحد للمتجر واللوحات
 
@@ -313,6 +347,7 @@ _37 زوج — فشل: 0_
 | `price` (البطاقة) | `text-base font-bold` |
 | `price-old` | `text-sm text-muted-foreground line-through` |
 | `countdown` | `text-base font-bold` مع أرقام لاتينية داخل `<bdi dir="ltr">` |
+| `input-lg` (1.1) | `text-2xl font-bold` (24/36) لحقول **الـ OTP** و**السعر في "اطلب سعرك" والرد السريع والسعر المضاد**، مع `dir="ltr"`. باقي الحقول 16px |
 | `label` | `text-sm font-semibold` |
 | `overline` | `text-xs font-semibold text-gold-text` (على الداكن: `text-gold`) |
 
@@ -337,7 +372,7 @@ _37 زوج — فشل: 0_
 - **هامش الصفحة:** 16px جوال، 24px من `md`، 32px من `lg`. أقصى عرض للمتجر 1280px (`max-w-7xl`)، وللوحات 1440px.
 - **شبكة المنتجات:** عمودان (جوال)، 3 (`md`)، 4 (`lg`). الفجوة 12px جوال و 16px تابلت و 24px ديسكتوب.
 - **اللوحات:** Sidebar بعرض 240px على **اليمين** في العربي (`start`)، وTopbar بارتفاع 64px، ومسافة المحتوى 24px.
-- **أهداف اللمس:** 44×44px كحد أدنى على أجهزة اللمس (`pointer: coarse`). في اللوحات على الديسكتوب يُسمح بـ 36px (`size="sm"`). لا شيء أقل من 24×24 أبداً (WCAG 2.2، البند 2.5.8). الأيقونات الصغيرة (المفضلة، إغلاق) تكبّر منطقة الضغط بـ padding وليس الأيقونة.
+- **أهداف اللمس:** 44×44px كحد أدنى على أجهزة اللمس (`pointer: coarse`). في اللوحات على الديسكتوب يُسمح بـ 36px (`size="dense"`، ممنوع في المتجر بالـ lint). لا شيء أقل من 24×24 أبداً (WCAG 2.2، البند 2.5.8). الأيقونات الصغيرة (المفضلة، إغلاق) تكبّر منطقة الضغط بـ padding وليس الأيقونة.
 
 ### 4.1 نقاط التجاوب (Breakpoints)
 
@@ -415,7 +450,7 @@ _37 زوج — فشل: 0_
 
 | تُعكس في RTL (`rtl:-scale-x-100`) | لا تُعكس |
 |---|---|
-| `chevron-left/right`، `arrow-left/right`، `chevrons-*`، زر الرجوع، "التالي/السابق"، الترقيم (pagination)، `undo/redo`، `reply`، `send-horizontal`، `log-in/log-out`، `list-indent`، فاصل الـ breadcrumbs، شريط التقدم بالخطوات | البحث، السلة، القلب، الجرس، القفل، الساعة والمؤقت (العقارب دائماً مع الساعة)، علامة الصح، اليد (فاصل)، النجمة، الهاتف، واتساب وكل الشعارات، الأرقام، `play` |
+| `chevron-left/right`، `arrow-left/right`، `chevrons-*`، زر الرجوع، "التالي/السابق"، الترقيم (pagination)، `undo/redo`، `reply`، `send-horizontal`، `log-in/log-out`، `list-indent`، فاصل الـ breadcrumbs، شريط التقدم بالخطوات | البحث، السلة، القلب، الجرس، القفل، الساعة والمؤقت (العقارب دائماً مع الساعة)، علامة الصح، اليد (فاصل)، النجمة، الهاتف، واتساب وكل الشعارات، الأرقام، **رمز الريال U+20C1** (قاعدة ساما 8)، `play` |
 
 - **النجوم الجزئية** (4.5) تمتلئ من `start` (من اليمين في العربي).
 - الأيقونة الاتجاهية في مكون مشترك تُعطى `data-directional` حتى يعكسها `Icon` تلقائياً، ولا يتذكر كل مطوّر `rtl:` بنفسه.
@@ -428,15 +463,121 @@ _37 زوج — فشل: 0_
 - **الإدخال:** كل حقل رقمي (السعر، الكمية، الجوال، الآيبان، OTP) يقبل الأرقام الهندية ٠–٩ والفارسية ۰–۹ ويحوّلها للاتينية قبل التحقق (`toLatinDigits()` في `lib/format/digits.ts`)، ويقبل الفاصلة العربية ٫ كفاصلة عشرية. وفلتر وسائل التواصل في الملاحظات يعتمد على نفس الدالة.
 - حقول الأرقام والجوال والآيبان والإيميل: `dir="ltr"` مع `text-end` (النص يلاصق جهة البداية العربية بصرياً)، و `inputMode="decimal"` للسعر و `numeric` للكمية والـ OTP، و `tel` للجوال، و `autoComplete="one-time-code"` للـ OTP.
 
-### 8.4 الأسعار والعملة
-- **الصيغة (من SPEC 6.1):** `1,250.00 ر.س` بالعربي، و `SAR 1,250.00` بالإنجليزي. العملة بعد الرقم في العربي، بمسافة non-breaking (U+00A0) حتى لا تنفصل في سطر جديد.
-- **العزل الاتجاهي:** المكون `Price` يلف السعر كاملاً في `<bdi>`، فيظهر بصرياً `ر.س 1,250.00` ويُقرأ صحيحاً من اليمين. **أي قيمة تبدأ بإشارة** (`-22%`، `+12%`، `−3%`، رصيد سالب `-150.00`) تُلف في `<bdi dir="ltr">`، وإلا ظهرت `22%-`.
-- **الكسور:** المتجر يعرض دائماً منزلتين (`.00`) حسب SPEC. اللوحات في بطاقات KPI يُسمح فيها بالصيغة المختصرة (`486.2 ألف ر.س`) عبر `formatSAR(x, { compact: true })`، **مع العملة دائماً**.
-- **السعر قبل الخصم:** `<s>` مع نص مخفي للقارئ "السعر قبل الخصم"، لأن معظم قارئات الشاشة لا تعلن الشطب.
-- **قارئ الشاشة:** "ر.س" تُقرأ حرفاً حرفاً، لذلك `Price` يضع `ر.س` بـ `aria-hidden` ومعه `<span class="sr-only">ريال</span>`.
+### 8.4 الأسعار والعملة ورمز الريال (محدّث في 1.1)
+
+> **قرار المالك (2026-11-17):** رمز الريال السعودي الجديد بدل "ر.س" في كل الواجهة. هذا القسم يحدد كيف، وأين يبقى النص بديلاً.
+
+#### 8.4.1 وضع الرمز اليوم (تحقق 2026-11-18)
+
+| البند | الحالة | المصدر |
+|---|---|---|
+| الاعتماد | أُعلن واعتُمد في 20 فبراير 2025 | [ساما، صفحة الإرشادات](https://www.sama.gov.sa/en-US/Currency/SRS/Pages/Guideline.aspx)، [Wikipedia](https://en.wikipedia.org/wiki/Saudi_riyal_sign) |
+| Unicode | `U+20C1 SAUDI RIYAL SIGN` في كتلة Currency Symbols، **Unicode 17.0** (صدر 9 سبتمبر 2025). حرف ذري بلا تفكيك، وخاصية الاتجاه (bidi) ليست Arabic Letter مثل الرمز القديم `U+FDFC`، لأنه يُستخدم في الاتجاهين | [مقترح ساما L2/25-075](https://www.unicode.org/L2/L2025/25075-saudi-central-bank.pdf)، [توصية SEW L2/25-076](https://www.unicode.org/L2/L2025/25076-sew-recommendations-saudi-riyal.pdf)، [مدونة Unicode](https://blog.unicode.org/2025/03/support-for-new-saudi-riyal-currency.html) |
+| CLDR / `Intl` | CLDR 48 (أكتوبر 2025) أضافه **رمزاً بديلاً لا افتراضياً** حتى ينتشر في الخطوط. يعني أن `Intl.NumberFormat(…, { style: 'currency' })` لن يعطيه، ونتيجته تختلف بين إصدار ICU في Node والمتصفح | [مدونة Unicode 2025-03](https://blog.unicode.org/2025/03/support-for-new-saudi-riyal-currency.html)، [Wikipedia](https://en.wikipedia.org/wiki/Saudi_riyal_sign)، [مدونة Unicode 2026-02](https://blog.unicode.org/2026/02/from-central-bank-to-code-point-roadmap.html) |
+| الملفات الرسمية | ساما تنشر الرمز بصيغ SVG و PNG و EPS، ومعها "دليل استخدام الرمز" و"دليل مصممي الخطوط" (PDF). الملفات تحت عنوان "General use"، والصفحة لا تذكر ترخيصاً غير "© SAMA. All rights reserved" | [صفحة الإرشادات](https://www.sama.gov.sa/en-US/Currency/SRS/Pages/Guideline.aspx) |
+| الخطوط (مقاس هنا بـ fontTools) | **لا يوجد في أي خط فحصته:** IBM Plex Sans Arabic الرسمي (`@ibm/plex-sans-arabic@1.1.0`، أكتوبر 2026)، وحزم Google Fonts عبر `@fontsource@5.3.0` لـ: IBM Plex Sans Arabic، IBM Plex Sans، Noto Sans Arabic، Noto Naskh Arabic، Noto Kufi Arabic، Noto Sans، Noto Sans Symbols 1 و 2، Tajawal، Cairo، Almarai، Readex Pro، Rubik، Vazirmatn، Alexandria، Amiri (16 حزمة). تنبيه: حزم Google Fonts مقسمة بـ unicode-range، فغياب الحرف فيها قد يكون من التقسيم؛ لكن ملف IBM الكامل حاسم لخطنا | فحص محلي، 2026-11-18 |
+| أنظمة التشغيل والمتصفحات | **لم أجد مصدراً رسمياً** من Apple أو Microsoft أو Google يؤكد وجود الرمز في خطوط النظام. Unicode تحذّر من أن الأجهزة القديمة قد تبقى بدونه سنوات. لذلك لا نعتمد على خطوط النظام إطلاقاً | [مدونة Unicode 2026-02](https://blog.unicode.org/2026/02/from-central-bank-to-code-point-roadmap.html) |
+| الوصول من بيئة العمل | `sama.gov.sa` و `unicode.org` محجوبان عن التنزيل المباشر من هذه البيئة (رد الـ proxy 403). **لم أنزّل ملف الرمز الرسمي، ولم أرسم الرمز ولم أنسخه من مصدر غير رسمي.** طريقة الحصول عليه في 8.4.8 | — |
+
+**قواعد ساما الملزمة** (من صفحة الإرشادات): (1) الرمز **يسار القيمة العددية في كل اللغات**؛ (2) **مسافة** بين الرمز والرقم؛ (3) الرمز يسار القيمة اللفظية أيضاً؛ (4) في القيمة السالبة الرمز يسار علامة السالب والرقم؛ (5) الحفاظ على تناسب الشكل؛ (6) الحفاظ على البنية الهندسية؛ (7) **ارتفاع الرمز = ارتفاع النص**؛ (8) اتجاه الرمز يطابق اتجاه النص؛ (9) مساحة خالية = ثلث ارتفاع الرمز؛ (10) تباين كافٍ مع الخلفية.
+
+#### 8.4.2 الحل المعتمد: خط صغير بحرف واحد
+
+| الخيار | النسخ واللصق والبحث | يتبع حجم النص ولونه | المحاذاة مع الأرقام | التكلفة | القرار |
+|---|---|---|---|---|---|
+| **أ. خط `Souq Riyal Sign` بحرف U+20C1 فقط، من ملف ساما الرسمي، بـ `unicode-range: U+20C1`** | نص حقيقي: يُنسخ U+20C1، ويعمل بحث الصفحة | تلقائياً (`font-size` و `currentColor`) | على خط الأساس تلقائياً، بارتفاع الأرقام بالضبط | ملف واحد حوالي 1KB، مخزّن دائماً، صفر JS | **المعتمد** |
+| ب. مكون SVG `<RiyalSign/>` | لا يُنسخ شيء (أو يُنسخ نص مخفي) | اللون نعم، والوزن لا | يدوي (`vertical-align` + `em`)، ويختلف بين المتصفحات | SVG مكرر في كل سعر: صفحة تصنيف فيها 48 منتجاً × سعرين = 96 نسخة في الـ HTML | مرفوض كحل أساسي |
+| ج. خط بديل كامل يدعم الرمز | — | — | — | لا يوجد خط عربي مجاني يدعمه اليوم (8.4.1)، ولو وُجد فشكله غير مضمون أنه مطابق لساما | غير متاح |
+| د. Private Use Area أو `U+FDFC` | يكسر النسخ والبحث، و `U+FDFC` هو رمز الريال **الإيراني**/القديم | — | — | — | ممنوع |
+| هـ. الاعتماد على خطوط النظام | — | — | — | مربع فارغ على أي جهاز لم يتحدث | ممنوع |
+
+**تفاصيل الوجه:**
+- `@font-face { font-family: "Souq Riyal Sign"; unicode-range: U+20C1; font-weight: 100 900; font-display: block; }`، أول عنصر في `--font-sans`. الـ `unicode-range` يضمن أنه لا يلمس أي حرف آخر. وكونه **الأول** يضمن أن الشكل الرسمي يظهر حتى لو أضاف نظام التشغيل لاحقاً رمزاً بشكل مختلف.
+- **وزن واحد** معلن `100 900` + `font-synthesis: none` على `.riyal`، حتى لا يصنع المتصفح Bold مزيفاً يشوّه البنية الهندسية (قاعدة ساما 6). لو سمح "دليل مصممي الخطوط" من ساما بأوزان متعددة، نضيف 600 و 700 لاحقاً بقرار designer.
+- `font-display: block` (لأن الملف 1KB و preload)، فلا يظهر مربع فارغ للحظة. وهو مستضاف على نفس الدومين، فاحتمال فشل تحميله ضعيف جداً.
+- **Preload** في كل الصفحات (السعر موجود في أغلبها). الخطوط تصير 4 ملفات (القسم 12.2).
+
+#### 8.4.3 بناء الخط (ملف رسمي → woff2 و ttf)
+- السكربت: `docs/design/assets/riyal-sign/build_riyal_font.py` (يُنقل إلى `scripts/fonts/` في P1-02). المدخل الوحيد ملف ساما SVG **بدون أي تعديل**. السكربت يوحّد المسارات بـ picosvg، و**يكبّر ويزيح فقط** (نسبة الأبعاد ثابتة)، ويطبع SHA-256 للملف الرسمي، ويتحقق من النتيجة.
+- **المقاييس (مقاسة من IBM Plex Sans Arabic):** ارتفاع الرمز = **698/1000 em** = ارتفاع الأرقام اللاتينية وارتفاع الحروف الكبيرة في Plex (`1` = 0..698، و`0` = −12..710 بالـ overshoot) → قاعدة ساما 7. يقف على خط الأساس (yMin = 0). جانبان 50 وحدة. والمقاييس الرأسية نفس Plex (ascent 1085، descent 415) فلا يتغير ارتفاع السطر.
+- اختبرت السكربت على ملف تجريبي (مستطيل ومنحنى، **ليس الرمز**): خرج woff2 بحجم 580 بايت و ttf بحجم 1,184 بايت، والخرج متطابق بايت ببايت في تشغيلين (reproducible).
+- المخرجات: `src/app/fonts/souq-riyal-sign.woff2` (الويب) و `souq-riyal-sign.ttf` (الـ PDF، وصور OG عبر `next/og`، وFigma، وتطبيق Flutter عبر `fontFamilyFallback`).
+
+#### 8.4.4 الموضع والمسافة والحجم
+
+| | العربي (RTL) | الإنجليزي (LTR) |
+|---|---|---|
+| الشكل المرئي | `⃁ 1,250.00` (الرمز يسار الرقم) | `⃁ 1,250.00` (الرمز يسار الرقم) |
+| الترتيب المنطقي في الـ DOM والنسخ | `1,250.00` ثم U+00A0 ثم U+20C1 | U+20C1 ثم U+00A0 ثم `1,250.00` |
+| القارئ يسمع | "1,250.00 ريال سعودي" | "Saudi riyal 1,250.00" |
+| سالب (قاعدة 4) | `⃁ −150.00` | `⃁ −150.00` |
+| مختصر في اللوحات (قاعدة 3) | `486.2 ألف` ثم الرمز، فيظهر الرمز يسار الكلمة | `⃁ 486.2K` |
+| نطاق | `من 690.00 ⃁` | `From ⃁ 690.00` |
+
+- `⃁` في هذا الملف هو الحرف U+20C1 نفسه، وقد يظهر مربعاً في محررك لنفس السبب الموضح في 8.4.1.
+- **المسافة:** `U+00A0` (non-breaking، عرضه 236/1000 em في Plex) + جانب الرمز 50 + جانب الرقم (31–77) ≈ **0.34em مرئية**، وهي أكبر من ثلث ارتفاع الرمز (0.233em، قاعدة 9). لا `gap` ولا `margin`: المسافة حرف حقيقي، فتُنسخ صحيحة.
+- **الحجم:** نفس `font-size` الرقم دائماً (لا تصغير): في البطاقة 16px → رمز ارتفاعه 11.2px، وفي صفحة المنتج 24px → 16.8px. اللون `currentColor` (السعر المخفّض danger، والقديم muted، وعلى الداكن sand-50). **لا يُعكس في RTL** (أُضيف لجدول 8.2).
+- **لا ينكسر السطر** داخل السعر: `.price { white-space: nowrap }`.
+- **الـ markup الملزم** (يولّده `Price` فقط، ولا يُكتب يدوياً):
+  ```html
+  <!-- ar -->
+  <bdi class="price" dir="rtl"><bdi dir="ltr">1,250.00</bdi>&nbsp;<span class="riyal" role="img" aria-label="ريال سعودي">&#x20C1;</span></bdi>
+  <!-- en -->
+  <bdi class="price" dir="ltr"><span class="riyal" role="img" aria-label="Saudi riyal">&#x20C1;</span>&nbsp;<bdi dir="ltr">1,250.00</bdi></bdi>
+  ```
+  تحققت منه في Chrome headless بخط تجريبي: الرمز يسار الرقم في 4 سياقات (سعر عربي في جملة عربية، سالب، إنجليزي، **سعر عربي داخل جملة إنجليزية**)، والنسخ يعطي `"1,250.00 ⃁"` و `"−150.00 ⃁"` و `"⃁ 1,250.00"`. العزل بـ `bdi` يمنع الرمز والرقم من التأثر بالنص والأرقام المجاورة (حتى بدون العزل ظهر الرمز يساراً في Chrome، لكن لا نعتمد على ذلك).
+
+#### 8.4.5 قارئ الشاشة والنسخ
+- `role="img"` + `aria-label="ريال سعودي"` (`"Saudi riyal"` في الإنجليزي) على `span.riyal`. **لا** نستخدم `aria-hidden` + `sr-only`، لأن النص المخفي بـ `sr-only` يُنسخ مع التحديد فيصير النص المنسوخ `1,250.00 ⃁ريال سعودي`. ولا نعتمد على أن قارئ الشاشة يعرف U+20C1 (حرف جديد، غالباً غير موجود في قواميس النطق).
+- السعر قبل الخصم: `<s>` + `<span class="sr-only">السعر قبل الخصم</span>` كما هو (النسخ هنا مقبول لأنه نص وصفي).
+- **النسخ:** يُنسخ U+20C1 الحقيقي. الجهاز المستقبل قد يعرضه مربعاً لو خطه قديم، وهذا مقبول لأن البيانات صحيحة. أزرار "نسخ المبلغ" (لو وُجدت) تنسخ الرقم فقط `1250.00`.
+- اختبار VoiceOver و TalkBack بالعربي على السعر ضمن قائمة اختبار P6 (12.5).
+
+#### 8.4.6 أين نعرض الرمز وأين نعرض النص
+
+| القناة | العرض | السبب |
+|---|---|---|
+| الواجهة (Next.js)، والـ Toasts، والجداول، والرسوم البيانية (محور Recharts نص SVG بنفس الخط) | **الرمز** | الخط عندنا |
+| تطبيق Flutter | **الرمز** بنفس `souq-riyal-sign.ttf` في `fontFamilyFallback` | flutter-engineer |
+| صور OG (`next/og`) | **الرمز** (يُمرَّر الـ TTF ضمن `fonts`) | نتحكم في الخط |
+| JSON-LD (`Offer`، `AggregateOffer`) | `"price": "1250.00"`، `"priceCurrency": "SAR"`، **بلا رمز** | schema.org يطلب رمز ISO 4217 |
+| `<title>` و `meta description` و `og:description` | **"ر.س"** نصاً | تعرضها Google وواتساب وX بخطوطها |
+| `product:price:currency` / خلاصة Google Merchant | `SAR`، والسعر `1250.00 SAR` | مواصفات الخلاصة |
+| فاتورة PDF وإيصال الطلب | **الرمز** بخط مضمّن (TTF، مع ToUnicode فيُنسخ صحيحاً)، وسطر في الرأس "جميع المبالغ بالريال السعودي (SAR)". **يعتمده finance-zatca** قبل P3 | الخط مضمّن في الملف |
+| الفاتورة الإلكترونية XML (ZATCA) | `currencyID="SAR"` | معيار UBL، لا رموز |
+| SMS (Taqnyat)، قوالب واتساب (Meta)، رابط `wa.me` الجاهز، الإشعارات (Push) | **"ر.س"** بالعربي و **"SAR"** بالإنجليزي | تُعرض بخط جهاز المستقبل |
+| الإيميل (Resend) | **"ر.س"** / **"SAR"** نصاً | Gmail و Outlook يتجاهلون `@font-face`، والصور محجوبة افتراضياً |
+| تصدير CSV / Excel | عمود رقمي `1250.00` + عمود العملة `SAR` | قابل للحساب |
+| بوابات الدفع (Moyasar، Apple Pay، تابي، تمارا) | المبلغ بالهللات + `SAR` | تعرضه البوابة بنفسها |
+
+#### 8.4.7 الـ formatter والمكون
+```ts
+// src/lib/format/money.ts — the ONLY place that knows the sign. Never Intl style:'currency' (CLDR 48 lists U+20C1 as alt; ICU differs Node vs browser → hydration mismatch).
+export const RIYAL_SIGN = '\u20C1'; // U+20C1 SAUDI RIYAL SIGN
+export const RIYAL_SIGN_READY = false; // flip to true in the PR that adds src/app/fonts/souq-riyal-sign.woff2 (8.4.8); while false <Price> shows 'text'
+type Display = 'symbol' | 'text' | 'code';        // ⃁ | ر.س / SAR | SAR
+export function formatSARParts(halalas: number, o: { locale: 'ar' | 'en'; compact?: boolean }):
+  { amount: string; amountIsNegative: boolean }   // amount uses U+2212 for negatives, latin digits
+export function formatSAR(halalas: number, o: { locale: 'ar' | 'en'; display?: Display; compact?: boolean }): string
+  // default display = 'text' → safe for SMS/email/meta. UI never uses this string: it renders <Price>.
+```
+- `formatSAR(125000, { locale: 'ar' })` → `"1,250.00 ر.س"`، و `{ display: 'code' }` → `"1,250.00 SAR"`، و `{ locale: 'en' }` → `"SAR 1,250.00"`.
+- `<Price>` يستخدم `formatSARParts` ويبني الـ markup في 8.4.4. لو `RIYAL_SIGN_READY = false` يعرض "ر.س" بنفس الهيكل (aria-label "ريال سعودي") حتى لا يتأخر P1-02.
+- **ممنوع** كتابة `ر.س` أو `\u20C1` أو الحرف `⃁` نفسه حرفياً في `src/` خارج `lib/format/money.ts` و `messages/*.json` (قاعدة lint في 10).
+- **مفاتيح الضبط:** لا تُحسب الأسعار في الواجهة. المكون يستقبل هللات (Integer) ويمررها للـ formatter (D7).
+
+#### 8.4.8 الحصول على الملف الرسمي (خطوات قبل P1-02)
+1. **المالك أو designer** من جهاز عادي: يفتح [صفحة ساما](https://www.sama.gov.sa/en-US/Currency/SRS/Pages/Guideline.aspx) وينزّل: الرمز SVG، و"Saudi Riyal Symbol Guidelines" و"Font Designers' Guidelines" (PDF).
+2. يحفظ الـ SVG **بدون فتحه في محرر أو تعديله** في `docs/design/assets/riyal-sign/sama-saudi-riyal-symbol.svg`، والـ PDFين بجانبه، ويسجّل SHA-256 الذي يطبعه السكربت هنا.
+3. **legal-contracts:** تأكيد أن استخدام الرمز في متجر تجاري مسموح دون إذن (الملفات معروضة "General use"، والصفحة تقول "All rights reserved"). استخدام الرمز كعملة هو الغرض المعلن من ساما، لكن التأكيد مكتوباً أسلم.
+4. **designer:** يقرأ "دليل مصممي الخطوط" ويؤكد أو يعدّل `SIDE_BEARING` والوزن، ويطابق الرمز المعروض مع الملف الرسمي فوق بعض عند 16 و 24 و 36px.
+5. **frontend-engineer (P1-02):** يشغّل السكربت، ويضع المخرجات في `src/app/fonts/`، ويجعل `RIYAL_SIGN_READY = true` في نفس الـ PR.
+
+#### 8.4.9 قواعد باقية من 1.0
+- **العزل الاتجاهي:** أي قيمة تبدأ بإشارة (`-22%`، `+12%`، `−3%`) تُلف في `<bdi dir="ltr">`، وإلا ظهرت `22%-`.
+- **الكسور:** المتجر يعرض دائماً منزلتين. بطاقات KPI في اللوحات يُسمح فيها بالمختصر (`compact`) **مع العملة دائماً**.
 - **"شامل الضريبة":** سطر `text-xs text-muted-foreground` تحت السعر في صفحة المنتج والسلة والـ checkout (D8).
-- **رمز الريال الجديد (U+20C1):** دخل [Unicode 17](https://en.wikipedia.org/wiki/Saudi_riyal_sign)، لكنه **غير موجود في IBM Plex Sans Arabic** (فحصته في الملف). القرار: نعرض `ر.س` نصاً في الإطلاق. التحويل للرمز يكون بمكون `<RiyalSign/>` (SVG inline بـ `currentColor` و `aria-label="ريال سعودي"`)، **بقرار من المالك** عبر الـ CEO لأنه قرار هوية. ممنوع كتابة U+20C1 كنص قبل أن يدعمه الخط، وإلا ظهر مربع فارغ أو خط بديل.
-- **مفاتيح الضبط:** لا تُحسب الأسعار في الواجهة. المكون يستقبل هللات (Integer) ويمررها لـ `formatSAR` (D7).
+- **SPEC 6.1** يقول `formatSAR` يعرض `1,250.00 ر.س`. هذا صحيح للنصوص (`display: 'text'`)، والواجهة تعرض الرمز عبر `Price`. تعديل نص SPEC عند مالكه (P0-14).
 
 ### 8.5 التواريخ والمدد والعدادات
 - العداد: أقل من ساعة `MM:SS`، وأقل من 24 ساعة `HH:MM:SS`، وأكثر من ذلك "يومان و 4 ساعات". الأرقام في `<bdi dir="ltr">` **والكلمة العربية خارجها**: `ينتهي خلال <bdi dir="ltr">23:41:10</bdi>`.
@@ -451,7 +592,7 @@ _37 زوج — فشل: 0_
 
 ### 9.1 `src/app/globals.css`
 ```css
-/* Souq AlZal design tokens v1.0 — source: docs/design/tokens.md. Do not edit values here without updating the doc + contrast script. */
+/* Souq AlZal design tokens v1.1 — source: docs/design/tokens.md. Do not edit values here without updating the doc + contrast script. */
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -466,6 +607,7 @@ _37 زوج — فشل: 0_
   --c-warning-50: #F8EEDC; --c-warning-300: #E8B866; --c-warning-700: #8A5A0F;
   --c-danger-50:  #F8E7E3; --c-danger-300:  #F0A08F; --c-danger-700:  #A23B2A;
   --c-info-50:    #E6EEF4; --c-info-300:    #8DB8D6; --c-info-700:    #2D5B7A;
+  --c-whatsapp-600: #16803E; --c-whatsapp-700: #15783A; /* v1.1, WhatsApp FAB only */
 
   --z-sticky: 10; --z-header: 20; --z-fab: 30; --z-dropdown: 40; --z-overlay: 50; --z-toast: 60;
   --scrim: rgb(22 18 14 / .55);
@@ -497,7 +639,8 @@ _37 زوج — فشل: 0_
   --neutral: var(--c-brown-700);   --neutral-foreground: var(--c-sand-50); --neutral-subtle: var(--c-sand-100);
   --discount: var(--c-danger-700); --discount-foreground: var(--c-white);
   --live: var(--c-danger-700);
-  --progress-track: var(--c-sand-200);
+  --progress-track: var(--c-sand-200); --progress-fill: var(--c-brown-700); --progress-fill-urgent: var(--c-danger-700);
+  --whatsapp: var(--c-whatsapp-600); --whatsapp-foreground: var(--c-white); --whatsapp-hover: var(--c-whatsapp-700); /* not redefined in inverse */
   --inverse: var(--c-brown-900);   --inverse-foreground: var(--c-sand-50);
 
   --chart-1: var(--c-gold-600); --chart-2: var(--c-brown-700); --chart-3: var(--c-info-700); --chart-4: var(--c-success-700);
@@ -529,7 +672,7 @@ _37 زوج — فشل: 0_
   --info:    var(--c-info-300);    --info-foreground:    var(--c-ink); --info-subtle:    #3D3836;
   --neutral: var(--c-sand-200);    --neutral-foreground: var(--c-ink); --neutral-subtle: var(--c-brown-800);
   --live: var(--c-danger-300);
-  --progress-track: var(--c-brown-600);
+  --progress-track: var(--c-brown-700); --progress-fill: var(--c-gold-500); --progress-fill-urgent: var(--c-danger-300);
   background-color: var(--background);
   color: var(--foreground);
 }
@@ -575,7 +718,7 @@ _37 زوج — فشل: 0_
 }
 
 @theme inline {
-  --font-sans: var(--font-plex), var(--font-plex-ext), "Plex Fallback", "Segoe UI", Tahoma, "Geeza Pro", "Noto Sans Arabic", system-ui, sans-serif;
+  --font-sans: var(--font-riyal), var(--font-plex), var(--font-plex-ext), "Plex Fallback", "Segoe UI", Tahoma, "Geeza Pro", "Noto Sans Arabic", system-ui, sans-serif;
 
   --color-background: var(--background);   --color-foreground: var(--foreground);
   --color-foreground-secondary: var(--foreground-secondary);
@@ -599,6 +742,8 @@ _37 زوج — فشل: 0_
   --color-discount: var(--discount); --color-discount-foreground: var(--discount-foreground);
   --color-live: var(--live);
   --color-progress-track: var(--progress-track);
+  --color-progress-fill: var(--progress-fill); --color-progress-fill-urgent: var(--progress-fill-urgent);
+  --color-whatsapp: var(--whatsapp); --color-whatsapp-foreground: var(--whatsapp-foreground); --color-whatsapp-hover: var(--whatsapp-hover);
   --color-inverse: var(--inverse); --color-inverse-foreground: var(--inverse-foreground);
   --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4);
   --color-sidebar: var(--sidebar); --color-sidebar-foreground: var(--sidebar-foreground);
@@ -624,6 +769,7 @@ _37 زوج — فشل: 0_
   input, select, textarea { font-size: max(16px, 1em); } /* iOS zoom guard */
   .num { font-variant-numeric: tabular-nums; } /* no-op for Plex (digits already 600u), kept for fallbacks */
   [data-directional]:dir(rtl) { transform: scaleX(-1); }
+  .riyal { font-synthesis: none; } /* single-weight official glyph: never fake-bold it (SAMA rule 6) */
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -636,6 +782,8 @@ _37 زوج — فشل: 0_
 @layer components {
   .price-lg  { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); font-weight: 700; }
   .price     { font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: 700; }
+  .price, .price-lg, .price-old { white-space: nowrap; }
+  .input-lg  { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); font-weight: 700; } /* OTP + bargain price inputs */
   .price-old { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--muted-foreground); text-decoration: line-through; }
   .label     { font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: 600; }
   .overline  { font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: 600; color: var(--gold-text); }
@@ -671,7 +819,17 @@ export const plexExt = localFont({
   adjustFontFallback: false,
   declarations: [{ prop: 'unicode-range', value: 'U+0600-0620,U+0653-065F,U+066E-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC' }],
 });
-// layout: <html lang={locale} dir={dir} className={`${plex.variable} ${plexExt.variable}`}>
+// v1.1 — Saudi riyal sign U+20C1 only (~1 KB), built from SAMA's official SVG (tokens.md 8.4.3).
+// First in --font-sans; unicode-range keeps it off every other character. One weight declared 100–900 → no synthetic bold.
+export const riyal = localFont({
+  src: [{ path: './fonts/souq-riyal-sign.woff2', weight: '100 900', style: 'normal' }],
+  variable: '--font-riyal',
+  display: 'block',
+  preload: true,
+  adjustFontFallback: false,
+  declarations: [{ prop: 'unicode-range', value: 'U+20C1' }],
+});
+// layout: <html lang={locale} dir={dir} className={`${riyal.variable} ${plex.variable} ${plexExt.variable}`}>
 ```
 
 سكربت توليد الـ subset (يُحفظ في `scripts/fonts/subset.sh` في P1-02، والمصدر ملفات IBM Plex الرسمية بترخيص OFL):
@@ -734,13 +892,15 @@ export default {
       gold: { DEFAULT: v('gold'), foreground: v('gold-foreground'), hover: v('gold-hover'), subtle: v('gold-subtle'), text: v('gold-text') },
       success: tone('success'), warning: tone('warning'), danger: tone('danger'), info: tone('info'), neutral: tone('neutral'),
       discount: { DEFAULT: v('discount'), foreground: v('discount-foreground') }, live: v('live'),
-      'progress-track': v('progress-track'), inverse: { DEFAULT: v('inverse'), foreground: v('inverse-foreground') },
+      'progress-track': v('progress-track'), 'progress-fill': { DEFAULT: v('progress-fill'), urgent: v('progress-fill-urgent') },
+      whatsapp: { DEFAULT: v('whatsapp'), foreground: v('whatsapp-foreground'), hover: v('whatsapp-hover') },
+      inverse: { DEFAULT: v('inverse'), foreground: v('inverse-foreground') },
       chart: { 1: v('chart-1'), 2: v('chart-2'), 3: v('chart-3'), 4: v('chart-4') },
       sidebar: { DEFAULT: v('sidebar'), foreground: v('sidebar-foreground'), primary: v('sidebar-primary'),
         'primary-foreground': v('sidebar-primary-foreground'), accent: v('sidebar-accent'),
         'accent-foreground': v('sidebar-accent-foreground'), border: v('sidebar-border'), ring: v('sidebar-ring') },
     },
-    fontFamily: { sans: ['var(--font-plex)', 'var(--font-plex-ext)', '"Plex Fallback"', '"Segoe UI"', 'Tahoma', '"Geeza Pro"', '"Noto Sans Arabic"', 'system-ui', 'sans-serif'] },
+    fontFamily: { sans: ['var(--font-riyal)', 'var(--font-plex)', 'var(--font-plex-ext)', '"Plex Fallback"', '"Segoe UI"', 'Tahoma', '"Geeza Pro"', '"Noto Sans Arabic"', 'system-ui', 'sans-serif'] },
     fontSize: {
       xs: ['0.75rem', '1.25rem'], sm: ['0.875rem', '1.375rem'], base: ['1rem', '1.625rem'], lg: ['1.125rem', '1.75rem'],
       xl: ['1.25rem', '1.875rem'], '2xl': ['1.5rem', '2.25rem'], '3xl': ['1.75rem', '2.5rem'], '4xl': ['2.25rem', '3.25rem'],
@@ -769,24 +929,31 @@ export default {
      -e '\b(font-(thin|extralight|light|medium|extrabold|black)|tracking-(tight|tighter|wide|wider|widest)|rounded-(xl|2xl|3xl)|leading-none)\b' \
      -e '#[0-9A-Fa-f]{3,8}\b' --glob '!src/app/globals.css' \
      -e 'ring-ring/[0-9]+' -e 'text-\[(1[01]|[0-9])px\]' && exit 1 || exit 0
+   # v1.1 — currency only via src/lib/format/money.ts (8.4.7); no Intl currency style anywhere
+   rg -n --glob 'src/**/*.{ts,tsx}' --glob '!src/lib/format/money.ts' \
+     -e 'ر\.س' -e '\\u20C1' -e '\x{20C1}' -e "style:\s*['\"]currency['\"]" && exit 1
+   # v1.1 — 36px buttons are dashboard-only (11.1); route-group/folder names fixed in P1-02
+   rg -n --glob 'src/app/**/(store)/**' --glob 'src/components/{store,souq}/**' \
+     -e 'size=["\x27](dense|icon-dense)["\x27]' && exit 1 || exit 0
    ```
 3. **الألوان:** أي `bg-[#...]` أو `text-[#...]` مرفوض في المراجعة. لو احتجت لوناً جديداً: اقتراح على هذا الملف، ثم إضافة الزوج لسكربت التباين، ثم تشغيله.
 4. **الأسطح الداكنة:** الـ theme لا يحتوي `white` ولا `black`، فـ `bg-black/50` في overlay الـ Dialog يصير `bg-[var(--scrim)]`، و `text-white` يصير توكن دلالياً. لا تكتب `text-white` داخل شريط داكن. ضع `data-surface="inverse"` على الحاوية، والبطاقة البيضاء داخلها تأخذ `data-surface="default"`.
 5. **الأرقام والأسعار:** لا `toLocaleString()` مباشرة في المكونات. استخدم `lib/format/*` (القسم 11).
-6. **إضافة توكن:** PR يعدّل `tokens.md` (هذا الملف) والسكربت والنتائج معاً، بمراجعة من design-system-performance و designer.
+6. **العملة (1.1):** لا "ر.س" ولا U+20C1 في المكونات. السعر في الواجهة = `<Price halalas={…} />`، والنص خارج الواجهة (SMS، إيميل، meta) = `formatSAR(h, { locale, display: 'text' })`، والبيانات المنظمة = `SAR` (8.4.6). اللوحات في P1-02 تُرسم بالرمز.
+7. **إضافة توكن:** PR يعدّل `tokens.md` (هذا الملف) والسكربت والنتائج معاً، بمراجعة من design-system-performance و designer.
 
 ---
 
 ## 11. المكونات المشتركة
 
-**المبدأ:** كل مكون **Server Component** إلا المذكور بأنه Client (🟢 = server، 🔵 = client island). الـ formatters منفصلة عن المكونات في `src/lib/format/`: `money.ts` (يلف `lib/money.ts::formatSAR`، و `compact`، و `percent`)، و `number.ts`، و `date.ts`، و `duration.ts` (العدادات)، و `phone.ts`، و `digits.ts` (`toLatinDigits`). المكونات تستقبل قيماً خاماً (هللات، ISO dates) وتنسقها عبر هذه الدوال فقط.
+**المبدأ:** كل مكون **Server Component** إلا المذكور بأنه Client (🟢 = server، 🔵 = client island). الـ formatters منفصلة عن المكونات في `src/lib/format/`: `money.ts` (يلف `lib/money.ts::formatSAR`، ويضيف `formatSARParts` و `display: symbol | text | code` و `compact` و `percent`، وهو المكان الوحيد الذي يعرف رمز الريال، 8.4.7)، و `number.ts`، و `date.ts`، و `duration.ts` (العدادات)، و `phone.ts`، و `digits.ts` (`toLatinDigits`). المكونات تستقبل قيماً خاماً (هللات، ISO dates) وتنسقها عبر هذه الدوال فقط.
 
 ### 11.1 الأساسيات (`src/components/ui/`, shadcn معدّل)
 
 | المكون | النوع | Variants | الأحجام | الحالات | ملاحظات وصولية |
 |---|---|---|---|---|---|
-| `Button` | 🟢 | `primary` (ink)، `gold` (CTA في السوق وعلى الداكن)، `outline`، `ghost`، `bargain` (حد gold-500 بسماكة 1.5px ونص gold-text وأيقونة يد)، `destructive`، `link` | `sm` 36 (لوحات فقط)، `md` 44، `lg` 52، `icon` 44×44 | default، hover، active، focus-visible، disabled، **loading** (spinner + `aria-busy`، والعرض ثابت لمنع القفز) | `disabled` يعطّل الضغط ويبقي التباين ≥ 4.5 (نص muted على muted). الأيقونة وحدها تحتاج `aria-label` |
-| `Input` / `Textarea` / `Select` | 🟢 (الحالة 🔵 داخل form) | `default`، `numeric` (dir=ltr + toLatinDigits)، `price` (لاحقة "ر.س")، `phone` (بادئة +966) | 44 (جوال)، 40 (لوحات) | default، hover، focus، **error** (حد danger + أيقونة + رسالة)، disabled، read-only | `aria-invalid` و `aria-describedby` للرسالة. النص 16px |
+| `Button` | 🟢 | `primary` (ink)، `gold` (CTA في السوق وعلى الداكن)، `outline`، `ghost`، `bargain` (حد gold-500 بسماكة 1.5px ونص gold-text وأيقونة يد)، `destructive`، `link` | `md` 44 (افتراضي)، `lg` 52، `icon` 44×44؛ و `dense` 36 و `icon-dense` 36×36 **للوحات على الديسكتوب فقط** (ممنوع في المتجر بالـ lint). لا يوجد `sm` | default، hover، active، focus-visible، disabled، **loading** (spinner + `aria-busy`، والعرض ثابت لمنع القفز) | `disabled` يعطّل الضغط ويبقي التباين ≥ 4.5 (نص muted على muted). الأيقونة وحدها تحتاج `aria-label` |
+| `Input` / `Textarea` / `Select` | 🟢 (الحالة 🔵 داخل form) | `default`، `numeric` (dir=ltr + toLatinDigits)، `price` (لاحقة رمز الريال من `Price` كزخرفة `aria-hidden`، والعملة مذكورة في الـ label: "السعر بالريال")، `phone` (بادئة +966)، `otp` و `price-lg` بدور `input-lg` 24px (3.3) | 44 (جوال)، 40 (لوحات)، 56 لـ `input-lg` | default، hover، focus، **error** (حد danger + أيقونة + رسالة)، disabled، read-only | `aria-invalid` و `aria-describedby` للرسالة. النص 16px |
 | `FormField` | 🔵 (react-hook-form) | `stacked` (افتراضي)، `inline` (لوحات) | — | normal، error (inline تحت الحقل)، hint، required (`*` + `aria-required`) | الرسالة تُعلن بـ `role="alert"` مرة واحدة عند الإرسال، وليس عند كل ضغطة |
 | `Checkbox` / `Radio` / `Switch` | 🔵 | — | منطقة ضغط 44 | checked، unchecked، indeterminate (checkbox)، disabled، error | حدود `input`. مجموعة الراديو بـ `fieldset`/`legend` |
 | `Tabs` | 🔵 | `underline` (السوق)، `pill` (فلاتر الصندوق) | — | selected (مؤشر `border-strong` بسماكة 2px + نص foreground)، hover، focus، disabled، مع `count` | أسهم لوحة المفاتيح تنعكس في RTL (Radix يدعم `dir`) |
@@ -805,7 +972,7 @@ export default {
 | المكون | النوع | Variants | الحالات | ملاحظات |
 |---|---|---|---|---|
 | `ProductCard` | 🟢 + `FavoriteButton` 🔵 | `grid` (4:5)، `compact` (أفقي، للسلة والاقتراحات)، `rail` (عرض 160 في الشريط الأفقي) | default، hover (shadow-sm)، **out-of-stock** (شارة neutral وزر معطل)، **has-variants** ("متوفر بعدة خيارات" بدل زر السلة)، **on-deal** (شارة خصم + `StockMeter`)، loading (Skeleton) | الكارت كله رابط واحد (`<a>` يغطي البطاقة) وزر المفضلة فوقه منفصل، فلا تتداخل الروابط. اسم المنتج سطران بـ `line-clamp-2`، والاسم الكامل في `title` |
-| `Price` | 🟢 | `sm`، `md`، `lg`؛ `with-compare` (قبل/بعد + نسبة الخصم)، `range` ("من 690.00 ر.س")، `locked` (أيقونة قفل + نغمة accent)، `free` ("مجاني") | — | يستقبل هللات. `<bdi>` + sr-only (8.4). ولا يعرض `compareAt` لو ≤ السعر |
+| `Price` (1.1) | 🟢 | `sm` (14، السلة والصفوف)، `md` (16، البطاقة)، `lg` (24، صفحة المنتج)؛ `with-compare` (قبل/بعد + نسبة الخصم)، `range` ("من" + السعر)، `locked` (أيقونة قفل + نغمة accent)، `free` ("مجاني"، بلا رمز)، `compact` (اللوحات فقط: "486.2 ألف" + الرمز) | `currencyDisplay`: `symbol` (افتراضي) أو `text` ("ر.س"، تلقائي لو `RIYAL_SIGN_READY = false`) | Props: `halalas` (Integer)، `compareAt?`، `size`، `variant`، `locale` من next-intl. **الرمز U+20C1 نص حقيقي بخط `Souq Riyal Sign`، يسار الرقم في العربي والإنجليزي، بمسافة U+00A0، وبنفس حجم ولون الرقم** (8.4.4). الـ markup: `<bdi class="price" dir>` ← الرقم `<bdi dir="ltr">` + `span.riyal[role=img][aria-label="ريال سعودي"]`. السالب `−` داخل الرقم والرمز يساره. `white-space: nowrap`. السعر القديم `<s>` + sr-only "السعر قبل الخصم". لا يعرض `compareAt` لو ≤ السعر. Server Component بلا JS |
 | `DiscountBadge` | 🟢 | `solid` (افتراضي)، `subtle` | — | `<bdi dir="ltr">-22%</bdi>`، والقارئ يسمع "خصم 22 بالمئة" |
 | `RatingStars` | 🟢 | `display`، `input` 🔵 | — | `role="img"` + `aria-label="4.8 من 5، 312 تقييماً"`. التعبئة من `start` |
 | `VendorChip` | 🟢 | `inline` (اسم + تقييم)، `row` (شعار + تقييم + "زيارة المتجر")، `platform` (سوق الزل بدون تقييم) | — | لا يعرض اسم التاجر في سياق الفصال إلا حسب O8 |
@@ -816,7 +983,7 @@ export default {
 | `FilterChips` / `SortMenu` | 🔵 | `scroll` (جوال)، `wrap` | selected، with-count، clear-all | الحالة في الـ URL (`searchParams`)، و `aria-pressed` |
 | `SearchBox` | 🔵 | `header`، `page` | idle، typing (اقتراحات)، empty-results | `role="combobox"`، والتطبيع العربي على السيرفر |
 | `BnplSlot` | 🔵 lazy | tabby، tamara | loading (ارتفاع محجوز لمنع CLS) | يُحمّل عند ظهوره (IntersectionObserver)، ولا يدخل في الـ LCP |
-| `WhatsAppFab` | 🟢 | — | hidden في `/checkout` وفي الـ Sheet | رابط `wa.me` عادي بدون SDK، و `aria-label`، وعلى `end` |
+| `WhatsAppFab` (1.1) | 🟢 | — | default، hover (`whatsapp-hover`)، focus-visible (حلقة `ring` العادية)، hidden في `/cart` و `/checkout` وأثناء فتح أي Sheet، ويرتفع فوق `StickyActionBar` (`bottom: 96px`) | `bg-whatsapp text-whatsapp-foreground` (5.01)، دائرة 56×56 (`rounded-full`)، أيقونة 28، `shadow-md`، `--z-fab`، على `end`. **بلا نبض ولا حركة دخول.** رابط `wa.me` عادي بدون SDK، و `aria-label="تواصل معنا عبر واتساب"`، والنص الجاهز في الرابط بـ "ر.س" لا بالرمز (8.4.6) |
 | `CartLine` | 🔵 | `default`، `deal-locked` (عداد 15 دقيقة)، `price-locked` (عداد PriceLock)، `unavailable` | updating، removed (تراجع) | السعر المقفول يُعرض بـ `Price variant="locked"` |
 | `ShipmentGroup` | 🟢 | — | — | "الشحنة N · اسم التاجر"، والمدة والرسوم لكل تاجر (D3) |
 | `CheckoutStepper` | 🟢 | — | done، current (`aria-current="step"` + أيقونة)، upcoming | النص 12px كحد أدنى (المسودة 11px) |
@@ -828,9 +995,9 @@ export default {
 
 | المكون | النوع | Variants | الحالات | ملاحظات |
 |---|---|---|---|---|
-| `DealCard` | 🟢 + `Countdown` و `StockMeter` 🔵 | `horizontal` (قائمة السوق)، `rail` (الرئيسية)، `pinned` (`border-accent`) | scheduled (APPROVED: "يبدأ خلال")، **live**، ending-soon (أقل من 10 دقائق: نغمة warning)، **sold-out** (شارة neutral وزر معطل)، **ended** (يختفي في التحديث التالي مع إعلان polite)، مع/بدون "فاصل" (`allowBargain`) | الأزرار 44. "اشترِ الآن" `gold`، و"فاصل" `bargain` |
+| `DealCard` | 🟢 + `Countdown` و `StockMeter` 🔵 | `horizontal` (قائمة السوق)، `rail` (الرئيسية)، `pinned` (`border-accent`) | scheduled (APPROVED: "يبدأ خلال")، **live**، ending-soon (أقل من 10 دقائق: نغمة warning)، **sold-out** (شارة neutral وزر معطل)، **ended** (يختفي في التحديث التالي مع إعلان polite)، مع/بدون "فاصل" (`allowBargain`) | الأزرار 44. "اشترِ الآن" = **`Button variant="primary"`** (يصير gold-500 بنص ink داخل `data-surface="inverse"`، و ink على الفاتح، فلا variant خاص)، و"فاصل" `bargain`. السعر `Price`، وعلى الداكن يرث `foreground` |
 | `Countdown` | 🔵 (جزيرة صغيرة) | `boxed` (على الداكن)، `inline` (نص)، `compact` (MM:SS) | running، warning (≤ 10 د)، **expired** (يستدعي `onExpire` مرة واحدة) | **ساعة واحدة مشتركة** للصفحة كلها (`useSyncExternalStore` بـ tick كل ثانية، يتوقف مع `document.hidden`). والوقت المتبقي محسوب من `endsAt` القادم من السيرفر مع تصحيح فرق الساعة. `role="timer"` + `aria-label` نصي ("ينتهي خلال 42 دقيقة")، **بدون** `aria-live` (لا يُعلن كل ثانية). يُعلن مرة واحدة عند 5 دقائق وعند الانتهاء |
-| `StockMeter` | 🔵 | `bar`، `text` | normal، low (≤ 3: نغمة danger)، sold-out | النص هو المعلومة ("باقي 3 قطع")، والشريط زخرفي `aria-hidden`. الصيغة العربية للعدد (قطعة/قطعتان/قطع) عبر ICU plural في messages |
+| `StockMeter` | 🔵 | `bar`، `text` | normal، low (≤ 3: نغمة danger)، sold-out | النص هو المعلومة ("باقي 3 قطع")، والشريط زخرفي `aria-hidden` (ليس `progressbar`). المسار `bg-progress-track`، والتعبئة `bg-progress-fill` (و `bg-progress-fill-urgent` عند ≤ 3)، وتتبدل تلقائياً داخل الداكن (2.3). الصيغة العربية للعدد (قطعة/قطعتان/قطع) عبر ICU plural في messages |
 | `LiveBadge` | 🟢 | `pill`، `dot`، `on-dark` | — | النقطة زخرفية، والنص "مباشر" دائماً |
 | `BargainButton` | 🟢 | `block`، `inline` | hidden لو `!allowBargain`، disabled (وصل الحد O9، مع السبب) | يفتح `PriceRequestSheet` عبر `?bargain=1` (رابط قابل للمشاركة) |
 | `PriceRequestSheet` | 🔵 | `product`، `open` (`/souq/request/new`، مع رفع صور) | idle، validating (أقل من الحد العام O9)، submitting، **limit-reached**، success (رقم الطلب + رابط المتابعة)، error | **لا يعرض `floorPrice` أبداً**، والحد المعروض هو `minTargetPricePercent` العام. `Callout secure`، وموافقة PriceLock، وعدّاد الحدود |
@@ -848,14 +1015,14 @@ export default {
 | المكون | النوع | Variants | الحالات | ملاحظات |
 |---|---|---|---|---|
 | `DataTable` (TanStack) | 🔵 (الصفحة 🟢 تمرر البيانات) | `default`، `compact` (صف 40)، `selectable` | loading (Skeleton rows)، **empty** (EmptyState مع action)، **filtered-empty** ("مسح الفلاتر")، error (retry)، sorting، paginated (server-side)، row-selected، bulk-actions bar | الأعمدة الرقمية والمبالغ `text-end` و `whitespace-nowrap` (الحالي في المسودة `text-start`). رأس ثابت `--z-sticky`. الفرز بـ `aria-sort`. الترقيم والفلاتر في الـ URL. التصدير CSV من السيرفر وليس من المتصفح |
-| `StatCard` (KPI) | 🟢 | `default`، `split` (معلّق/متاح)، `with-trend` (سهم + `<bdi dir="ltr">+12%</bdi>` + "عن الفترة السابقة")، `link` | loading، no-data ("—" مع tooltip) | القيمة `text-2xl font-bold`، والعملة دائماً. الاتجاه بالأيقونة والنص، لا باللون وحده |
+| `StatCard` (KPI) | 🟢 | `default`، `split` (معلّق/متاح)، `with-trend` (سهم + `<bdi dir="ltr">+12%</bdi>` + "عن الفترة السابقة")، `link` | loading، no-data ("—" مع tooltip) | القيمة `text-2xl font-bold` عبر `Price compact`، والعملة (الرمز) دائماً. الاتجاه بالأيقونة والنص، لا باللون وحده |
 | `ChartCard` | 🔵 lazy (`next/dynamic`, `ssr: false` + Skeleton بارتفاع ثابت) | `line`، `bar`، `area` | loading، empty، error | Recharts يُحمّل فقط في الصفحات اللي فيها رسم. حد 4 سلاسل، ومحور RTL، وجدول بيانات بديل (`<details>`) للقارئ |
 | `SidebarNav` | 🟢 + toggle 🔵 | `admin`، `vendor` | active (`bg-sidebar-accent` + `border-s` ذهبي)، with-count، collapsed (أقل من `lg`: Sheet) | داخل `data-surface="inverse"`، و `aria-current="page"` |
 | `Topbar` | 🟢 | — | — | العنوان + فلتر الفترة + الإشعارات |
 | `ReviewQueueItem` | 🟢 | product، vendor، deal، iban، contact-attempt (danger) | — | العدد `text-base font-bold`، والنغمة بحد `border-s` |
 | `Timeline` (تاريخ الطلب) | 🟢 | `order`، `audit` | — | `ol` + الوقت بـ `<time dateTime>` |
 | `ImageUploader` | 🔵 | `single` (شعار)، `multi-sortable` (صور المنتج)، `document` (وثائق، private) | idle، dragging، uploading (تقدم)، error (نوع أو حجم)، reorder | السحب له بديل بأزرار "تحريك للأمام/للخلف" للوحة المفاتيح. والضغط وتحويل الصيغة على السيرفر |
-| `MoneyInput` | 🔵 | `price`، `percent` (basis points) | — | يعرض ر.س، ويخزن هللات، ويقبل ٠–٩ |
+| `MoneyInput` | 🔵 | `price`، `percent` (basis points) | — | يعرض رمز الريال لاحقة زخرفية (`aria-hidden`، والعملة في الـ label)، ويخزن هللات، ويقبل ٠–٩ |
 | `Pagination` | 🟢 | — | — | روابط حقيقية، والأسهم `data-directional` |
 
 ---
@@ -874,7 +1041,7 @@ export default {
 | Lighthouse Performance | ≥ 90 جوال (SPEC) | ≥ 90 للصفحات الأربع، و Accessibility ≥ 95 |
 
 ### 12.2 الخطوط
-- 3 ملفات preload بإجمالي **≤ 75KB** (المقاس 69.6KB في الخطة أ). `font-display: swap`. صفر طلبات لخطوط من دومين خارجي في وقت التشغيل.
+- **4 ملفات preload بإجمالي ≤ 77KB** (1.1): الـ core الثلاثة (69.6KB مقاسة) + `souq-riyal-sign.woff2` (حوالي 1KB، يُقاس عند بنائه من الملف الرسمي؛ الملف التجريبي 580 بايت). `font-display: swap`. صفر طلبات لخطوط من دومين خارجي في وقت التشغيل.
 - لا أوزان غير 400/600/700. الوجه `ext` لا يُحمّل في الصفحات العادية (يُتحقق منه في Lighthouse: "Network requests").
 
 ### 12.3 الصور
@@ -919,7 +1086,7 @@ export default {
 |---|---|---|---|
 | حجم الحزم | مخرجات `next build` + سكربت يقارن First Load JS لكل route بالميزانية (12.4)، و `@next/bundle-analyzer` عند الحاجة | كل PR | تجاوز ميزانية أي route، أو زيادة > 10KB بدون تبرير في وصف الـ PR |
 | المختبر | Lighthouse CI (`lhci autorun`)، preset جوال، 3 تشغيلات وأخذ الوسيط، على 4 مسارات: `/`، `/c/<seed>`، `/p/<seed>`، `/souq`. بيانات seed بصور حقيقية بنسبة 4:5 | كل PR على بيئة preview | Performance < 90، أو LCP > 2.5s، أو CLS > 0.1، أو TBT > 200ms، أو Accessibility < 95 |
-| الخطوط | فحص في Lighthouse CI: عدد طلبات الخطوط ≤ 3 وحجمها ≤ 75KB | كل PR | تجاوز |
+| الخطوط | فحص في Lighthouse CI: عدد طلبات الخطوط ≤ 4 وحجمها ≤ 77KB، ولا طلب لـ `plex-ext` في الصفحات الأربع | كل PR | تجاوز |
 | الوصولية | axe-core في Playwright (E2E 6) عربي وإنجليزي، و `contrast.py` عند تغيير التوكنات | كل PR | أي مخالفة serious أو critical |
 | الميدان (RUM) | `useReportWebVitals` في `app/[locale]/layout` يرسل LCP و INP و CLS و TTFB مع route و device و connection إلى GA4 (بعد الموافقة) و Sentry. ومع Vercel Speed Insights لو قرار O6 = Vercel | مستمر من أول staging | تنبيه أسبوعي لو p75 تجاوز الميزانية لأي route |
 | CrUX | PageSpeed Insights / CrUX API لـ `suqalzl.com` | شهرياً بعد الإطلاق (يحتاج حجم زيارات كافٍ) | — |
@@ -956,6 +1123,7 @@ P = {
     "warning-700": "#8A5A0F", "warning-50": "#F8EEDC", "warning-300": "#E8B866",
     "danger-700": "#A23B2A", "danger-50": "#F8E7E3", "danger-300": "#F0A08F",
     "info-700": "#2D5B7A", "info-50": "#E6EEF4", "info-300": "#8DB8D6",
+    "whatsapp-600": "#16803E", "whatsapp-700": "#15783A",  # v1.1: WhatsApp hue (#25D366) darkened in HLS until white >= 5:1
 }
 
 def hex2rgb(h):
@@ -1042,13 +1210,19 @@ LIGHT = [
     ("border-strong (selected option)", "surface", "ink", "white", "ui"),
     ("tab indicator (selected)", "surface", "ink", "white", "ui"),
     ("checkbox/radio border", "surface", "brown-500", "white", "ui"),
-    ("progress fill (stock left)", "progress-track", "danger-700", "sand-200", "ui"),
+    ("progress-fill (stock left)", "progress-track", "brown-700", "sand-200", "ui"),
+    ("progress-fill-urgent (stock left)", "progress-track", "danger-700", "sand-200", "ui"),
     ("star icon", "surface", "gold-600", "white", "ui"),
     ("chart-1 line", "surface", "gold-600", "white", "ui"),
     ("chart-2 line", "surface", "brown-700", "white", "ui"),
     ("chart-3 line", "surface", "info-700", "white", "ui"),
     ("chart-4 line", "surface", "success-700", "white", "ui"),
-    ("whatsapp fab icon", "success-solid", "white", "success-700", "ui"),
+    # WhatsApp FAB (v1.1): icon + optional label checked as text (4.5), boundary vs page as ui (3.0)
+    ("whatsapp fab icon/label", "whatsapp", "white", "whatsapp-600", "text"),
+    ("whatsapp fab icon/label (hover)", "whatsapp-hover", "white", "whatsapp-700", "text"),
+    ("whatsapp fab boundary", "background", "whatsapp-600", "sand-50", "ui"),
+    ("whatsapp fab boundary", "surface", "whatsapp-600", "white", "ui"),
+    ("whatsapp fab boundary", "surface-subtle", "whatsapp-600", "sand-100", "ui"),
     ("border-accent (best offer) + label", "surface", "gold-500", "white", "deco"),
     ("border (divider)", "surface", "sand-200", "white", "deco"),
 ]
@@ -1068,6 +1242,7 @@ for bgname, bg in (("inverse (brown-900)", "brown-900"), ("inverse-strong (ink)"
         ("info text", bgname, "info-300", bg, "text"),
         ("ring (focus, inverse)", bgname, "gold-500", bg, "ui"),
         ("border-input (inverse)", bgname, "sand-500", bg, "ui"),
+        ("whatsapp fab boundary (over dark island)", bgname, "whatsapp-600", bg, "ui"),
     ]
 for t in ("success", "warning", "danger", "info"):
     sub = blend(P[f"{t}-300"], P["brown-900"], .16)
@@ -1083,6 +1258,8 @@ INV += [
     ("countdown digits", "ink", "gold-500", "ink", "text"),
     ("nav item active text", "blend gold .16/brown-900", "sand-50", blend(P["gold-500"], P["brown-900"], .16), "text"),
     ("sidebar counter", "gold-500", "ink", "gold-500", "text"),
+    ("progress-fill (inverse)", "progress-track (inverse) brown-700", "gold-500", "brown-700", "ui"),
+    ("progress-fill-urgent (inverse)", "progress-track (inverse) brown-700", "danger-300", "brown-700", "ui"),
 ]
 
 # ---------- what the current mockups actually render (audit) ----------
@@ -1145,3 +1322,5 @@ if __name__ == "__main__":
 ## الملحق ب: مصادر القياس
 - ملفات الخط: `@fontsource/ibm-plex-sans-arabic@5.3.0` (نفس ملفات Google Fonts). الأحجام بـ `ls -l`، والـ features والـ cmap والمقاييس بـ fontTools، والتحقق من التشكيل بـ uharfbuzz.
 - الـ subset المقترح بُني بـ `pyftsubset` وقيس مباشرة (القسم 3.2).
+- **رمز الريال (1.1):** فحص cmap لـ U+20C1 بـ fontTools على `@ibm/plex-sans-arabic@1.1.0` و 16 حزمة `@fontsource@5.3.0` (8.4.1). مقاييس Plex (ارتفاع الأرقام 698، المسافة 236) من `IBMPlexSansArabic-Regular/Bold.woff2`. اختبار الـ bidi والنسخ في Chrome headless بخط تجريبي. نسب واتساب بنفس سكربت الملحق أ، واللون مشتق من `#25D366` بتغميق HLS مع ثبات الدرجة.
+- **المصادر الخارجية للرمز:** [ساما: إرشادات رمز الريال](https://www.sama.gov.sa/en-US/Currency/SRS/Pages/Guideline.aspx)، [Unicode L2/25-075](https://www.unicode.org/L2/L2025/25075-saudi-central-bank.pdf)، [Unicode L2/25-076](https://www.unicode.org/L2/L2025/25076-sew-recommendations-saudi-riyal.pdf)، [مدونة Unicode مارس 2025](https://blog.unicode.org/2025/03/support-for-new-saudi-riyal-currency.html)، [مدونة Unicode فبراير 2026](https://blog.unicode.org/2026/02/from-central-bank-to-code-point-roadmap.html)، [Wikipedia: Saudi riyal sign](https://en.wikipedia.org/wiki/Saudi_riyal_sign)، [نقاش TypeDrawers للمصممين](https://typedrawers.com/discussion/comment/68850).

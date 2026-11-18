@@ -1,0 +1,60 @@
+{
+  "files.eol": "\n",
+  "files.encoding": "utf8",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.associations": {
+    ".env.example": "dotenv",
+    "*.mjs": "javascript"
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.next": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/coverage": true,
+    "**/playwright-report": true,
+    "**/test-results": true,
+    "**/package-lock.json": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/backups/**": true
+  },
+
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.unicodeHighlight.ambiguousCharacters": false,
+  "editor.unicodeHighlight.invisibleCharacters": true,
+
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "[shellscript]": {
+    "editor.defaultFormatter": null
+  },
+
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "eslint.useFlatConfig": true,
+
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+  ],
+
+  "i18n-ally.localesPaths": ["src/messages"],
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.sourceLanguage": "ar",
+  "i18n-ally.displayLanguage": "ar",
+
+  "cSpell.language": "en",
+  "cSpell.words": ["suqalzl", "Moyasar", "Tabby", "Tamara", "Taqnyat", "Unifonic", "Mailpit", "SeaweedFS", "PDPL", "ZATCA", "halalas"]
+}

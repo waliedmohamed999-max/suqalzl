@@ -1,0 +1,36 @@
+# Keeps the Docker build context small and free of secrets (used by any future
+# Dockerfile; the dev compose stack bind-mounts the repo and does not build).
+.git
+.github
+.vscode
+.idea
+**/.DS_Store
+
+# secrets — the image gets configuration from the runtime environment only
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.age
+
+# dependencies and build output are rebuilt inside the image
+node_modules
+.next
+out
+coverage
+test-results
+playwright-report
+blob-report
+*.tsbuildinfo
+
+# local data and docs not needed at runtime
+backups
+*.dump
+tmp
+docs
+company
+spikes
+SPEC.md
+CLAUDE.md
+**/__pycache__

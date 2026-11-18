@@ -1,0 +1,40 @@
+# Dependabot: weekly update PRs. Security updates are separate (repo Settings >
+# Code security > Dependabot security updates: owner enables it).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "ci"
+
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+    # Stay on Postgres 16 (SPEC §2). Major upgrades are a planned decision.
+    ignore:
+      - dependency-name: postgres
+        update-types: ["version-update:semver-major"]
+    commit-message:
+      prefix: "chore(dev-env)"
+
+  # Active once package.json exists (P1-01). Until then Dependabot reports
+  # "no manifest" for this entry, which is harmless.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+    open-pull-requests-limit: 10
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "chore(deps)"

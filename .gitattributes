@@ -1,0 +1,28 @@
+# Normalize line endings in the repo (LF). Windows checkouts still work.
+* text=auto eol=lf
+
+# Must stay LF even on Windows: they run inside Linux containers / bash.
+*.sh text eol=lf
+*.mjs text eol=lf
+docker/** text eol=lf
+.env.example text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.dump binary

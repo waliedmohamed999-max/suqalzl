@@ -2,9 +2,9 @@
 
 > مصدر الحقيقة الوحيد لحالة المهام. التفاصيل ومعايير القبول في `docs/plan.md`، والقرارات في `docs/decisions.md`.
 > الحالات: Todo / Doing / Review / Done / Blocked. أي مهمة تحتاج موافقة المالك تبقى في Review.
-> آخر تحديث: 2026-11-18 (ليلاً) — الفرع: `main`
+> آخر تحديث: 2026-11-18 (ليلاً، بعد مراجعتي P1-01) — الفرع: `main`
 > قاعدة التنفيذ (CLAUDE.md 13، 14): كل مهمة ينفذها المختص بنفسه في ملفاته، والـ CEO ينسق ويجمع ويراجع فقط.
-> **بوابة G1: معتمدة** (القرارات 2026-11-17 + التصميم 2026-11-18). **P1 بدأت:** P1-00 نجح 54/54 (2026-11-18). قرارات جديدة: D31–D34 (`docs/decisions.md` §10)، و D35 نقاط P1-01 (§11). **P1-01 في Review، و P1-02 بدأ.**
+> **بوابة G1: معتمدة** (القرارات 2026-11-17 + التصميم 2026-11-18). **P1 بدأت:** P1-00 نجح 54/54 (2026-11-18). قرارات جديدة: D31–D34 (`docs/decisions.md` §10)، و D35 نقاط P1-01 (§11)، و **D36 قرارات مراجعتي P1-01 (§12)**. **P1-01 في Review لحد P1-01d و P1-03b، و P1-02 شغال.**
 
 ## P0 — التجهيز (منتهية)
 
@@ -28,25 +28,29 @@
 
 | ID | Task | Owner | Status | Notes |
 |---|---|---|---|---|
-| P1-00 | spike العزل و RLS و SSE + LISTEN/NOTIFY على Postgres محلي (T10، C1، C2) | backend-engineer + devops-engineer | Review | **54/54 في 3 تشغيلات**، `tsc` و `next build` ناجحين (`agent/backend/p1-00-spike`، `spikes/p1-00/REPORT.md`). T10 **معتمد من ناحية backend** (D34)؛ Done بعد P1-00b و P1-00c. تعديلات SPEC §7 مدمجة |
-| P1-00b | مراجعة devops للـ spike: القسم 1، الـ pooler، اتصال LISTEN، الـ buffering، أدوار `docker compose`، موافقة T10 | devops-engineer | Todo | المراجعة في ملف مراجعة منفصل (CLAUDE.md 14) |
-| P1-00c | مراجعة qa-tester لاختبارات الـ spike كأساس سيناريو 5 و 8 | qa-tester | Todo | قاعدة: مخرجات هندسية تمر على qa-tester قبل Done |
+| P1-00 | spike العزل و RLS و SSE + LISTEN/NOTIFY على Postgres محلي (T10، C1، C2) | backend-engineer + devops-engineer | Done | **54/54** (`spikes/p1-00/REPORT.md`). T10 (D34) **معتمد نهائياً من devops بالشروط 1–3** (D36-5)؛ مراجعتا P1-00b و P1-00c خلصوا |
+| P1-00b | مراجعة devops للـ spike: القسم 1، الـ pooler، اتصال LISTEN، الـ buffering، أدوار `docker compose`، موافقة T10 | devops-engineer | Done | `docs/reviews/devops-p1-01.md` (فرع backend، `6ad1745`): T10 موافق بشروط → D36-5 |
+| P1-00c | مراجعة qa-tester لاختبارات الـ spike كأساس سيناريو 5 و 8 | qa-tester | Done | `docs/reviews/qa-p1-01.md`: الاختبارات أساس سيناريو 5 و 8؛ خطة اختبار P2–P6 في القسم 4 |
 | O14 | سؤال المالك: الطريقة المفعّلة لدخول الإدارة والتجار (كلمة السر أم OTP بالجوال) | المالك | Review | الافتراضي: كلمة السر، و 2FA مقفول (D31) |
-| P1-01 | أساس الـ Backend (schema كامل، seed بالافتراضيات، Auth + OTP ذاتي) | backend-engineer | Review | **مُسلَّم** على `agent/backend/p1-01-foundation` (آخر commit `93f65f3`، worktree `/home/claude/suqalzl-backend`، فيه P1-03 مدموج). نقاط القرار الثلاث محسومة **D35** (`docs/decisions.md` §11): جلسات سيرفر ذاتية بدل Better Auth/Auth.js، `pickupAddress` بدل `VendorPickupLocation` (O4)، أسماء الأدوار `suqalzl_*`. Done بعد P1-01b و P1-01c ثم الدمج في `main` |
-| P1-01b | مراجعة qa-tester لـ P1-01: الاختبارات + **أمان الجلسات الذاتية (D35-1)**: التوكن والـ hash، أعلام الـ cookie، تدوير الجلسة بعد الدخول و2FA، الإبطال، CSRF، rate limit، "تذكر الجهاز"، عدم تسريب وجود الحساب | qa-tester | Doing | ملف مراجعة منفصل (CLAUDE.md 14). ملاحظة مانعة = D35-1 يرجع للنقاش |
-| P1-01c | مراجعة devops-engineer لـ P1-01: الأدوار والمتغيرات (D35-3)، قائمة الجداول المسموح فيها `DELETE` لدور التشغيل، الـ CI و compose بعد الدمج | devops-engineer | Doing | ملف مراجعة منفصل |
+| O15 | سؤال المالك: مزود CAPTCHA خارجي (Turnstile مجاني / hCaptcha / reCAPTCHA)؟ مزود ومعالج بيانات جديد | المالك | Review | الافتراضي: PoW ذاتي (`captchaProvider = POW`)، بلا تكلفة (D36-2) |
+| O16 | سؤال المالك: تجميد تحويلات المتجر المعلّق تلقائياً؟ (مالي/تعاقدي) | المالك | Review | الافتراضي: لا تجميد آلي؛ استبعاد يدوي من الدفعة بسبب في `audit_logs` (D36-3) |
+| P1-01 | أساس الـ Backend (schema كامل، seed بالافتراضيات، Auth + OTP ذاتي) | backend-engineer | Review | على `agent/backend/p1-01-foundation` (`6ad1745`). المراجعتان خلصوا: qa ناجح مع ملاحظات (مفيش حرج، **D35-1 مؤكد**)، devops الكود سليم والـ CI محتاج إصلاح. **Done بعد P1-01d و P1-03b ومراجعة qa-tester ثم الدمج في `main`** |
+| P1-01b | مراجعة qa-tester لـ P1-01: الاختبارات + **أمان الجلسات الذاتية (D35-1)**: التوكن والـ hash، أعلام الـ cookie، تدوير الجلسة بعد الدخول و2FA، الإبطال، CSRF، rate limit، "تذكر الجهاز"، عدم تسريب وجود الحساب | qa-tester | Done | `docs/reviews/qa-p1-01.md`: 195/195، QA-B1–B10؛ قرارات B3/B5/B8 → **D36** (`docs/decisions.md` §12) |
+| P1-01c | مراجعة devops-engineer لـ P1-01: الأدوار والمتغيرات (D35-3)، قائمة الجداول المسموح فيها `DELETE` لدور التشغيل، الـ CI و compose بعد الدمج | devops-engineer | Done | `docs/reviews/devops-p1-01.md`: P0 الـ CI (e2e، audit)، P1 الـ migrations والـ cron؛ مهمة devops → P1-03b (D36-4) |
+| P1-01d | إصلاحات مراجعتي P1-01: QA-B1، B2، **B3** (`session.revoked` يقفل SSE + تحقق كل 60 ث)، B4، **B5** (عدّادات فاشلة بـ إيميل/رقم + IP، تحدي `CaptchaProvider` PoW ذاتي، الجهاز الموثوق يعدّي)، B6، B7 (مع devops)، **B8** (قائمة سماح لكل `Vendor.status`)، B10، `omit` أعمدة vendors؛ ومن devops: nodemailer 10.6.0، postcss، `shadowDatabaseUrl`، شرطا T10، resync، cron lease/heartbeat، `asSystem` | backend-engineer | Todo | D36 (`docs/decisions.md` §12، `docs/plan.md` P1-01d). أي migration تتذكر في الملخص. B1/B2/B3/B4/B5/B6/B8 اختبارات regression آلية. مراجعة qa-tester قبل Done |
 | P1-02 | أساس الـ Frontend (tokens 1.1، layouts، الدخول/OTP، المكونات) | frontend-engineer | Doing | **بدأ** على `agent/frontend/p1-02-ui-foundation` (worktree `/home/claude/suqalzl-frontend`) فوق هيكل Next.js من P1-01 (D30): بيانات Zod في الاختبارات و Storybook/dev فقط؛ اللوحات عربي فقط والمتجر ar + en (D29)؛ رمز الريال حسب tokens.md 1.1 §8.4؛ شاشة 2FA و"تذكر الجهاز 30 يوماً" تظهر فقط لو `requires2fa` (D31). الجلسة cookie `httpOnly` من السيرفر (D35-1)، فالواجهة ما تقراش التوكن. مراجعة designer و qa-tester قبل Done |
 | P1-03 | `docker compose` + interfaces + ملفات CI + Sentry بتنظيف PII | devops-engineer | Review | فيه commit على `agent/devops/p1-03-local-env` (`882e4c3`)، **مدموج في فرع backend P1-01**؛ أسماء الأدوار بتاعته معتمدة في SPEC (D35-3). **مضاف من P1-00:** سكربت init للأدوار، `PRISMA_ENGINES_MIRROR` و registry لـ `postgres:16`، CI على Postgres حقيقي. تشغيل الـ CI فعلياً ينتظر مستودع GitHub |
-| P2-01 | الكتالوج والبحث | frontend-engineer + backend-engineer | Todo | يعتمد على P1. الفلاتر عند الإطلاق: السعر والتاجر والأعلام؛ الخصائص لاحقاً (D33-3) |
+| P1-03b | تطبيق Diffs 1–3 + بنود P2 (9–12) من مراجعة devops: e2e مشروط، بوابة audit باستثناءات لحد 2026-12-31، interop و `migrate diff`، prettier، `dev-cron`، `GIT_COMMIT_SHA`، Node 24 | devops-engineer | Todo | **معتمدة من الـ CEO (D36-4).** فرع `agent/devops/p1-03b-ci-fixes`، ملفات devops بس. Diff 3 يكمّل بعد `shadowDatabaseUrl` من P1-01d. مراجعة qa-tester |
+| P2-01 | الكتالوج والبحث | frontend-engineer + backend-engineer | Todo | يعتمد على P1. الفلاتر عند الإطلاق: السعر والتاجر والأعلام؛ الخصائص لاحقاً (D33-3)؛ **إلزامي D36-6:** `PublicVendorDTO` + اختبار تسريب أعمدة vendors |
 | P2-02 | السلة والكوبونات (ضابط D18) والـ Checkout | backend-engineer + frontend-engineer | Todo | يعتمد على P2-01. سطر التقسيط لكل الزوار (D32) |
 | P2-03 | Moyasar sandbox والـ webhooks | backend-engineer | Todo | يعتمد على P2-02 |
-| P2-04 | حساب العميل (تجهيل، تصدير، موافقة تسويقية) | frontend-engineer + backend-engineer | Todo | يعتمد على P2-03 |
+| P2-04 | حساب العميل (تجهيل، تصدير، موافقة تسويقية) | frontend-engineer + backend-engineer | Todo | يعتمد على P2-03؛ **إلزامي D36-6:** تغيير الإيميل بتحقق (`pendingEmail`) |
 | P2-05 | النصوص والسياسات و SEO | arabic-content-seo | Todo | يعتمد على P1؛ السياسات مسودات حتى P8-03 |
 | P2-05b | نص سطر التقسيط (D32): بدون وعد بالموافقة، بدون رقم قسط فوق السقف | arabic-content-seo (مراجعة legal-contracts في ملف مراجعة منفصل) | Todo | مرتبط بالشروط 5-2 و R-02 |
-| P3-01 | لوحة الإدارة | frontend-engineer + backend-engineer | Todo | يعتمد على G2 |
+| P3-01 | لوحة الإدارة | frontend-engineer + backend-engineer | Todo | يعتمد على G2؛ **إلزامي QA-G11 (D36-6):** الموظفين والأدوار لـ SUPER_ADMIN بس، ممنوع رفع الصلاحيات (خدمة + trigger) |
 | P3-02 | تأسيس الفاتورة (بدون ZATCA) | backend-engineer (مراجعة finance-zatca) | Todo | يعتمد على P3-01. الربط في P8-06 |
-| P4-01 | تسجيل التجار والمراجعة | backend-engineer + frontend-engineer | Todo | يعتمد على P3 |
-| P4-02 | لوحة التاجر والمنتجات | frontend-engineer + backend-engineer | Todo | يعتمد على P4-01 |
+| P4-01 | تسجيل التجار والمراجعة | backend-engineer + frontend-engineer | Todo | يعتمد على P3؛ **إلزامي D36-3/6:** قائمة السماح حسب `Vendor.status` على كل `/vendor`، و DTO أعمدة vendors |
+| P4-02 | لوحة التاجر والمنتجات | frontend-engineer + backend-engineer | Todo | يعتمد على P4-01؛ **إلزامي QA-G7/G9 (D36-6):** الملف والآيبان والفريق لـ VENDOR_OWNER بس؛ السعر عبر الخدمة + `PriceHistory` + منع على Deal LIVE/PriceLock |
 | P4-03 | الطلبات الفرعية والشحن اليدوي | backend-engineer + frontend-engineer | Todo | يعتمد على P4-02؛ لا مزود شحن |
 | P4-04 | الـ Ledger والتسويات وفواتير التجار | backend-engineer + frontend-engineer | Todo | يعتمد على P4-03؛ قيم O3 افتراضية |
 | P4-05 | الإشعارات | backend-engineer | Todo | يعتمد على P4-04 |

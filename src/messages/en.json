@@ -1,7 +1,18 @@
 {
   "common": {
     "siteName": "Souq AlZal",
-    "skipToContent": "Skip to content"
+    "wordmark": "SOUQ ALZAL",
+    "skipToContent": "Skip to content",
+    "homeLink": "Souq AlZal, home",
+    "back": "Back",
+    "close": "Close",
+    "retry": "Try again",
+    "loading": "Loading…",
+    "required": "required",
+    "language": "Language",
+    "arabic": "العربية",
+    "english": "English",
+    "live": "Live"
   },
   "meta": {
     "defaultTitle": "Souq AlZal",
@@ -12,14 +23,131 @@
     "souq": "Souq AlZal",
     "account": "My account",
     "login": "Log in",
-    "sell": "Sell with us"
+    "sell": "Sell with us",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "categories": "Categories"
   },
   "store": {
-    "homeTitle": "Souq AlZal"
+    "homeTitle": "Souq AlZal",
+    "topStrip": "Delivery across the Kingdom · Secure payment · Instalments with Tabby and Tamara",
+    "search": {
+      "label": "Search",
+      "placeholder": "Search for bisht, oud, saffron…",
+      "submit": "Search"
+    },
+    "menu": {
+      "guestTitle": "Log in with your mobile",
+      "guestBody": "Track your orders, price requests and wishlist.",
+      "accountTitle": "Welcome",
+      "accountLink": "My account",
+      "sectionCategories": "Categories",
+      "sectionAccount": "My account",
+      "sectionHelp": "Help",
+      "orders": "My orders",
+      "requests": "Price requests and offers",
+      "wishlist": "Wishlist",
+      "addresses": "Addresses",
+      "shipping": "Shipping and delivery",
+      "returns": "Returns and exchanges",
+      "faq": "FAQ",
+      "sell": "Sell on Souq AlZal",
+      "categoriesErrorTitle": "Couldn't load categories",
+      "categoriesErrorBody": "A temporary problem. Try again in a moment.",
+      "whatsapp": "Chat with us on WhatsApp"
+    },
+    "footer": {
+      "tagline": "Authentic Gulf products from verified stores, with secure payment and delivery across the Kingdom.",
+      "storeLinks": "Store links",
+      "colShop": "Shop",
+      "colSouq": "Souq AlZal",
+      "colHelp": "Help",
+      "colAbout": "About Souq AlZal",
+      "flashDeals": "Flash deals",
+      "openRequest": "Request a product at your price",
+      "howBargain": "How bargaining works",
+      "faq": "FAQ",
+      "shipping": "Shipping and delivery",
+      "returns": "Returns and exchanges",
+      "track": "Track your order",
+      "about": "About us",
+      "sell": "Sell on Souq AlZal",
+      "privacy": "Privacy",
+      "terms": "Terms and conditions",
+      "paymentMethods": "Accepted payment methods",
+      "crNumber": "CR: {value}",
+      "vatNumber": "VAT number: {value}",
+      "vatIncluded": "Prices include VAT",
+      "copyright": "© {name}"
+    },
+    "payments": {
+      "mada": "mada",
+      "visa": "Visa",
+      "mastercard": "Mastercard",
+      "applePay": "Apple Pay",
+      "stcPay": "STC Pay",
+      "tabby": "Tabby",
+      "tamara": "Tamara"
+    },
+    "whatsappFab": "Chat with us on WhatsApp"
   },
   "auth": {
     "loginTitle": "Log in",
-    "staffLoginTitle": "Staff and store login"
+    "staffLoginTitle": "Staff and store login",
+    "customer": {
+      "heroTitle": "Welcome",
+      "heroTitleDesktop": "Welcome to Souq AlZal",
+      "heroBody": "Log in with your mobile number. We send you a code, no password needed.",
+      "heroBodyDesktop": "Track your orders, price requests, addresses and wishlist in one place.",
+      "formTitle": "Log in with your mobile",
+      "phoneLabel": "Mobile number",
+      "phoneHint": "Saudi number starting with 5. Arabic digits are accepted.",
+      "phoneInvalid": "Enter 9 digits starting with 5.",
+      "sendCode": "Send verification code",
+      "sending": "Sending…",
+      "consent": "By continuing you agree to the <terms>terms and conditions</terms> and the <privacy>privacy policy</privacy>. We only use your number to confirm your orders and price requests.",
+      "staffLink": "Staff and store login with e-mail",
+      "codeTitle": "Enter the code",
+      "codeSentTo": "We sent a 6-digit code to <phone></phone>",
+      "changeNumber": "Change number",
+      "verify": "Verify and log in",
+      "verifying": "Verifying…",
+      "codeValidity": "The code is valid for {minutes, plural, one {# minute} other {# minutes}}. It fills in automatically on devices that support it.",
+      "resend": "Send a new code",
+      "resent": "We sent you a new code.",
+      "retryAfter": "You can request a new code in <time></time>",
+      "lockedTitle": "Too many attempts",
+      "lockedBody": "To protect your account we paused codes for this number for a while.",
+      "expiredTitle": "The code has expired",
+      "expiredBody": "Request a new code to continue.",
+      "sendFailedTitle": "We couldn't send the code",
+      "sendFailedBody": "A temporary problem with the SMS service. Try again in a minute."
+    },
+    "staff": {
+      "subtitle": "With your e-mail and password.",
+      "emailLabel": "E-mail",
+      "emailInvalid": "Enter a valid e-mail address.",
+      "passwordLabel": "Password",
+      "passwordRequired": "Enter your password.",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "newVendor": "New store? <link>Register your store</link>",
+      "twoFactorTitle": "Verification code",
+      "twoFactorBody": "We sent a 6-digit code to your registered mobile.",
+      "rememberDevice": "Remember this device for 30 days",
+      "rememberDeviceHint": "We won't ask for a code on this device for 30 days. Don't use it on a shared device.",
+      "verify": "Verify and log in",
+      "verifying": "Verifying…",
+      "restart": "Start again",
+      "twoFactorExpiredBody": "Verification timed out. Log in with your password again to get a new code."
+    },
+    "otp": {
+      "label": "6-digit verification code"
+    }
   },
   "account": {
     "title": "My account"
@@ -27,9 +155,176 @@
   "sell": {
     "title": "Sell with us"
   },
+  "admin": {
+    "title": "Admin dashboard",
+    "nav": {
+      "label": "Side menu",
+      "home": "Home",
+      "products": "Products",
+      "categories": "Categories",
+      "orders": "Orders",
+      "returns": "Returns",
+      "customers": "Customers",
+      "vendors": "Stores",
+      "finance": "Finance",
+      "souq": "Souq AlZal",
+      "coupons": "Coupons and offers",
+      "reviews": "Reviews",
+      "content": "Content",
+      "settings": "Settings",
+      "audit": "Audit log"
+    }
+  },
+  "vendor": {
+    "title": "Store dashboard",
+    "areaLabel": "Store dashboard",
+    "nav": {
+      "label": "Side menu",
+      "home": "Home",
+      "products": "Products",
+      "orders": "Orders",
+      "requests": "Price requests",
+      "deals": "Deals",
+      "finance": "Finance",
+      "reviews": "Reviews",
+      "team": "Team",
+      "profile": "Store profile",
+      "notifications": "Notifications"
+    }
+  },
+  "dash": {
+    "openMenu": "Open menu",
+    "logout": "Log out",
+    "loggingOut": "Logging out…",
+    "breadcrumbs": "Breadcrumb"
+  },
+  "price": {
+    "riyal": "Saudi riyal",
+    "before": "Price before discount",
+    "from": "From",
+    "free": "Free",
+    "locked": "Locked price",
+    "discount": "{percent} percent off"
+  },
+  "table": {
+    "empty": "No data",
+    "sortAsc": "Sort ascending",
+    "sortDesc": "Sort descending",
+    "pagination": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {pages}",
+    "total": "{total, plural, =0 {No results} one {# result} other {# results}}"
+  },
+  "states": {
+    "errorTitle": "Something went wrong",
+    "errorBody": "We couldn't complete your request. Try again, and contact us if it keeps happening.",
+    "offlineTitle": "You're offline",
+    "offlineBody": "Check your internet connection and try again.",
+    "expiredTitle": "Time's up",
+    "expiredBody": "This step has expired. Start it again.",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The link is wrong or the page has moved.",
+    "goHome": "Back to home",
+    "errorCode": "Error code: {digest}"
+  },
+  "status": {
+    "subOrder": {
+      "NEW": "New",
+      "PREPARING": "Preparing",
+      "READY_TO_SHIP": "Ready to ship",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "RETURN_REQUESTED": "Return requested",
+      "RETURNED": "Returned"
+    },
+    "order": {
+      "PENDING_PAYMENT": "Awaiting payment",
+      "PAID": "Paid",
+      "PARTIALLY_SHIPPED": "Partially shipped",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "payment": {
+      "PENDING": "Awaiting payment",
+      "PAID": "Paid",
+      "FAILED": "Payment failed",
+      "REFUNDED": "Refunded",
+      "PARTIALLY_REFUNDED": "Partially refunded"
+    },
+    "return": {
+      "REQUESTED": "Return requested",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "RECEIVED": "Received",
+      "REFUNDED": "Refunded"
+    },
+    "priceRequest": {
+      "OPEN": "Waiting for offers",
+      "HAS_OFFERS": "Offers received",
+      "ACCEPTED": "Accepted",
+      "CONVERTED": "Purchased",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Cancelled"
+    },
+    "offer": {
+      "PENDING": "Awaiting reply",
+      "COUNTERED": "Counter offer",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Declined",
+      "EXPIRED": "Expired",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "priceLock": {
+      "ACTIVE": "Locked price",
+      "USED": "Used",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Cancelled"
+    },
+    "deal": {
+      "DRAFT": "Draft",
+      "PENDING": "Awaiting approval",
+      "APPROVED": "Scheduled",
+      "LIVE": "Live",
+      "ENDED": "Ended",
+      "REJECTED": "Rejected"
+    },
+    "product": {
+      "DRAFT": "Draft",
+      "PENDING": "In review",
+      "PUBLISHED": "Published",
+      "REJECTED": "Rejected",
+      "ARCHIVED": "Archived"
+    },
+    "vendor": {
+      "PENDING": "In review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended"
+    },
+    "wallet": {
+      "PENDING": "Pending",
+      "AVAILABLE": "Available",
+      "PAID": "Transferred"
+    },
+    "payout": {
+      "DRAFT": "Draft",
+      "APPROVED": "Approved",
+      "PAID": "Transferred",
+      "CANCELLED": "Cancelled"
+    },
+    "review": {
+      "PENDING": "In review",
+      "APPROVED": "Published",
+      "HIDDEN": "Hidden"
+    }
+  },
   "errors": {
     "notFoundTitle": "Page not found",
     "generic": "Something went wrong. Please try again.",
+    "network": "Couldn't connect. Check your internet and try again.",
     "unauthorized": "Please log in to continue.",
     "forbidden": "You do not have access to this page.",
     "notFound": "Not found.",
@@ -42,7 +337,9 @@
     "invalidCredentials": "Incorrect email or password.",
     "accountBlocked": "This account is suspended. Please contact support.",
     "loginMethodDisabled": "This login method is not enabled.",
-    "twoFactorRequired": "Enter the verification code sent to your phone."
+    "twoFactorRequired": "Enter the verification code sent to your phone.",
+    "twoFactorUnavailable": "Your account has no registered mobile to receive a code. Contact the platform admin.",
+    "noVendorAccess": "Your account is not linked to an active store."
   },
   "sms": {
     "otp": "Souq AlZal login code: {code}"

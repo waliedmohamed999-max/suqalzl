@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DashShell } from "@/components/dash/dash-shell";
 import { requireArea } from "@/lib/auth/guard";
 
 // Session-dependent: never prerender (a build-time render would bake the login redirect in).
@@ -20,5 +21,5 @@ export default async function AdminLayout({
 }) {
   const { locale } = await params;
   await requireArea("admin", locale); // DB-validated session + role (middleware only checks the cookie)
-  return <div data-area="admin">{children}</div>;
+  return <DashShell area="admin">{children}</DashShell>;
 }

@@ -1,7 +1,18 @@
 {
   "common": {
     "siteName": "سوق الزل",
-    "skipToContent": "تخطَّ إلى المحتوى"
+    "wordmark": "SOUQ ALZAL",
+    "skipToContent": "تخطَّ إلى المحتوى",
+    "homeLink": "سوق الزل، الرئيسية",
+    "back": "رجوع",
+    "close": "إغلاق",
+    "retry": "حاول مرة ثانية",
+    "loading": "جارٍ التحميل…",
+    "required": "مطلوب",
+    "language": "اللغة",
+    "arabic": "العربية",
+    "english": "English",
+    "live": "مباشر"
   },
   "meta": {
     "defaultTitle": "سوق الزل",
@@ -12,14 +23,131 @@
     "souq": "سوق الزل",
     "account": "حسابي",
     "login": "تسجيل الدخول",
-    "sell": "بِع معنا"
+    "sell": "بِع معنا",
+    "menu": "القائمة",
+    "closeMenu": "إغلاق القائمة",
+    "cart": "السلة",
+    "wishlist": "المفضلة",
+    "categories": "التصنيفات"
   },
   "store": {
-    "homeTitle": "سوق الزل"
+    "homeTitle": "سوق الزل",
+    "topStrip": "توصيل لجميع مدن المملكة · دفع آمن · أقساط عبر تابي وتمارا",
+    "search": {
+      "label": "بحث",
+      "placeholder": "ابحث عن بشت، عود، زعفران…",
+      "submit": "ابحث"
+    },
+    "menu": {
+      "guestTitle": "ادخل برقم جوالك",
+      "guestBody": "تابع طلباتك وطلبات الأسعار والمفضلة.",
+      "accountTitle": "أهلاً بك",
+      "accountLink": "حسابي",
+      "sectionCategories": "التصنيفات",
+      "sectionAccount": "حسابي",
+      "sectionHelp": "المساعدة",
+      "orders": "طلباتي",
+      "requests": "طلبات الأسعار والفصال",
+      "wishlist": "المفضلة",
+      "addresses": "العناوين",
+      "shipping": "الشحن والتوصيل",
+      "returns": "الاسترجاع والاستبدال",
+      "faq": "الأسئلة الشائعة",
+      "sell": "بِع في سوق الزل",
+      "categoriesErrorTitle": "تعذّر تحميل التصنيفات",
+      "categoriesErrorBody": "مشكلة مؤقتة. حاول مرة ثانية بعد قليل.",
+      "whatsapp": "تواصل معنا عبر واتساب"
+    },
+    "footer": {
+      "tagline": "منتجات خليجية أصيلة من تجار موثّقين، بدفع آمن وتوصيل لجميع مدن المملكة.",
+      "storeLinks": "روابط المتجر",
+      "colShop": "تسوّق",
+      "colSouq": "سوق الزل",
+      "colHelp": "المساعدة",
+      "colAbout": "عن سوق الزل",
+      "flashDeals": "عروض الساعة",
+      "openRequest": "اطلب منتج بسعرك",
+      "howBargain": "كيف يعمل الفصال",
+      "faq": "الأسئلة الشائعة",
+      "shipping": "الشحن والتوصيل",
+      "returns": "الاسترجاع والاستبدال",
+      "track": "تتبع طلبك",
+      "about": "من نحن",
+      "sell": "بِع في سوق الزل",
+      "privacy": "الخصوصية",
+      "terms": "الشروط والأحكام",
+      "paymentMethods": "طرق الدفع المتاحة",
+      "crNumber": "السجل التجاري: {value}",
+      "vatNumber": "الرقم الضريبي: {value}",
+      "vatIncluded": "الأسعار شاملة ضريبة القيمة المضافة",
+      "copyright": "© {name}"
+    },
+    "payments": {
+      "mada": "مدى",
+      "visa": "Visa",
+      "mastercard": "Mastercard",
+      "applePay": "Apple Pay",
+      "stcPay": "STC Pay",
+      "tabby": "تابي",
+      "tamara": "تمارا"
+    },
+    "whatsappFab": "تواصل معنا عبر واتساب"
   },
   "auth": {
     "loginTitle": "تسجيل الدخول",
-    "staffLoginTitle": "دخول الإدارة والمتاجر"
+    "staffLoginTitle": "دخول التجار والإدارة",
+    "customer": {
+      "heroTitle": "أهلاً بك",
+      "heroTitleDesktop": "أهلاً بك في سوق الزل",
+      "heroBody": "ادخل برقم جوالك. نرسل لك رمز تحقق، بدون كلمة مرور.",
+      "heroBodyDesktop": "تابع طلباتك، وطلبات الأسعار والفصال، وعناوينك ومفضلتك من مكان واحد.",
+      "formTitle": "الدخول برقم الجوال",
+      "phoneLabel": "رقم الجوال",
+      "phoneHint": "رقم سعودي يبدأ بـ 5. يقبل الأرقام العربية ٠–٩.",
+      "phoneInvalid": "اكتب 9 أرقام تبدأ بـ 5.",
+      "sendCode": "أرسل رمز التحقق",
+      "sending": "جارٍ الإرسال…",
+      "consent": "بالمتابعة توافق على <terms>الشروط والأحكام</terms> و<privacy>سياسة الخصوصية</privacy>. نستخدم رقمك لتأكيد طلباتك وطلبات الأسعار فقط.",
+      "staffLink": "دخول التجار والإدارة بالبريد",
+      "codeTitle": "أدخل الرمز",
+      "codeSentTo": "أرسلنا رمزاً من 6 أرقام إلى <phone></phone>",
+      "changeNumber": "تغيير الرقم",
+      "verify": "تحقق ودخول",
+      "verifying": "جارٍ التحقق…",
+      "codeValidity": "الرمز صالح {minutes, plural, one {دقيقة واحدة} two {دقيقتين} few {# دقائق} many {# دقيقة} other {# دقيقة}}. يُعبأ تلقائياً من الرسالة على الأجهزة التي تدعم ذلك.",
+      "resend": "أرسل رمزاً جديداً",
+      "resent": "أرسلنا رمزاً جديداً.",
+      "retryAfter": "تقدر تطلب رمزاً جديداً بعد <time></time>",
+      "lockedTitle": "محاولات كثيرة",
+      "lockedBody": "لحماية حسابك أوقفنا الرموز لهذا الرقم مؤقتاً.",
+      "expiredTitle": "انتهت صلاحية الرمز",
+      "expiredBody": "اطلب رمزاً جديداً وأكمل.",
+      "sendFailedTitle": "ما قدرنا نرسل الرمز",
+      "sendFailedBody": "مشكلة مؤقتة في خدمة الرسائل. حاول بعد دقيقة."
+    },
+    "staff": {
+      "subtitle": "بالبريد الإلكتروني وكلمة المرور.",
+      "emailLabel": "البريد الإلكتروني",
+      "emailInvalid": "اكتب بريداً إلكترونياً صحيحاً.",
+      "passwordLabel": "كلمة المرور",
+      "passwordRequired": "اكتب كلمة المرور.",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
+      "submit": "دخول",
+      "submitting": "جارٍ الدخول…",
+      "newVendor": "تاجر جديد؟ <link>سجّل متجرك</link>",
+      "twoFactorTitle": "رمز التحقق",
+      "twoFactorBody": "أرسلنا رمزاً من 6 أرقام إلى جوالك المسجل.",
+      "rememberDevice": "تذكر هذا الجهاز 30 يوماً",
+      "rememberDeviceHint": "لن نطلب الرمز على هذا الجهاز خلال 30 يوماً. لا تفعّلها على جهاز مشترك.",
+      "verify": "تحقق ودخول",
+      "verifying": "جارٍ التحقق…",
+      "restart": "ابدأ الدخول من جديد",
+      "twoFactorExpiredBody": "انتهت مهلة التحقق. ادخل بكلمة المرور مرة ثانية لنرسل لك رمزاً جديداً."
+    },
+    "otp": {
+      "label": "رمز التحقق من 6 أرقام"
+    }
   },
   "account": {
     "title": "حسابي"
@@ -28,14 +156,175 @@
     "title": "بِع معنا"
   },
   "admin": {
-    "title": "لوحة الإدارة"
+    "title": "لوحة الإدارة",
+    "nav": {
+      "label": "القائمة الجانبية",
+      "home": "الرئيسية",
+      "products": "المنتجات",
+      "categories": "التصنيفات",
+      "orders": "الطلبات",
+      "returns": "الاسترجاعات",
+      "customers": "العملاء",
+      "vendors": "التجار",
+      "finance": "المالية",
+      "souq": "سوق الزل",
+      "coupons": "الكوبونات والعروض",
+      "reviews": "التقييمات",
+      "content": "المحتوى",
+      "settings": "الإعدادات",
+      "audit": "سجل العمليات"
+    }
   },
   "vendor": {
-    "title": "لوحة المتجر"
+    "title": "لوحة المتجر",
+    "areaLabel": "لوحة التاجر",
+    "nav": {
+      "label": "القائمة الجانبية",
+      "home": "الرئيسية",
+      "products": "المنتجات",
+      "orders": "الطلبات",
+      "requests": "طلبات الأسعار",
+      "deals": "العروض",
+      "finance": "المالية",
+      "reviews": "التقييمات",
+      "team": "الفريق",
+      "profile": "ملف المتجر",
+      "notifications": "الإشعارات"
+    }
+  },
+  "dash": {
+    "openMenu": "فتح القائمة",
+    "logout": "تسجيل الخروج",
+    "loggingOut": "جارٍ تسجيل الخروج…",
+    "breadcrumbs": "مسار التنقل"
+  },
+  "price": {
+    "riyal": "ريال سعودي",
+    "before": "السعر قبل الخصم",
+    "from": "من",
+    "free": "مجاني",
+    "locked": "سعر مقفول",
+    "discount": "خصم {percent} بالمئة"
+  },
+  "table": {
+    "empty": "لا توجد بيانات",
+    "sortAsc": "ترتيب تصاعدي",
+    "sortDesc": "ترتيب تنازلي",
+    "pagination": "التنقل بين الصفحات",
+    "previous": "السابق",
+    "next": "التالي",
+    "pageOf": "صفحة {page} من {pages}",
+    "total": "{total, plural, zero {لا نتائج} one {نتيجة واحدة} two {نتيجتان} few {# نتائج} many {# نتيجة} other {# نتيجة}}"
+  },
+  "states": {
+    "errorTitle": "حدث خطأ غير متوقع",
+    "errorBody": "ما قدرنا نكمل طلبك. حاول مرة ثانية، ولو تكررت المشكلة تواصل معنا.",
+    "offlineTitle": "أنت غير متصل",
+    "offlineBody": "تحقق من اتصالك بالإنترنت ثم حاول مرة ثانية.",
+    "expiredTitle": "انتهت المهلة",
+    "expiredBody": "انتهت مدة هذه الخطوة. ابدأها من جديد.",
+    "notFoundTitle": "الصفحة غير موجودة",
+    "notFoundBody": "الرابط غير صحيح أو أن الصفحة نُقلت.",
+    "goHome": "العودة للرئيسية",
+    "errorCode": "رمز الخطأ: {digest}"
+  },
+  "status": {
+    "subOrder": {
+      "NEW": "جديد",
+      "PREPARING": "قيد التجهيز",
+      "READY_TO_SHIP": "جاهز للشحن",
+      "SHIPPED": "تم الشحن",
+      "DELIVERED": "تم التسليم",
+      "COMPLETED": "مكتمل",
+      "CANCELLED": "ملغي",
+      "RETURN_REQUESTED": "طلب استرجاع",
+      "RETURNED": "مسترجع"
+    },
+    "order": {
+      "PENDING_PAYMENT": "بانتظار الدفع",
+      "PAID": "مدفوع",
+      "PARTIALLY_SHIPPED": "شُحن جزئياً",
+      "COMPLETED": "مكتمل",
+      "CANCELLED": "ملغي"
+    },
+    "payment": {
+      "PENDING": "بانتظار الدفع",
+      "PAID": "مدفوع",
+      "FAILED": "فشل الدفع",
+      "REFUNDED": "مسترد",
+      "PARTIALLY_REFUNDED": "مسترد جزئياً"
+    },
+    "return": {
+      "REQUESTED": "طلب استرجاع",
+      "APPROVED": "معتمد",
+      "REJECTED": "مرفوض",
+      "RECEIVED": "مستلم",
+      "REFUNDED": "مسترد"
+    },
+    "priceRequest": {
+      "OPEN": "بانتظار العروض",
+      "HAS_OFFERS": "وصلت عروض",
+      "ACCEPTED": "مقبول",
+      "CONVERTED": "تم الشراء",
+      "EXPIRED": "انتهت المدة",
+      "CANCELLED": "ملغي"
+    },
+    "offer": {
+      "PENDING": "بانتظار الرد",
+      "COUNTERED": "سعر مضاد",
+      "ACCEPTED": "مقبول",
+      "REJECTED": "مرفوض",
+      "EXPIRED": "منتهٍ",
+      "WITHDRAWN": "مسحوب"
+    },
+    "priceLock": {
+      "ACTIVE": "سعر مقفول",
+      "USED": "مستخدم",
+      "EXPIRED": "منتهٍ",
+      "CANCELLED": "ملغي"
+    },
+    "deal": {
+      "DRAFT": "مسودة",
+      "PENDING": "بانتظار الموافقة",
+      "APPROVED": "مجدول",
+      "LIVE": "مباشر",
+      "ENDED": "انتهى",
+      "REJECTED": "مرفوض"
+    },
+    "product": {
+      "DRAFT": "مسودة",
+      "PENDING": "قيد المراجعة",
+      "PUBLISHED": "منشور",
+      "REJECTED": "مرفوض",
+      "ARCHIVED": "مؤرشف"
+    },
+    "vendor": {
+      "PENDING": "قيد المراجعة",
+      "APPROVED": "معتمد",
+      "REJECTED": "مرفوض",
+      "SUSPENDED": "معلّق"
+    },
+    "wallet": {
+      "PENDING": "معلّق",
+      "AVAILABLE": "متاح",
+      "PAID": "محوّل"
+    },
+    "payout": {
+      "DRAFT": "مسودة",
+      "APPROVED": "معتمد",
+      "PAID": "محوّل",
+      "CANCELLED": "ملغي"
+    },
+    "review": {
+      "PENDING": "قيد المراجعة",
+      "APPROVED": "منشور",
+      "HIDDEN": "مخفي"
+    }
   },
   "errors": {
     "notFoundTitle": "الصفحة غير موجودة",
     "generic": "حدث خطأ غير متوقع. حاول مرة أخرى.",
+    "network": "تعذّر الاتصال. تحقق من الإنترنت وحاول مرة ثانية.",
     "unauthorized": "سجّل الدخول للمتابعة.",
     "forbidden": "ليس لديك صلاحية لهذه الصفحة.",
     "notFound": "غير موجود.",
@@ -48,7 +337,9 @@
     "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     "accountBlocked": "الحساب موقوف. تواصل مع الدعم.",
     "loginMethodDisabled": "طريقة الدخول هذه غير مفعّلة.",
-    "twoFactorRequired": "أدخل رمز التحقق المرسل إلى جوالك."
+    "twoFactorRequired": "أدخل رمز التحقق المرسل إلى جوالك.",
+    "twoFactorUnavailable": "لا يوجد جوال مسجل لحسابك لإرسال رمز التحقق. تواصل مع مسؤول المنصة.",
+    "noVendorAccess": "حسابك غير مرتبط بمتجر فعّال."
   },
   "sms": {
     "otp": "رمز الدخول لسوق الزل: {code}"

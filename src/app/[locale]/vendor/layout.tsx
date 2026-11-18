@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { DashShell } from "@/components/dash/dash-shell";
 import { requireArea } from "@/lib/auth/guard";
+import { getVendorShell } from "@/features/shell/queries";
 
 // Session-dependent: never prerender (a build-time render would bake the login redirect in).
 export const dynamic = "force-dynamic";
@@ -19,6 +21,11 @@ export default async function VendorLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  await requireArea("vendor", locale); // DB-validated session + role (middleware only checks the cookie)
-  return <div data-area="vendor">{children}</div>;
+  const principal = await requireArea("vendor", locale); // DB-validated session + role (middleware only checks the cookie)
+  const vendor = await getVendorShell(principal);
+  return (
+    <DashShell area="vendor" vendor={vendor}>
+      {children}
+    </DashShell>
+  );
 }

@@ -1,0 +1,50 @@
+{
+  "common": {
+    "siteName": "Souq AlZal",
+    "skipToContent": "Skip to content"
+  },
+  "meta": {
+    "defaultTitle": "Souq AlZal",
+    "defaultDescription": "Luxury Gulf heritage goods"
+  },
+  "nav": {
+    "home": "Home",
+    "souq": "Souq AlZal",
+    "account": "My account",
+    "login": "Log in",
+    "sell": "Sell with us"
+  },
+  "store": {
+    "homeTitle": "Souq AlZal"
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "staffLoginTitle": "Staff and store login"
+  },
+  "account": {
+    "title": "My account"
+  },
+  "sell": {
+    "title": "Sell with us"
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "generic": "Something went wrong. Please try again.",
+    "unauthorized": "Please log in to continue.",
+    "forbidden": "You do not have access to this page.",
+    "notFound": "Not found.",
+    "validation": "Please check the information you entered.",
+    "rateLimited": "Too many attempts. Please try again shortly.",
+    "invalidPhone": "Enter a Saudi mobile number starting with 05.",
+    "otpInvalid": "The code is incorrect.",
+    "otpExpired": "The code has expired. Request a new one.",
+    "otpLocked": "Too many attempts. Request a new code.",
+    "invalidCredentials": "Incorrect email or password.",
+    "accountBlocked": "This account is suspended. Please contact support.",
+    "loginMethodDisabled": "This login method is not enabled.",
+    "twoFactorRequired": "Enter the verification code sent to your phone."
+  },
+  "sms": {
+    "otp": "Souq AlZal login code: {code}"
+  }
+}

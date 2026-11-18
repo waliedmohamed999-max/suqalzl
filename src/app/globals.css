@@ -1,0 +1,205 @@
+/* Souq AlZal design tokens v1.1 — source: docs/design/tokens.md. Do not edit values here without updating the doc + contrast script. */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ---------- 0) Font variables until P1-02 wires next/font/local (tokens.md 9.2) ----------
+   :where() has zero specificity, so the classes next/font puts on <html> override these.
+   Without a value here the whole font-family list would be invalid. */
+:where(:root) {
+  --font-riyal: "Souq Riyal Sign";
+  --font-plex: "IBM Plex Sans Arabic";
+  --font-plex-ext: "IBM Plex Sans Arabic";
+}
+
+/* ---------- 1) Primitives (never referenced by components) ---------- */
+:root {
+  --c-ink: #16120E;
+  --c-brown-900: #2E2018; --c-brown-800: #3B2B21; --c-brown-700: #4A3426; --c-brown-600: #5C4334; --c-brown-500: #6E5240;
+  --c-gold-50: #FAF3E3; --c-gold-300: #DDBE7C; --c-gold-500: #C29A4B; --c-gold-600: #A67F35; --c-gold-700: #7E5F22;
+  --c-sand-50: #FBF7F0; --c-sand-100: #F3EADB; --c-sand-200: #E6D7BE; --c-sand-300: #BCAA92; --c-sand-500: #8F7B66;
+  --c-white: #FFFFFF; --c-muted: #6B5E52;
+  --c-success-50: #E8F1EA; --c-success-300: #8FC79C; --c-success-700: #2F6B3F;
+  --c-warning-50: #F8EEDC; --c-warning-300: #E8B866; --c-warning-700: #8A5A0F;
+  --c-danger-50:  #F8E7E3; --c-danger-300:  #F0A08F; --c-danger-700:  #A23B2A;
+  --c-info-50:    #E6EEF4; --c-info-300:    #8DB8D6; --c-info-700:    #2D5B7A;
+  --c-whatsapp-600: #16803E; --c-whatsapp-700: #15783A; /* v1.1, WhatsApp FAB only */
+
+  --z-sticky: 10; --z-header: 20; --z-fab: 30; --z-dropdown: 40; --z-overlay: 50; --z-toast: 60;
+  --scrim: rgb(22 18 14 / .55);
+  --radius: 8px; /* shadcn base = md */
+}
+
+/* ---------- 2) Semantic tokens — light (default) ---------- */
+:root, [data-surface="default"] {
+  --background: var(--c-sand-50);        --foreground: var(--c-ink);
+  --foreground-secondary: var(--c-brown-700);
+  --card: var(--c-white);                --card-foreground: var(--c-ink);
+  --popover: var(--c-white);             --popover-foreground: var(--c-ink);
+  --primary: var(--c-ink);               --primary-foreground: var(--c-sand-50);  --primary-hover: var(--c-brown-900);
+  --secondary: var(--c-sand-100);        --secondary-foreground: var(--c-ink);
+  --muted: var(--c-sand-100);            --muted-foreground: var(--c-muted);
+  --accent: var(--c-sand-100);           --accent-foreground: var(--c-ink);       /* shadcn hover surface — NOT brand gold */
+  --destructive: var(--c-danger-700);    --destructive-foreground: var(--c-white);
+  --border: var(--c-sand-200);           --border-strong: var(--c-ink);
+  --input: var(--c-sand-500);            --ring: var(--c-gold-700);
+  --link: var(--c-gold-700);
+
+  --gold: var(--c-gold-500);             --gold-foreground: var(--c-ink);         --gold-hover: var(--c-gold-600);
+  --gold-subtle: var(--c-gold-50);       --gold-text: var(--c-gold-700);
+
+  --success: var(--c-success-700); --success-foreground: var(--c-white); --success-subtle: var(--c-success-50);
+  --warning: var(--c-warning-700); --warning-foreground: var(--c-white); --warning-subtle: var(--c-warning-50);
+  --danger:  var(--c-danger-700);  --danger-foreground:  var(--c-white); --danger-subtle:  var(--c-danger-50);
+  --info:    var(--c-info-700);    --info-foreground:    var(--c-white); --info-subtle:    var(--c-info-50);
+  --neutral: var(--c-brown-700);   --neutral-foreground: var(--c-sand-50); --neutral-subtle: var(--c-sand-100);
+  --discount: var(--c-danger-700); --discount-foreground: var(--c-white);
+  --live: var(--c-danger-700);
+  --progress-track: var(--c-sand-200); --progress-fill: var(--c-brown-700); --progress-fill-urgent: var(--c-danger-700);
+  --whatsapp: var(--c-whatsapp-600); --whatsapp-foreground: var(--c-white); --whatsapp-hover: var(--c-whatsapp-700); /* not redefined in inverse */
+  --inverse: var(--c-brown-900);   --inverse-foreground: var(--c-sand-50);
+
+  --chart-1: var(--c-gold-600); --chart-2: var(--c-brown-700); --chart-3: var(--c-info-700); --chart-4: var(--c-success-700);
+
+  --sidebar: var(--c-brown-900);            --sidebar-foreground: var(--c-sand-200);
+  --sidebar-primary: var(--c-gold-500);     --sidebar-primary-foreground: var(--c-ink);
+  --sidebar-accent: #463420; /* gold-500 @16% over brown-900, flattened */
+  --sidebar-accent-foreground: var(--c-sand-50);
+  --sidebar-border: var(--c-brown-700);     --sidebar-ring: var(--c-gold-500);
+
+  color: var(--foreground);
+}
+
+/* ---------- 3) Inverse scope (dark islands). Same variable names → components need no variants ---------- */
+[data-surface="inverse"], [data-surface="inverse-strong"] {
+  --background: var(--c-brown-900);      --foreground: var(--c-sand-50);
+  --foreground-secondary: var(--c-sand-200);
+  --card: var(--c-brown-800);            --card-foreground: var(--c-sand-50);
+  --muted: var(--c-brown-800);           --muted-foreground: var(--c-sand-300);
+  --accent: var(--c-brown-800);          --accent-foreground: var(--c-sand-50);
+  --primary: var(--c-gold-500);          --primary-foreground: var(--c-ink);      --primary-hover: var(--c-gold-300);
+  --secondary: var(--c-brown-800);       --secondary-foreground: var(--c-sand-50);
+  --border: var(--c-brown-600);          --border-strong: var(--c-sand-50);
+  --input: var(--c-sand-500);            --ring: var(--c-gold-500);
+  --link: var(--c-gold-300);             --gold-text: var(--c-gold-500);          --gold-subtle: var(--c-brown-800);
+  --success: var(--c-success-300); --success-foreground: var(--c-ink); --success-subtle: #3E3B2D;
+  --warning: var(--c-warning-300); --warning-foreground: var(--c-ink); --warning-subtle: #4C3824;
+  --danger:  var(--c-danger-300);  --danger-foreground:  var(--c-ink); --danger-subtle:  #4D342B;
+  --info:    var(--c-info-300);    --info-foreground:    var(--c-ink); --info-subtle:    #3D3836;
+  --neutral: var(--c-sand-200);    --neutral-foreground: var(--c-ink); --neutral-subtle: var(--c-brown-800);
+  --live: var(--c-danger-300);
+  --progress-track: var(--c-brown-700); --progress-fill: var(--c-gold-500); --progress-fill-urgent: var(--c-danger-300);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+[data-surface="inverse-strong"] { --background: var(--c-ink); --card: var(--c-brown-900); }
+
+/* ---------- 4) Theme (resets remove every value not in the doc) ---------- */
+@theme {
+  --color-*: initial;
+  --text-*: initial;
+  --font-weight-*: initial;
+  --tracking-*: initial;
+  --leading-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --breakpoint-*: initial;
+  --ease-*: initial;
+
+  --text-xs: 0.75rem;   --text-xs--line-height: 1.25rem;
+  --text-sm: 0.875rem;  --text-sm--line-height: 1.375rem;
+  --text-base: 1rem;    --text-base--line-height: 1.625rem;
+  --text-lg: 1.125rem;  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;   --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.5rem;   --text-2xl--line-height: 2.25rem;
+  --text-3xl: 1.75rem;  --text-3xl--line-height: 2.5rem;
+  --text-4xl: 2.25rem;  --text-4xl--line-height: 3.25rem;
+
+  --font-weight-normal: 400; --font-weight-semibold: 600; --font-weight-bold: 700;
+  --tracking-normal: 0;
+  --leading-snug: 1.35; --leading-normal: 1.625; --leading-relaxed: 1.8;
+
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+
+  --shadow-sm: 0 1px 2px rgb(22 18 14 / .06);
+  --shadow-md: 0 6px 20px rgb(22 18 14 / .10);
+  --shadow-lg: 0 12px 32px rgb(22 18 14 / .16);
+
+  --breakpoint-sm: 40rem; --breakpoint-md: 48rem; --breakpoint-lg: 64rem; --breakpoint-xl: 80rem;
+
+  --ease-standard: cubic-bezier(.2,.8,.2,1);
+  --ease-exit: cubic-bezier(.4,0,1,1);
+  --animate-live-pulse: live-pulse 1.6s ease-in-out infinite;
+  @keyframes live-pulse { 50% { opacity: .55; } }
+}
+
+@theme inline {
+  --font-sans: var(--font-riyal), var(--font-plex), var(--font-plex-ext), "Plex Fallback", "Segoe UI", Tahoma, "Geeza Pro", "Noto Sans Arabic", system-ui, sans-serif;
+
+  --color-background: var(--background);   --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-card: var(--card);               --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);         --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);         --color-primary-foreground: var(--primary-foreground); --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);     --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);             --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);           --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive); --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);           --color-border-strong: var(--border-strong);
+  --color-input: var(--input);             --color-ring: var(--ring);
+  --color-link: var(--link);
+  --color-gold: var(--gold);               --color-gold-foreground: var(--gold-foreground);  --color-gold-hover: var(--gold-hover);
+  --color-gold-subtle: var(--gold-subtle); --color-gold-text: var(--gold-text);
+  --color-success: var(--success); --color-success-foreground: var(--success-foreground); --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning); --color-warning-foreground: var(--warning-foreground); --color-warning-subtle: var(--warning-subtle);
+  --color-danger:  var(--danger);  --color-danger-foreground:  var(--danger-foreground);  --color-danger-subtle:  var(--danger-subtle);
+  --color-info:    var(--info);    --color-info-foreground:    var(--info-foreground);    --color-info-subtle:    var(--info-subtle);
+  --color-neutral: var(--neutral); --color-neutral-foreground: var(--neutral-foreground); --color-neutral-subtle: var(--neutral-subtle);
+  --color-discount: var(--discount); --color-discount-foreground: var(--discount-foreground);
+  --color-live: var(--live);
+  --color-progress-track: var(--progress-track);
+  --color-progress-fill: var(--progress-fill); --color-progress-fill-urgent: var(--progress-fill-urgent);
+  --color-whatsapp: var(--whatsapp); --color-whatsapp-foreground: var(--whatsapp-foreground); --color-whatsapp-hover: var(--whatsapp-hover);
+  --color-inverse: var(--inverse); --color-inverse-foreground: var(--inverse-foreground);
+  --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4);
+  --color-sidebar: var(--sidebar); --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary); --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);   --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ---------- 5) Base ---------- */
+@font-face {
+  font-family: "Plex Fallback";
+  src: local("Segoe UI"), local("Tahoma"), local("Geeza Pro"), local("Noto Sans Arabic");
+  ascent-override: 108.5%; descent-override: 41.5%; line-gap-override: 0%; size-adjust: 100%;
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  html { font-family: var(--font-sans); -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+  body { background: var(--background); color: var(--foreground); font-size: var(--text-base); line-height: var(--text-base--line-height); }
+  :lang(ar) { letter-spacing: 0; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  bdi { unicode-bidi: isolate; }
+  input, select, textarea { font-size: max(16px, 1em); } /* iOS zoom guard */
+  .num { font-variant-numeric: tabular-nums; } /* no-op for Plex (digits already 600u), kept for fallbacks */
+  [data-directional]:dir(rtl) { transform: scaleX(-1); }
+  .riyal { font-synthesis: none; } /* single-weight official glyph: never fake-bold it (SAMA rule 6) */
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important; scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .price-lg  { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); font-weight: 700; }
+  .price     { font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: 700; }
+  .price, .price-lg, .price-old { white-space: nowrap; }
+  .input-lg  { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); font-weight: 700; } /* OTP + bargain price inputs */
+  .price-old { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--muted-foreground); text-decoration: line-through; }
+  .label     { font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: 600; }
+  .overline  { font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: 600; color: var(--gold-text); }
+}

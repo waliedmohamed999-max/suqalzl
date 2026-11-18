@@ -962,7 +962,7 @@ export default {
 | `Badge` / `StatusBadge` | 🟢 | `subtle` (افتراضي)، `solid`، `outline`. النغمات: neutral، info، accent، warning، success، danger، live | `sm` 20، `md` 24 | — | `StatusBadge entity="subOrder" status="SHIPPED"` يأخذ النغمة والأيقونة والنص من الـ map (2.5). النص دائماً موجود، وأقل حجم 12px |
 | `Alert` / `Callout` | 🟢 | info، success، warning، danger، `secure` (قفل، "اسمك ورقمك ما يظهرون للتاجر") | — | dismissible اختياري | `role="status"` أو `alert` حسب الخطورة |
 | `Toast` | 🔵 | success، error، info | — | مع action (تراجع) | `aria-live="polite"`، والأخطاء `assertive` |
-| `Skeleton` | 🟢 | `text`، `card`، `row`، `kpi`، `image` (4:5 أو 1:1) | — | — | بلون `muted` ثابت بدون shimmer مع reduced-motion، و `aria-hidden`، والحاوية `aria-busy` |
+| `Skeleton` | 🟢 | `text`، `card`، `row`، `kpi`، `image` (4:5 للمنتجات، و 1:1 للشعارات والأفاتار فقط) | — | — | بلون `muted` ثابت بدون shimmer مع reduced-motion، و `aria-hidden`، والحاوية `aria-busy` |
 | `EmptyState` | 🟢 | `default`، `search` (بدون نتائج)، `filtered` (مع "مسح الفلاتر")، `first-use` (onboarding) | — | **دائماً مع action** (زر أساسي واحد) | عنوان + سطر + زر. ممنوع حالة فارغة بدون خطوة تالية |
 | `ErrorState` | 🟢 | `inline`، `page` (لـ `error.tsx`)، `offline`، `expired` (مهلة) | — | مع retry | النص يقول ما حدث وما الخطوة، ولا يكشف تفاصيل تقنية |
 | `Icon` | 🟢 | — | 16، 20، 24 | `data-directional` للانعكاس | زخرفية `aria-hidden` افتراضياً |
@@ -978,7 +978,7 @@ export default {
 | `VendorChip` | 🟢 | `inline` (اسم + تقييم)، `row` (شعار + تقييم + "زيارة المتجر")، `platform` (سوق الزل بدون تقييم) | — | لا يعرض اسم التاجر في سياق الفصال إلا حسب O8 |
 | `VariantPicker` | 🔵 | `swatch` (لون)، `chip` (مقاس، خامة) | selected (`border-strong`)، **unavailable** (شطب + نص "غير متوفر" مخفي للقارئ، ويبقى قابلاً للتركيز ليُعلن)، disabled | `radiogroup`، و 44×44 حد أدنى |
 | `QuantityStepper` | 🔵 | `sm`، `md` | min، max (حسب المخزون أو `perCustomerLimit`)، disabled | زرّان 44 + input رقمي. `aria-live` على التغيير |
-| `ImageGallery` | 🔵 (سحب) | `pdp` (1:1 جوال، 4:5 ديسكتوب)، `thumbs` | loading، single-image (بدون نقاط) | الصورة الأولى server-rendered بـ `priority` (هي الـ LCP)، والسحب يتحمّل بعد الـ hydration |
+| `ImageGallery` | 🔵 (سحب) | `pdp` (**4:5 في الجوال والديسكتوب**، قرار designer)، `thumbs` | loading، single-image (بدون نقاط) | الصورة الأولى server-rendered بـ `priority` (هي الـ LCP)، والسحب يتحمّل بعد الـ hydration |
 | `Breadcrumbs` | 🟢 | — | — | `nav[aria-label]` + `ol`، والفاصل أيقونة `data-directional`، ويولّد BreadcrumbList JSON-LD |
 | `FilterChips` / `SortMenu` | 🔵 | `scroll` (جوال)، `wrap` | selected، with-count، clear-all | الحالة في الـ URL (`searchParams`)، و `aria-pressed` |
 | `SearchBox` | 🔵 | `header`، `page` | idle، typing (اقتراحات)، empty-results | `role="combobox"`، والتطبيع العربي على السيرفر |
@@ -1053,12 +1053,13 @@ export default {
   | بطاقة شبكة المنتجات | 4:5 | `(min-width:1280px) 296px, (min-width:1024px) 25vw, (min-width:768px) 33vw, 50vw` |
   | بطاقة في شريط أفقي | 4:5 | `160px` |
   | صورة DealCard الأفقية | 4:5 | `120px` |
-  | معرض صفحة المنتج | 1:1 جوال، 4:5 ديسكتوب | `(min-width:1024px) 50vw, 100vw` |
+  | معرض صفحة المنتج | **4:5 جوال وديسكتوب** (1.1، كان 1:1 في الجوال) | `(min-width:1280px) 640px, (min-width:1024px) 50vw, 100vw` |
   | بانر الرئيسية | 16:9 جوال، 3:1 ديسكتوب (`<picture>` بمصدرين، `Banner.imageMobile`/`imageDesktop`) | `100vw` |
-  | الصور المصغرة (السلة، الصندوق) | 1:1 أو 4:5 | `56px` |
+  | الصور المصغرة (السلة، الصندوق، مصغرات المعرض) | 4:5 (56×70) | `56px` |
 - **الـ LCP:** صورة واحدة فقط لكل صفحة بـ `priority` (`fetchPriority="high"`): أول بانر في الرئيسية، وأول صورة في معرض المنتج، وأول صورة في شبكة التصنيف. كل الباقي `loading="lazy"`.
-- **أوزان مستهدفة (AVIF):** صورة LCP للمنتج بعرض 828px ≤ 90KB، وبطاقة الشبكة بعرض 384px ≤ 25KB، والبانر بعرض 828px ≤ 70KB.
-- **المصدر:** الرفع ≤ 5MB، وأقل ضلع طويل 1600px، ويُخزن نسخة أصلية في Supabase Storage. والتحويل عبر `next/image` (أو Supabase Image Transformations حسب O6، بـ loader مخصص).
+- **نسبة واحدة لكل صور المنتج: 4:5** (1.1). الحاوية `aspect-ratio: 4 / 5` محجوزة دائماً (CLS)، والصورة `object-fit: cover`، والرفع يُقص على 4:5 عند المعالجة على السيرفر.
+- **أوزان مستهدفة (AVIF):** صورة LCP للمنتج بعرض 828px (828×1035، 4:5) ≤ 110KB (كانت 90KB لـ 828×828؛ المساحة زادت 25%، والرقم تقدير يُقاس على صور الـ seed الحقيقية في P1-02)، وبطاقة الشبكة بعرض 384px (384×480) ≤ 25KB، والبانر بعرض 828px ≤ 70KB.
+- **المصدر:** الرفع ≤ 5MB، وأقل أبعاد 1280×1600 (4:5)، ويُخزن نسخة أصلية في Supabase Storage. والتحويل عبر `next/image` (أو Supabase Image Transformations حسب O6، بـ loader مخصص).
 - **Placeholder:** لون `muted` ثابت (`bg-muted`) مع `aspect-ratio` محجوزة. بدون `blurDataURL` (يضيف bytes لكل صورة في الـ HTML).
 - الأيقونات من `lucide-react` بـ import فردي (`import { Search } from 'lucide-react'`)، وممنوع icon fonts. أيقونات التصنيفات SVG inline صغيرة (≤ 1KB لكل واحدة).
 

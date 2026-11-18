@@ -2,9 +2,9 @@
 
 > مصدر الحقيقة الوحيد لحالة المهام. التفاصيل ومعايير القبول في `docs/plan.md`، والقرارات في `docs/decisions.md`.
 > الحالات: Todo / Doing / Review / Done / Blocked. أي مهمة تحتاج موافقة المالك تبقى في Review.
-> آخر تحديث: 2026-11-18 — الفرع: `agent/ceo/p0-setup`
+> آخر تحديث: 2026-11-18 (مساءً) — الفرع: `main`
 > قاعدة التنفيذ (CLAUDE.md 13، 14): كل مهمة ينفذها المختص بنفسه في ملفاته، والـ CEO ينسق ويجمع ويراجع فقط.
-> **بوابة G1: معتمدة** (القرارات 2026-11-17 + التصميم 2026-11-18). P1 جاهزة ولم تبدأ.
+> **بوابة G1: معتمدة** (القرارات 2026-11-17 + التصميم 2026-11-18). **P1 بدأت:** P1-00 نجح 54/54 (2026-11-18). قرارات جديدة: D31–D34 (`docs/decisions.md` §10).
 
 ## P0 — التجهيز (منتهية)
 
@@ -28,15 +28,19 @@
 
 | ID | Task | Owner | Status | Notes |
 |---|---|---|---|---|
-| P1-00 | spike العزل و RLS و SSE + LISTEN/NOTIFY على Postgres محلي (T10، C1، C2) | backend-engineer + devops-engineer | Todo | **جاهز للبدء** |
-| P1-01 | أساس الـ Backend (schema كامل، seed بالافتراضيات، Auth + OTP ذاتي) | backend-engineer | Todo | جاهز بعد P1-00 |
-| P1-02 | أساس الـ Frontend (tokens 1.1، layouts، الدخول/OTP، المكونات) | frontend-engineer | Todo | **يبدأ مع هيكل المشروع في بداية P1-01** (D30): بيانات Zod في الاختبارات و Storybook/dev فقط؛ اللوحات عربي فقط والمتجر ar + en (D29)؛ رمز الريال حسب tokens.md 1.1 §8.4 |
-| P1-03 | `docker compose` + interfaces + ملفات CI + Sentry بتنظيف PII | devops-engineer | Todo | **جاهز للبدء**؛ تشغيل الـ CI فعلياً ينتظر مستودع GitHub من المالك |
-| P2-01 | الكتالوج والبحث | frontend-engineer + backend-engineer | Todo | يعتمد على P1 |
-| P2-02 | السلة والكوبونات (ضابط D18) والـ Checkout | backend-engineer + frontend-engineer | Todo | يعتمد على P2-01 |
+| P1-00 | spike العزل و RLS و SSE + LISTEN/NOTIFY على Postgres محلي (T10، C1، C2) | backend-engineer + devops-engineer | Review | **54/54 في 3 تشغيلات**، `tsc` و `next build` ناجحين (`agent/backend/p1-00-spike`، `spikes/p1-00/REPORT.md`). T10 **معتمد من ناحية backend** (D34)؛ Done بعد P1-00b و P1-00c. تعديلات SPEC §7 مدمجة |
+| P1-00b | مراجعة devops للـ spike: القسم 1، الـ pooler، اتصال LISTEN، الـ buffering، أدوار `docker compose`، موافقة T10 | devops-engineer | Todo | المراجعة في ملف مراجعة منفصل (CLAUDE.md 14) |
+| P1-00c | مراجعة qa-tester لاختبارات الـ spike كأساس سيناريو 5 و 8 | qa-tester | Todo | قاعدة: مخرجات هندسية تمر على qa-tester قبل Done |
+| O14 | سؤال المالك: الطريقة المفعّلة لدخول الإدارة والتجار (كلمة السر أم OTP بالجوال) | المالك | Review | الافتراضي: كلمة السر، و 2FA مقفول (D31) |
+| P1-01 | أساس الـ Backend (schema كامل، seed بالافتراضيات، Auth + OTP ذاتي) | backend-engineer | Todo | **جاهز للبدء** (فرع `agent/backend/p1-01-foundation` بدون commits). يشمل `withCtx`/RLS/outbox من P1-00، ونقل الـ 54 اختبار للـ CI، و D31: كلمة السر + 2FA خلف `staffTwoFactorEnabled=false` و `staffLoginMethod=PASSWORD` |
+| P1-02 | أساس الـ Frontend (tokens 1.1، layouts، الدخول/OTP، المكونات) | frontend-engineer | Todo | **يبدأ مع هيكل المشروع في بداية P1-01** (D30): بيانات Zod في الاختبارات و Storybook/dev فقط؛ اللوحات عربي فقط والمتجر ar + en (D29)؛ رمز الريال حسب tokens.md 1.1 §8.4؛ شاشة 2FA و"تذكر الجهاز 30 يوماً" تظهر فقط لو `requires2fa` (D31) |
+| P1-03 | `docker compose` + interfaces + ملفات CI + Sentry بتنظيف PII | devops-engineer | Todo | فيه commit على `agent/devops/p1-03-local-env` (لم يُراجع في هذا التحديث). **مضاف من P1-00:** سكربت init للأدوار، `PRISMA_ENGINES_MIRROR` و registry لـ `postgres:16`، CI على Postgres حقيقي. تشغيل الـ CI فعلياً ينتظر مستودع GitHub |
+| P2-01 | الكتالوج والبحث | frontend-engineer + backend-engineer | Todo | يعتمد على P1. الفلاتر عند الإطلاق: السعر والتاجر والأعلام؛ الخصائص لاحقاً (D33-3) |
+| P2-02 | السلة والكوبونات (ضابط D18) والـ Checkout | backend-engineer + frontend-engineer | Todo | يعتمد على P2-01. سطر التقسيط لكل الزوار (D32) |
 | P2-03 | Moyasar sandbox والـ webhooks | backend-engineer | Todo | يعتمد على P2-02 |
 | P2-04 | حساب العميل (تجهيل، تصدير، موافقة تسويقية) | frontend-engineer + backend-engineer | Todo | يعتمد على P2-03 |
 | P2-05 | النصوص والسياسات و SEO | arabic-content-seo | Todo | يعتمد على P1؛ السياسات مسودات حتى P8-03 |
+| P2-05b | نص سطر التقسيط (D32): بدون وعد بالموافقة، بدون رقم قسط فوق السقف | arabic-content-seo (مراجعة legal-contracts في ملف مراجعة منفصل) | Todo | مرتبط بالشروط 5-2 و R-02 |
 | P3-01 | لوحة الإدارة | frontend-engineer + backend-engineer | Todo | يعتمد على G2 |
 | P3-02 | تأسيس الفاتورة (بدون ZATCA) | backend-engineer (مراجعة finance-zatca) | Todo | يعتمد على P3-01. الربط في P8-06 |
 | P4-01 | تسجيل التجار والمراجعة | backend-engineer + frontend-engineer | Todo | يعتمد على P3 |
@@ -45,16 +49,16 @@
 | P4-04 | الـ Ledger والتسويات وفواتير التجار | backend-engineer + frontend-engineer | Todo | يعتمد على P4-03؛ قيم O3 افتراضية |
 | P4-05 | الإشعارات | backend-engineer | Todo | يعتمد على P4-04 |
 | P4-06 | مراجعة مالية | finance-zatca | Todo | يعتمد على P4-04 |
-| P4.5-01 | تصميم الشاشات الباقية للسوق والفصال | designer | Todo | يمكن البدء بعد G1 |
+| P4.5-01 | تصميم الشاشات الباقية للسوق والفصال | designer | Todo | يمكن البدء بعد G1. يشمل: بانر PriceLock المنتهي في السلة، وإزالة أزرار "نبّهني" من التصاميم (D33) |
 | P4.5-02 | الـ schema ودورة العروض + إعداد الترخيص | backend-engineer | Todo | يعتمد على G3 |
 | P4.5-03 | صفحة /souq الحية | frontend-engineer + backend-engineer | Todo | يعتمد على P4.5-02 |
 | P4.5-04 | محرك الفصال | backend-engineer | Todo | يعتمد على P4.5-02 |
-| P4.5-05 | واجهات الفصال | frontend-engineer | Todo | يعتمد على P4.5-01 + P4.5-04 |
+| P4.5-05 | واجهات الفصال | frontend-engineer | Todo | يعتمد على P4.5-01 + P4.5-04. بانر انتهاء PriceLock (D33-1)؛ بدون "نبّهني" (D33-2) |
 | P4.5-06 | مراقبة الإدارة /admin/souq | frontend-engineer + backend-engineer | Todo | يعتمد على P4.5-04 |
 | P4.5-07 | قواعد عمولة الصفقات | finance-zatca + legal-contracts | Todo | يعتمد على P4.5-04 |
 | P5-01 | تابي وتمارا sandbox | backend-engineer + platform-api-engineer | Todo | يعتمد على G4 |
 | P5-02 | SMS (Taqnyat) وواتساب (Meta) والإيميل | backend-engineer + platform-api-engineer | Todo | يعتمد على P4؛ مفاتيح اختبار/console |
-| P5-03 | Cron jobs خلف JobScheduler | backend-engineer + devops-engineer | Todo | يعتمد على P4.5 |
+| P5-03 | Cron jobs خلف JobScheduler | backend-engineer + devops-engineer | Todo | يعتمد على P4.5. يشمل مسح `realtime_events` كل 24 ساعة |
 | P5-04 | الكوكيز والتتبع | tracking-analytics | Todo | يعتمد على P2 |
 | P6-01 | الجودة والاختبارات | qa-tester + e2e-automation-engineer + design-system-performance | Todo | يعتمد على P5 |
 | P7-01 | الاستيراد من زد | backend-engineer | Todo | يعتمد على G5 |

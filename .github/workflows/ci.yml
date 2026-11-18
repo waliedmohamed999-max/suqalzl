@@ -34,6 +34,10 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
   CI: "true"
   TZ: UTC
+  # Commit the build/runtime reports in GET /api/health ({"commit": ...}); checked by
+  # the build smoke test and later by release:verify (devops.md §6.6-4). On PRs it is
+  # the PR head, not GitHub's temporary merge commit.
+  GIT_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   # Test-only values. Nothing here is a real secret; CI never uses live keys.
   APP_ENV: test
   APP_URL: http://localhost:3000
@@ -378,6 +382,29 @@ jobs:
         if: needs.detect.outputs.prisma == 'true'
         run: npx --no-install prisma generate
       - run: npm run build
+      # Smoke: the production server starts without DB/storage and /api/health
+      # reports this exact commit (what release:verify checks after a deploy).
+      - name: Smoke — next start, /api/health reports GIT_COMMIT_SHA
+        run: |
+          set -euo pipefail
+          port="${SMOKE_PORT:-3100}"
+          if curl -s -o /dev/null "http://127.0.0.1:$port/"; then echo "::error::port $port is already in use"; exit 1; fi
+          ./node_modules/.bin/next start --port "$port" > "$RUNNER_TEMP/next-start.log" 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          body=""
+          for _ in $(seq 1 60); do
+            # Our server must still be alive: never accept an answer from another process.
+            if ! kill -0 "$pid" 2>/dev/null; then cat "$RUNNER_TEMP/next-start.log"; echo "::error::next start exited"; exit 1; fi
+            if body=$(curl -fsS "http://127.0.0.1:$port/api/health" 2>/dev/null); then break; fi
+            sleep 1
+          done
+          echo "GET /api/health -> ${body:-<no answer>}"
+          if ! node -e 'const b=JSON.parse(process.argv[1]||"{}");process.exit(b.status==="ok"&&b.commit===process.env.GIT_COMMIT_SHA?0:1)' "$body"; then
+            echo "::error::/api/health must return status ok and commit=$GIT_COMMIT_SHA"
+            tail -n 50 "$RUNNER_TEMP/next-start.log"
+            exit 1
+          fi
 
   e2e:
     name: e2e (Playwright on the docker compose stack)

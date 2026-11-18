@@ -1,0 +1,289 @@
+// P1-00 spike — a SMALL subset of SPEC §5 / §5.1, only what the three experiments need.
+// Money = Int halalas (D7). Timestamps UTC. Not the P1-01 schema.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  VENDOR_OWNER
+  SUPER_ADMIN
+}
+
+enum ProductStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PriceRequestType {
+  PRODUCT
+  OPEN
+}
+
+enum PriceRequestStatus {
+  OPEN
+  HAS_OFFERS
+  ACCEPTED
+  CONVERTED
+  EXPIRED
+  CANCELLED
+}
+
+enum RecipientStatus {
+  SENT
+  SEEN
+  RESPONDED
+  DECLINED
+  IGNORED
+}
+
+enum ThreadStatus {
+  OPEN
+  ACCEPTED
+  CLOSED
+}
+
+enum OfferAuthor {
+  VENDOR
+  CUSTOMER
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COUNTERED
+  EXPIRED
+  WITHDRAWN
+}
+
+enum ReservationSource {
+  ORDER
+  PRICE_LOCK
+}
+
+enum ReservationStatus {
+  ACTIVE
+  CONSUMED
+  RELEASED
+}
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  phone     String   @unique
+  role      Role
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  vendorsOwned  Vendor[]
+  priceRequests PriceRequest[]
+
+  @@map("users")
+}
+
+model Vendor {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerUserId String   @map("owner_user_id") @db.Uuid
+  storeNameAr String   @map("store_name_ar")
+  iban        String
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  owner      User                    @relation(fields: [ownerUserId], references: [id])
+  products   Product[]
+  recipients PriceRequestRecipient[]
+  threads    NegotiationThread[]
+  offers     PriceOffer[]
+
+  @@index([ownerUserId])
+  @@map("vendors")
+}
+
+model Category {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameAr String @map("name_ar")
+  slug   String @unique
+
+  products      Product[]
+  priceRequests PriceRequest[]
+
+  @@map("categories")
+}
+
+model Product {
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vendorId   String?       @map("vendor_id") @db.Uuid // null = platform (D6)
+  categoryId String        @map("category_id") @db.Uuid
+  nameAr     String        @map("name_ar")
+  status     ProductStatus @default(DRAFT)
+  basePrice  Int           @map("base_price")
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  vendor   Vendor?          @relation(fields: [vendorId], references: [id])
+  category Category         @relation(fields: [categoryId], references: [id])
+  variants ProductVariant[]
+
+  @@index([vendorId, status])
+  @@index([status, categoryId, createdAt(sort: Desc)])
+  @@map("products")
+}
+
+model ProductVariant {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId     String   @map("product_id") @db.Uuid
+  sku           String   @unique
+  price         Int
+  stock         Int
+  reservedStock Int      @default(0) @map("reserved_stock")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  product      Product                     @relation(fields: [productId], references: [id])
+  negotiation  VariantNegotiationSettings?
+  reservations StockReservation[]
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+/// floorPrice / autoAcceptPrice are SECRET (SPEC 6.8). Globally omitted in the Prisma client.
+model VariantNegotiationSettings {
+  variantId       String   @id @map("variant_id") @db.Uuid
+  floorPrice      Int      @map("floor_price")
+  autoAcceptPrice Int?     @map("auto_accept_price")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("variant_negotiation_settings")
+}
+
+model PriceRequest {
+  id          String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  number      String             @unique @default(dbgenerated("('PR-'::text || nextval('price_request_number_seq'::regclass))"))
+  customerId  String             @map("customer_id") @db.Uuid
+  type        PriceRequestType
+  productId   String?            @map("product_id") @db.Uuid
+  variantId   String?            @map("variant_id") @db.Uuid
+  categoryId  String             @map("category_id") @db.Uuid
+  titleAr     String             @map("title_ar")
+  qty         Int
+  targetPrice Int                @map("target_price")
+  status      PriceRequestStatus @default(OPEN)
+  expiresAt   DateTime           @map("expires_at") @db.Timestamptz(3)
+  broadcastCount Int             @default(0) @map("broadcast_count")
+  createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  customer   User                    @relation(fields: [customerId], references: [id])
+  category   Category                @relation(fields: [categoryId], references: [id])
+  recipients PriceRequestRecipient[]
+  threads    NegotiationThread[]
+  offers     PriceOffer[]
+
+  @@index([customerId, status])
+  @@index([categoryId, status, createdAt(sort: Desc)])
+  @@map("price_requests")
+}
+
+model PriceRequestRecipient {
+  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId String          @map("request_id") @db.Uuid
+  vendorId  String          @map("vendor_id") @db.Uuid
+  status    RecipientStatus @default(SENT)
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  request PriceRequest @relation(fields: [requestId], references: [id])
+  vendor  Vendor       @relation(fields: [vendorId], references: [id])
+
+  @@unique([requestId, vendorId])
+  @@index([vendorId, status, createdAt(sort: Desc)])
+  @@map("price_request_recipients")
+}
+
+model NegotiationThread {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId      String       @map("request_id") @db.Uuid
+  vendorId       String       @map("vendor_id") @db.Uuid
+  variantId      String       @map("variant_id") @db.Uuid
+  vendorRounds   Int          @default(0) @map("vendor_rounds")
+  customerRounds Int          @default(0) @map("customer_rounds")
+  status         ThreadStatus @default(OPEN)
+  version        Int          @default(1)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  request PriceRequest @relation(fields: [requestId], references: [id])
+  vendor  Vendor       @relation(fields: [vendorId], references: [id])
+  offers  PriceOffer[]
+
+  @@unique([requestId, vendorId])
+  @@index([vendorId, status])
+  @@map("negotiation_threads")
+}
+
+model PriceOffer {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threadId    String      @map("thread_id") @db.Uuid
+  requestId   String      @map("request_id") @db.Uuid
+  vendorId    String      @map("vendor_id") @db.Uuid
+  variantId   String      @map("variant_id") @db.Uuid
+  author      OfferAuthor
+  round       Int
+  unitPrice   Int         @map("unit_price")
+  qty         Int
+  shippingFee Int         @default(0) @map("shipping_fee")
+  status      OfferStatus @default(PENDING)
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  thread  NegotiationThread @relation(fields: [threadId], references: [id])
+  request PriceRequest      @relation(fields: [requestId], references: [id])
+  vendor  Vendor            @relation(fields: [vendorId], references: [id])
+
+  @@index([threadId, createdAt])
+  @@index([requestId])
+  @@map("price_offers")
+}
+
+model StockReservation {
+  id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  variantId  String            @map("variant_id") @db.Uuid
+  qty        Int
+  sourceType ReservationSource @map("source_type")
+  sourceId   String            @map("source_id")
+  status     ReservationStatus @default(ACTIVE)
+  expiresAt  DateTime          @map("expires_at") @db.Timestamptz(3)
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([sourceType, sourceId])
+  @@map("stock_reservations")
+}
+
+/// Realtime outbox: written only through app.publish_event() (SECURITY DEFINER), which also NOTIFYs.
+model RealtimeEvent {
+  id        BigInt   @id @default(autoincrement())
+  topic     String
+  type      String
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([topic, id])
+  @@index([createdAt])
+  @@map("realtime_events")
+}

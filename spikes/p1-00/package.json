@@ -1,0 +1,41 @@
+{
+  "name": "suqalzl-spike-p1-00",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "P1-00 spike: vendor isolation (service layer + RLS), SSE realtime with LISTEN/NOTIFY, atomic stock reservation",
+  "scripts": {
+    "db:up": "docker compose up -d db",
+    "db:bootstrap": "tsx scripts/bootstrap-db.ts",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:reset": "tsx scripts/bootstrap-db.ts --drop && tsx scripts/migrate.ts",
+    "generate": "prisma generate",
+    "build": "next build",
+    "start": "next start -p 3999",
+    "typecheck": "tsc --noEmit",
+    "pretest": "next build",
+    "test": "vitest run",
+    "test:isolation": "vitest run tests/isolation",
+    "test:realtime": "vitest run tests/realtime",
+    "test:stock": "vitest run tests/stock"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "next": "15.5.29",
+    "pg": "8.23.1",
+    "react": "19.1.10",
+    "react-dom": "19.1.10",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "dotenv": "17.4.2",
+    "prisma": "7.10.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

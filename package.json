@@ -16,8 +16,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:unit": "vitest run tests/unit",
-    "test:db": "vitest run tests/db",
+    "test:unit": "vitest run --project node tests/unit",
+    "test:db": "vitest run --project node tests/db",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "postinstall": "prisma generate",
@@ -26,7 +26,10 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:local": "tsx scripts/db/apply-migrations.ts",
     "db:seed": "prisma db seed",
-    "db:reset:test": "tsx scripts/db/reset-db.ts"
+    "db:reset:test": "tsx scripts/db/reset-db.ts",
+    "test:ui": "vitest run --project ui",
+    "lint:tokens": "bash scripts/design/lint-tokens.sh",
+    "check:contrast": "python3 scripts/design/contrast.py > /dev/null"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1171.0",
@@ -50,6 +53,7 @@
     "react": "19.1.10",
     "react-dom": "19.1.10",
     "react-hook-form": "7.92.0",
+    "server-only": "0.0.1",
     "sonner": "2.0.8",
     "tailwind-merge": "3.7.0",
     "zod": "4.6.7"

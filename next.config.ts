@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ["pg", "@prisma/adapter-pg", "nodemailer"],
   typescript: { ignoreBuildErrors: false },
+  // D30 (P1-02): *.dev.tsx routes (the /dev/components catalogue with Zod-generated sample data)
+  // exist only outside production builds.
+  pageExtensions: process.env.NODE_ENV === "production" ? ["tsx", "ts"] : ["tsx", "ts", "dev.tsx"],
   // `npm run lint` is a separate CI job (flat config); don't run the legacy lint inside next build.
   eslint: { ignoreDuringBuilds: true },
   async headers() {

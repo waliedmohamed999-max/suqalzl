@@ -39,7 +39,11 @@ export function smsProvider(): SmsProvider {
   const e = env();
   switch (e.SMS_PROVIDER) {
     case "taqnyat":
-      instance = new TaqnyatSmsProvider({ baseUrl: e.TAQNYAT_API_BASE_URL, apiKey: e.TAQNYAT_API_KEY, sender: e.TAQNYAT_SENDER_NAME });
+      instance = new TaqnyatSmsProvider({
+        baseUrl: e.TAQNYAT_API_BASE_URL,
+        apiKey: e.TAQNYAT_API_KEY,
+        sender: e.TAQNYAT_SENDER_NAME,
+      });
       break;
     case "unifonic":
       throw new Error("SMS_PROVIDER=unifonic: fallback adapter not implemented yet (P5-02)");

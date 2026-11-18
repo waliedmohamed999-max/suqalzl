@@ -17,7 +17,9 @@ export const staffLoginInput = z
   .object({ email: z.email().max(254), password: z.string().min(1).max(200), vendorId: z.uuid().optional() })
   .strict();
 export const staffOtpRequestInput = z.object({ phone: z.string().min(9).max(20) }).strict();
-export const staffOtpVerifyInput = z.object({ phone: z.string().min(9).max(20), code: otpCode, vendorId: z.uuid().optional() }).strict();
+export const staffOtpVerifyInput = z
+  .object({ phone: z.string().min(9).max(20), code: otpCode, vendorId: z.uuid().optional() })
+  .strict();
 export const staffTwoFactorInput = z.object({ code: otpCode, rememberDevice: z.boolean().default(false) }).strict();
 
 /** Responses */

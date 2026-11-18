@@ -93,8 +93,11 @@ function createTable(dm: Datamodel, model: any): string {
     if (def !== null) parts.push(`DEFAULT ${def}`);
     cols.push(`    ${parts.join(" ")}`);
   }
-  const idFields: string[] = model.primaryKey?.fields ?? model.fields.filter((f: any) => f.isId).map((f: any) => f.name);
-  cols.push(`    CONSTRAINT ${q(trunc(`${table}_pkey`))} PRIMARY KEY (${idFields.map((n) => q(colOf(model, n))).join(", ")})`);
+  const idFields: string[] =
+    model.primaryKey?.fields ?? model.fields.filter((f: any) => f.isId).map((f: any) => f.name);
+  cols.push(
+    `    CONSTRAINT ${q(trunc(`${table}_pkey`))} PRIMARY KEY (${idFields.map((n) => q(colOf(model, n))).join(", ")})`,
+  );
   return `CREATE TABLE ${q(table)} (\n${cols.join(",\n")}\n);`;
 }
 
@@ -164,9 +167,12 @@ export function buildDdl(dm: Datamodel, models: string[], created: Set<string>, 
   const modelObjs = models.map((n) => dm.models.find((m) => m.name === n));
 
   const enums = new Set<string>();
-  for (const m of modelObjs) for (const f of m.fields) if (f.kind === "enum" && !createdEnums.has(f.type)) enums.add(f.type);
+  for (const m of modelObjs)
+    for (const f of m.fields) if (f.kind === "enum" && !createdEnums.has(f.type)) enums.add(f.type);
   for (const e of dm.enums.filter((e) => enums.has(e.name))) {
-    parts.push(`CREATE TYPE ${q(e.dbName ?? e.name)} AS ENUM (${e.values.map((v: any) => `'${v.dbName ?? v.name}'`).join(", ")});`);
+    parts.push(
+      `CREATE TYPE ${q(e.dbName ?? e.name)} AS ENUM (${e.values.map((v: any) => `'${v.dbName ?? v.name}'`).join(", ")});`,
+    );
     createdEnums.add(e.name);
   }
   if (enums.size) parts.push("");

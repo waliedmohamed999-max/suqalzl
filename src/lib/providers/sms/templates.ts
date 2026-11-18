@@ -11,7 +11,8 @@ export function renderSmsTemplate(key: SmsTemplateKey, vars: Record<string, stri
   if (!tpl) throw new Error(`unknown SMS template ${key}`);
   const names = [...tpl.matchAll(/\{(\w+)\}/g)].map((m) => m[1]!);
   if (names.length > MAX_VARS) throw new Error(`SMS template ${key} has more than ${MAX_VARS} variables`);
-  for (const k of Object.keys(vars)) if (!names.includes(k)) throw new Error(`variable ${k} not in SMS template ${key}`);
+  for (const k of Object.keys(vars))
+    if (!names.includes(k)) throw new Error(`variable ${k} not in SMS template ${key}`);
   return tpl.replace(/\{(\w+)\}/g, (_, n: string) => {
     const v = vars[n];
     if (v === undefined) throw new Error(`missing SMS variable ${n}`);

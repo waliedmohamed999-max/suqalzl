@@ -37,7 +37,10 @@ export async function authorizeTopics(principal: Principal | null, raw: string[]
         const s = principal!;
         if (s.kind !== "vendor" || p.vendorId !== s.vendorId) return { ok: false, status: 403 };
         const rec = await withCtx({ kind: "vendor", userId: s.userId, vendorId: s.vendorId }, (tx) =>
-          tx.priceRequestRecipient.findFirst({ where: { requestId: p.requestId, vendorId: s.vendorId }, select: { id: true } }),
+          tx.priceRequestRecipient.findFirst({
+            where: { requestId: p.requestId, vendorId: s.vendorId },
+            select: { id: true },
+          }),
         );
         if (!rec) return { ok: false, status: 403 };
         break;

@@ -17,7 +17,10 @@ export async function POST(req: Request) {
     const input = staffLoginInput.parse(await readJson(req));
     const deviceToken = readCookie(req.headers.get("cookie"), deviceCookieName());
     const r = await staffPasswordLogin({ ...input, deviceToken }, requestMeta(req));
-    return withCookies(NextResponse.json({ ok: true, requires2fa: r.requires2fa, area: r.area }, { headers: noStore }), r.cookies);
+    return withCookies(
+      NextResponse.json({ ok: true, requires2fa: r.requires2fa, area: r.area }, { headers: noStore }),
+      r.cookies,
+    );
   } catch (e) {
     return handleError(e);
   }

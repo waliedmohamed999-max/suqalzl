@@ -10,7 +10,8 @@
  */
 import type { PaymentGateway, PaymentMethod } from "@/generated/prisma/enums";
 
-export type ProviderPaymentStatus = "initiated" | "authorized" | "paid" | "failed" | "voided" | "refunded" | "partially_refunded" | "expired";
+export type ProviderPaymentStatus =
+  "initiated" | "authorized" | "paid" | "failed" | "voided" | "refunded" | "partially_refunded" | "expired";
 
 export interface CreatePaymentInput {
   paymentId: string; // our UUID (given_id / reference_id)
@@ -46,10 +47,17 @@ export interface PaymentProvider {
   readonly gateway: PaymentGateway;
   supports(method: PaymentMethod): boolean;
   /** Returns what the browser needs (form config / redirect URL). */
-  createPayment(input: CreatePaymentInput): Promise<{ gatewayRef: string | null; redirectUrl: string | null; clientConfig: unknown }>;
+  createPayment(
+    input: CreatePaymentInput,
+  ): Promise<{ gatewayRef: string | null; redirectUrl: string | null; clientConfig: unknown }>;
   fetchPayment(gatewayRef: string): Promise<ProviderPayment>;
   capture(input: { gatewayRef: string; amount: number; idempotencyKey: string }): Promise<ProviderPayment>;
-  refund(input: { gatewayRef: string; amount: number; idempotencyKey: string; reason?: string }): Promise<ProviderPayment>;
+  refund(input: {
+    gatewayRef: string;
+    amount: number;
+    idempotencyKey: string;
+    reason?: string;
+  }): Promise<ProviderPayment>;
   void(input: { gatewayRef: string; idempotencyKey: string }): Promise<ProviderPayment>;
   /** Verify authenticity only; never trust the body for state — re-fetch with fetchPayment(). */
   verifyWebhook(req: Request, rawBody: string): Promise<VerifiedWebhook>;

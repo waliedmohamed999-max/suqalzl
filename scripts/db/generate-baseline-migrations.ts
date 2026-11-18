@@ -53,7 +53,13 @@ async function main() {
       "-- Part 1 is generated from prisma/schema.prisma by scripts/db/generate-baseline-migrations.ts.",
       `-- Part 2 is hand-written: prisma/sql/${step.name}.sql`,
       "",
-      ...(pre ? ["-- ======================================================================= part 0: hand-written (before tables)", pre.trim(), ""] : []),
+      ...(pre
+        ? [
+            "-- ======================================================================= part 0: hand-written (before tables)",
+            pre.trim(),
+            "",
+          ]
+        : []),
       "-- ======================================================================= part 1: tables",
       ddl.trim(),
       "",

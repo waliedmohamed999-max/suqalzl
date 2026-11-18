@@ -15,7 +15,10 @@ export interface ApiErrorBody {
 }
 
 export function apiError(status: number, code: string, extra: Omit<ApiErrorBody["error"], "code"> = {}) {
-  return NextResponse.json<ApiErrorBody>({ error: { code, ...extra } }, { status, headers: { "cache-control": "no-store" } });
+  return NextResponse.json<ApiErrorBody>(
+    { error: { code, ...extra } },
+    { status, headers: { "cache-control": "no-store" } },
+  );
 }
 
 /** Maps known errors to responses; anything else is a 500 without details (never leak internals). */
@@ -39,7 +42,8 @@ export function handleError(e: unknown) {
 export function assertSameOrigin(req: Request) {
   if (req.headers.get("authorization")?.startsWith("Bearer ")) return;
   const expected = new URL(process.env.APP_URL ?? "http://localhost:3000").origin;
-  const origin = req.headers.get("origin") ?? (req.headers.get("referer") ? new URL(req.headers.get("referer")!).origin : null);
+  const origin =
+    req.headers.get("origin") ?? (req.headers.get("referer") ? new URL(req.headers.get("referer")!).origin : null);
   if (origin !== expected) throw new PermissionDeniedError();
 }
 
@@ -52,7 +56,10 @@ export function requestMeta(req: Request) {
 
 export async function readJson(req: Request, maxBytes = 16_384): Promise<unknown> {
   const text = await req.text();
-  if (text.length > maxBytes) throw new ZodError([{ code: "too_big", path: [], message: "body too large", origin: "string", maximum: maxBytes, inclusive: true }]);
+  if (text.length > maxBytes)
+    throw new ZodError([
+      { code: "too_big", path: [], message: "body too large", origin: "string", maximum: maxBytes, inclusive: true },
+    ]);
   try {
     return text ? JSON.parse(text) : {};
   } catch {
@@ -66,7 +73,13 @@ export function withCookies(res: NextResponse, cookies: CookieSpec[]) {
 }
 
 export function clearCookie(res: NextResponse, name: string) {
-  res.cookies.set(name, "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
+  res.cookies.set(name, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
   return res;
 }
 

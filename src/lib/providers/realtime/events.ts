@@ -46,11 +46,21 @@ const version = z.number().int().nonnegative();
 export const eventSchemas = {
   "request.created": z.object({ requestId: id, version }).strict(),
   "request.changed": z
-    .object({ requestId: id, status: z.enum(["OPEN", "HAS_OFFERS", "ACCEPTED", "CONVERTED", "EXPIRED", "CANCELLED", "CLOSED"]), version })
+    .object({
+      requestId: id,
+      status: z.enum(["OPEN", "HAS_OFFERS", "ACCEPTED", "CONVERTED", "EXPIRED", "CANCELLED", "CLOSED"]),
+      version,
+    })
     .strict(),
   "thread.changed": z.object({ requestId: id, threadId: id, version }).strict(),
   "deal.updated": z
-    .object({ dealId: id, left: z.number().int().nonnegative(), status: z.enum(["LIVE", "ENDED"]), endsAt: z.iso.datetime(), version })
+    .object({
+      dealId: id,
+      left: z.number().int().nonnegative(),
+      status: z.enum(["LIVE", "ENDED"]),
+      endsAt: z.iso.datetime(),
+      version,
+    })
     .strict(),
   "notification.created": z.object({ id }).strict(),
 } as const;

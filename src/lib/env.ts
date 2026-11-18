@@ -29,7 +29,8 @@ const schema = z.object({
   DB_POOL_TIMEOUT_MS: int(10_000),
   REALTIME_DATABASE_URL: optional,
 
-  AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
+  /** reserved (signed cookies / CSRF tokens); sessions are opaque DB tokens */
+  AUTH_SECRET: optional,
   OTP_HMAC_SECRET: z.string().min(32, "OTP_HMAC_SECRET must be at least 32 characters"),
   FIELD_ENCRYPTION_KEY: optional,
   FIELD_ENCRYPTION_KEY_ID: z.string().default("v1"),
@@ -97,7 +98,10 @@ export function env(): Env {
 }
 
 /** notes-for-backend §6 fail-safe: live keys only in production, never test keys when live. */
-export function assertPaymentsSafety(e: Pick<Env, "PAYMENTS_MODE" | "APP_ENV">, keys: (string | undefined)[] = livePaymentKeys()) {
+export function assertPaymentsSafety(
+  e: Pick<Env, "PAYMENTS_MODE" | "APP_ENV">,
+  keys: (string | undefined)[] = livePaymentKeys(),
+) {
   if (e.PAYMENTS_MODE === "live" && e.APP_ENV !== "production") {
     throw new Error("PAYMENTS_MODE=live is only allowed when APP_ENV=production (D14)");
   }

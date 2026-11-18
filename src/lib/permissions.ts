@@ -35,7 +35,13 @@ export type Permission =
 export type Principal =
   | { kind: "customer"; userId: string; role: "CUSTOMER" | "SUPER_ADMIN" | "STAFF" | "VENDOR_OWNER" | "VENDOR_STAFF" }
   | { kind: "staff"; userId: string; role: "SUPER_ADMIN" | "STAFF"; permissions: readonly string[] }
-  | { kind: "vendor"; userId: string; vendorId: string; role: "VENDOR_OWNER" | "VENDOR_STAFF"; permissions: readonly string[] };
+  | {
+      kind: "vendor";
+      userId: string;
+      vendorId: string;
+      role: "VENDOR_OWNER" | "VENDOR_STAFF";
+      permissions: readonly string[];
+    };
 
 export class UnauthorizedError extends Error {
   readonly code = "UNAUTHORIZED";

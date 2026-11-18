@@ -11,10 +11,14 @@ import path from "node:path";
 import pg from "pg";
 import { applyMigrations } from "./apply-migrations";
 
-export async function resetDatabase(ownerUrl: string, opts: { allowNonTest?: boolean; log?: (s: string) => void } = {}) {
+export async function resetDatabase(
+  ownerUrl: string,
+  opts: { allowNonTest?: boolean; log?: (s: string) => void } = {},
+) {
   const log = opts.log ?? console.log;
   const dbName = new URL(ownerUrl).pathname.slice(1);
-  if (!dbName.endsWith("_test") && !opts.allowNonTest) throw new Error(`refusing to reset non-test database "${dbName}"`);
+  if (!dbName.endsWith("_test") && !opts.allowNonTest)
+    throw new Error(`refusing to reset non-test database "${dbName}"`);
   const c = new pg.Client({ connectionString: ownerUrl });
   await c.connect();
   try {
@@ -25,7 +29,8 @@ export async function resetDatabase(ownerUrl: string, opts: { allowNonTest?: boo
         JOIN pg_roles r ON r.oid = a.grantee
         WHERE n.nspname = 'public' AND a.privilege_type = 'USAGE' AND a.grantee <> n.nspowner AND NOT r.rolsuper`)
     ).rows.map((r) => r.rolname);
-    if (runtime.length === 0) throw new Error("no runtime role has USAGE on schema public — run docker/postgres/init first");
+    if (runtime.length === 0)
+      throw new Error("no runtime role has USAGE on schema public — run docker/postgres/init first");
     const q = (s: string) => `"${s.replace(/"/g, '""')}"`;
     await c.query("DROP SCHEMA IF EXISTS app CASCADE");
     await c.query("DROP SCHEMA IF EXISTS public CASCADE");
@@ -33,9 +38,15 @@ export async function resetDatabase(ownerUrl: string, opts: { allowNonTest?: boo
     await c.query("REVOKE CREATE ON SCHEMA public FROM PUBLIC");
     for (const r of runtime) {
       await c.query(`GRANT USAGE ON SCHEMA public TO ${q(r)}`);
-      await c.query(`ALTER DEFAULT PRIVILEGES FOR ROLE ${q(owner)} IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${q(r)}`);
-      await c.query(`ALTER DEFAULT PRIVILEGES FOR ROLE ${q(owner)} IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO ${q(r)}`);
-      await c.query(`ALTER DEFAULT PRIVILEGES FOR ROLE ${q(owner)} IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO ${q(r)}`);
+      await c.query(
+        `ALTER DEFAULT PRIVILEGES FOR ROLE ${q(owner)} IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${q(r)}`,
+      );
+      await c.query(
+        `ALTER DEFAULT PRIVILEGES FOR ROLE ${q(owner)} IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO ${q(r)}`,
+      );
+      await c.query(
+        `ALTER DEFAULT PRIVILEGES FOR ROLE ${q(owner)} IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO ${q(r)}`,
+      );
     }
     log(`reset ${dbName} (runtime roles: ${runtime.join(", ")})`);
   } finally {

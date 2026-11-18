@@ -39,7 +39,7 @@ const PATTERNS: { reason: ContactReason; re: RegExp }[] = [
   // bare domains: something.com, store.sa, ...
   {
     reason: "URL",
-    re: /\b[a-z0-9][a-z0-9-]{1,62}\s?\.\s?(?:com|net|org|sa|me|io|ly|link|co|app|store|shop|online|site|info|biz|xyz|gl|gg)\b(?:\/\S*)?/giu,
+    re: /(?<![@\p{L}\p{N}.-])[a-z0-9][a-z0-9-]{1,62}\s?\.\s?(?:com|net|org|sa|me|io|ly|link|co|app|store|shop|online|site|info|biz|xyz|gl|gg)\b(?:\/\S*)?/giu,
   },
   // @handles (insta, snap, X...). Not e-mails: those are matched above and overlaps are merged.
   { reason: "HANDLE", re: /(?<![\p{L}\p{N}._%+-])@[\p{L}\p{N}_.]{2,}/giu },
@@ -48,7 +48,7 @@ const PATTERNS: { reason: ContactReason; re: RegExp }[] = [
   // app names in Arabic and English
   {
     reason: "SOCIAL",
-    re: /(?:whats\s?app|watsapp|واتس(?:\s?اب)?|وتساب|واتساب|telegram|تيليجرام|تلجرام|تلقرام|تليجرام|snap\s?chat|\bsnap\b|سناب(?:\s?شات)?|\binsta(?:gram)?\b|انستا(?:جرام|قرام)?|انستغرام|tik\s?tok|تيك\s?توك|\bsignal\b|سيجنال|تويتر|twitter)/giu,
+    re: /(?:whats\s?app|watsapp|واتس(?:\s?اب)?|وتساب|واتساب|telegram|تيليجرام|تلجرام|تلقرام|تليجرام|snap\s?chat|\bsnap\b|سناب(?:\s?شات)?|\binsta(?:gram)?\b|انستا|انست(?:ا)?(?:جرام|قرام|غرام)|tik\s?tok|تيك\s?توك|\bsignal\b|سيجنال|تويتر|twitter)/giu,
   },
 ];
 
@@ -82,7 +82,10 @@ export function scanContact(text: string | null | undefined): ContactScan {
 export const CONTACT_MASK = "•••";
 
 /** Replace every detected span with the mask. Returns the reasons for the ModerationFlag. */
-export function sanitizeNote(text: string | null | undefined, mask = CONTACT_MASK): { sanitized: string; reasons: ContactReason[] } {
+export function sanitizeNote(
+  text: string | null | undefined,
+  mask = CONTACT_MASK,
+): { sanitized: string; reasons: ContactReason[] } {
   if (!text) return { sanitized: text ?? "", reasons: [] };
   const { matches, reasons } = scanContact(text);
   if (!matches.length) return { sanitized: text, reasons: [] };

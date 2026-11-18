@@ -12,7 +12,12 @@ export interface RateLimitResult {
   resetAt: Date;
 }
 
-export async function hitRateLimit(tx: Tx, key: string, limit: number, windowSeconds: number): Promise<RateLimitResult> {
+export async function hitRateLimit(
+  tx: Tx,
+  key: string,
+  limit: number,
+  windowSeconds: number,
+): Promise<RateLimitResult> {
   const rows = await tx.$queryRaw<{ count: number; expires_at: Date }[]>`
     INSERT INTO rate_limit_buckets (key, count, window_start, expires_at)
     VALUES (${key}, 1, now(), now() + make_interval(secs => ${windowSeconds}))

@@ -28,7 +28,8 @@ export function scrubValue(value: unknown, depth = 0): unknown {
   if (Array.isArray(value)) return value.map((v) => scrubValue(v, depth + 1));
   if (value && typeof value === "object") {
     const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value)) out[k] = SENSITIVE_KEYS.test(k) ? "[REDACTED]" : scrubValue(v, depth + 1);
+    for (const [k, v] of Object.entries(value))
+      out[k] = SENSITIVE_KEYS.test(k) ? "[REDACTED]" : scrubValue(v, depth + 1);
     return out;
   }
   return value;

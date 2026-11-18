@@ -15,7 +15,12 @@ export async function POST(req: Request) {
     assertSameOrigin(req);
     const input = otpVerifyInput.parse(await readJson(req));
     const r = await verifyCustomerOtp(input, requestMeta(req));
-    const body = { ok: true, user: r.user, isNew: r.isNew, ...(req.headers.get("x-client") === "mobile" ? { token: r.token } : {}) };
+    const body = {
+      ok: true,
+      user: r.user,
+      isNew: r.isNew,
+      ...(req.headers.get("x-client") === "mobile" ? { token: r.token } : {}),
+    };
     return withCookies(NextResponse.json(body, { headers: noStore }), r.cookies);
   } catch (e) {
     return handleError(e);

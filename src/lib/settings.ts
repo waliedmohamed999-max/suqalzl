@@ -64,8 +64,12 @@ export const settingSchemas = {
       contactStrikesToSuspend: z.number().int().positive(),
       contactStrikeWindowDays: z.number().int().positive(),
       suspensionDays: z.number().int().positive(),
-      createRateLimit: z.object({ max: z.number().int().positive(), windowMinutes: z.number().int().positive() }).strict(),
-      autoAcceptDelayMinutes: z.object({ min: z.number().int().nonnegative(), max: z.number().int().positive() }).strict(),
+      createRateLimit: z
+        .object({ max: z.number().int().positive(), windowMinutes: z.number().int().positive() })
+        .strict(),
+      autoAcceptDelayMinutes: z
+        .object({ min: z.number().int().nonnegative(), max: z.number().int().positive() })
+        .strict(),
       requestExpiryHours: z.number().int().positive(),
       priceLockHours: z.number().int().positive(),
       defaultMaxRounds: z.number().int().positive(),
@@ -84,13 +88,20 @@ export const settingSchemas = {
       perIpPerHour: z.number().int().positive(),
     })
     .strict(),
-  staffLoginRateLimit: z.object({ max: z.number().int().positive(), windowMinutes: z.number().int().positive() }).strict(),
+  staffLoginRateLimit: z
+    .object({ max: z.number().int().positive(), windowMinutes: z.number().int().positive() })
+    .strict(),
   trustedDeviceDays: z.number().int().positive(),
   checkoutReservationMinutes: z.number().int().positive(),
   flashPriceLockMinutes: z.number().int().positive(),
   whatsappNumber: z.string().nullable(),
   pixels: z
-    .object({ ga4: z.string().nullable(), meta: z.string().nullable(), snap: z.string().nullable(), tiktok: z.string().nullable() })
+    .object({
+      ga4: z.string().nullable(),
+      meta: z.string().nullable(),
+      snap: z.string().nullable(),
+      tiktok: z.string().nullable(),
+    })
     .strict(),
 } as const;
 
@@ -98,7 +109,14 @@ export type SettingKey = keyof typeof settingSchemas;
 export type SettingValue<K extends SettingKey> = z.infer<(typeof settingSchemas)[K]>;
 
 export const DEFAULT_SETTINGS: { [K in SettingKey]: SettingValue<K> } = {
-  storeInfo: { nameAr: "سوق الزل", nameEn: "Souq AlZal", crNumber: null, vatNumber: null, addressAr: null, supportEmail: null },
+  storeInfo: {
+    nameAr: "سوق الزل",
+    nameEn: "Souq AlZal",
+    crNumber: null,
+    vatNumber: null,
+    addressAr: null,
+    supportEmail: null,
+  },
   vatRate: 1500,
   defaultCommission: 1000,
   commissionBase: "NET_OF_VAT",
@@ -108,7 +126,14 @@ export const DEFAULT_SETTINGS: { [K in SettingKey]: SettingValue<K> } = {
   payoutWeekday: "SUN",
   minPayout: 10_000,
   payoutManualReviewOver: 1_000_000,
-  gatewayFeeBearer: { MADA: "PLATFORM", CARD: "PLATFORM", APPLE_PAY: "PLATFORM", STC_PAY: "PLATFORM", TABBY: "VENDOR", TAMARA: "VENDOR" },
+  gatewayFeeBearer: {
+    MADA: "PLATFORM",
+    CARD: "PLATFORM",
+    APPLE_PAY: "PLATFORM",
+    STC_PAY: "PLATFORM",
+    TABBY: "VENDOR",
+    TAMARA: "VENDOR",
+  },
   negotiationCommissionBps: null,
   platformCouponApprovalBps: 1000,
   souqDiscountsRequireLicense: false,
@@ -147,7 +172,12 @@ export const DEFAULT_SETTINGS: { [K in SettingKey]: SettingValue<K> } = {
 };
 
 /** Keys the public storefront may read (Setting.isPublic). */
-export const PUBLIC_SETTING_KEYS: readonly SettingKey[] = ["storeInfo", "whatsappNumber", "pixels", "souqDiscountsRequireLicense"];
+export const PUBLIC_SETTING_KEYS: readonly SettingKey[] = [
+  "storeInfo",
+  "whatsappNumber",
+  "pixels",
+  "souqDiscountsRequireLicense",
+];
 
 /** Values that are defaults awaiting an owner decision (docs/decisions.md §8, SPEC table O). */
 export const PENDING_OWNER_KEYS: readonly SettingKey[] = [

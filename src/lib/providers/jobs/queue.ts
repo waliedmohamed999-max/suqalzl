@@ -56,7 +56,10 @@ export async function claimJobs(tx: Tx, limit: number, leaseSeconds = 120): Prom
 }
 
 export async function completeJob(tx: Tx, id: string) {
-  await tx.job.update({ where: { id }, data: { status: "SUCCEEDED", completedAt: new Date(), lockedUntil: null, lastError: null } });
+  await tx.job.update({
+    where: { id },
+    data: { status: "SUCCEEDED", completedAt: new Date(), lockedUntil: null, lastError: null },
+  });
 }
 
 /** Exponential backoff (30 s × 2^(attempt−1), max 1 h); DEAD after maxAttempts. */

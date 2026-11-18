@@ -110,17 +110,29 @@ export async function requestCustomerOtp(input: { phone: string; locale: "ar" | 
 }
 
 /** POST /api/auth/otp/verify — creates the customer on first login (phone verified by the OTP). */
-export async function verifyCustomerOtp(input: { phone: string; code: string; name?: string; locale: "ar" | "en" }, meta: RequestMeta) {
+export async function verifyCustomerOtp(
+  input: { phone: string; code: string; name?: string; locale: "ar" | "en" },
+  meta: RequestMeta,
+) {
   const phone = phoneOrThrow(input.phone);
   const r = await withCtx(SYS("auth.customer-otp.verify"), async (tx) => {
     const v = await verifyOtp(tx, { phone, purpose: "CUSTOMER_LOGIN", code: input.code });
     if (!v.ok) return { error: v.reason } as const;
-    let user = await tx.user.findUnique({ where: { phone }, select: { id: true, status: true, deletedAt: true, name: true, role: true } });
+    let user = await tx.user.findUnique({
+      where: { phone },
+      select: { id: true, status: true, deletedAt: true, name: true, role: true },
+    });
     if (user && (user.status !== "ACTIVE" || user.deletedAt)) return { error: "ACCOUNT_BLOCKED" } as const;
     const isNew = !user;
     if (!user) {
       user = await tx.user.create({
-        data: { phone, phoneVerifiedAt: new Date(), name: input.name?.trim().slice(0, 80) || "", role: "CUSTOMER", locale: input.locale },
+        data: {
+          phone,
+          phoneVerifiedAt: new Date(),
+          name: input.name?.trim().slice(0, 80) || "",
+          role: "CUSTOMER",
+          locale: input.locale,
+        },
         select: { id: true, status: true, deletedAt: true, name: true, role: true },
       });
     } else {
@@ -152,7 +164,10 @@ interface StaffUser {
 async function resolveScope(tx: Tx, user: StaffUser, wantedVendorId?: string) {
   if (STAFF_ROLES.includes(user.role)) return { scope: "STAFF" as const, vendorId: null };
   if (!VENDOR_ROLES.includes(user.role)) return null;
-  const owned = await tx.vendor.findMany({ where: { ownerUserId: user.id, status: { not: "REJECTED" } }, select: { id: true } });
+  const owned = await tx.vendor.findMany({
+    where: { ownerUserId: user.id, status: { not: "REJECTED" } },
+    select: { id: true },
+  });
   const member = await tx.vendorMember.findMany({
     where: { userId: user.id, isActive: true, vendor: { status: { not: "REJECTED" } } },
     select: { vendorId: true },
@@ -251,7 +266,9 @@ export async function staffPasswordLogin(
     if ((await getSetting(tx, "staffLoginMethod")) !== "PASSWORD") return { error: "LOGIN_METHOD_DISABLED" as const };
     const cfg = await getSetting(tx, "staffLoginRateLimit");
     const rl = await hitRateLimit(tx, `staff-login:${email}`, cfg.max, cfg.windowMinutes * 60);
-    const rlIp = meta.ip ? await hitRateLimit(tx, `staff-login-ip:${meta.ip}`, cfg.max * 3, cfg.windowMinutes * 60) : null;
+    const rlIp = meta.ip
+      ? await hitRateLimit(tx, `staff-login-ip:${meta.ip}`, cfg.max * 3, cfg.windowMinutes * 60)
+      : null;
     if (!rl.allowed || (rlIp && !rlIp.allowed)) return { error: "RATE_LIMITED" as const, retryAt: rl.resetAt };
 
     const user = await tx.user.findUnique({
@@ -263,7 +280,13 @@ export async function staffPasswordLogin(
     if (!user || !ok) return { error: "INVALID_CREDENTIALS" as const };
     if (user.status !== "ACTIVE" || user.deletedAt) return { error: "ACCOUNT_BLOCKED" as const };
     const scope = await resolveScope(tx, user, input.vendorId);
-    if (!scope) return { error: STAFF_ROLES.includes(user.role) || VENDOR_ROLES.includes(user.role) ? ("NO_VENDOR_ACCESS" as const) : ("INVALID_CREDENTIALS" as const) };
+    if (!scope)
+      return {
+        error:
+          STAFF_ROLES.includes(user.role) || VENDOR_ROLES.includes(user.role)
+            ? ("NO_VENDOR_ACCESS" as const)
+            : ("INVALID_CREDENTIALS" as const),
+      };
     return openStaffSession(tx, user, scope, meta, { deviceToken: input.deviceToken, allow2fa: true });
   });
   return finishStaffLogin(r);
@@ -279,7 +302,14 @@ export async function requestStaffLoginOtp(input: { phone: string }, meta: Reque
     const user = await tx.user.findUnique({ where: { phone }, select: { id: true, role: true, status: true } });
     const eligible = user && user.status === "ACTIVE" && [...STAFF_ROLES, ...VENDOR_ROLES].includes(user.role);
     if (!eligible) return { sms: null, ttlSeconds: rl.cfg.ttlSeconds };
-    const otp = await issueOtp(tx, { phone, purpose: "STAFF_LOGIN", userId: user.id, ip: meta.ip, ttlSeconds: rl.cfg.ttlSeconds, maxAttempts: rl.cfg.maxAttempts });
+    const otp = await issueOtp(tx, {
+      phone,
+      purpose: "STAFF_LOGIN",
+      userId: user.id,
+      ip: meta.ip,
+      ttlSeconds: rl.cfg.ttlSeconds,
+      maxAttempts: rl.cfg.maxAttempts,
+    });
     return { sms: { to: phone, code: otp.code }, ttlSeconds: rl.cfg.ttlSeconds };
   });
   if ("error" in r) throw new AuthError(r.error!, "retryAt" in r ? r.retryAt : undefined);
@@ -288,13 +318,19 @@ export async function requestStaffLoginOtp(input: { phone: string }, meta: Reque
 }
 
 /** POST /api/auth/staff/otp/verify — phone OTP IS the factor; no extra 2FA step. */
-export async function verifyStaffLoginOtp(input: { phone: string; code: string; vendorId?: string }, meta: RequestMeta) {
+export async function verifyStaffLoginOtp(
+  input: { phone: string; code: string; vendorId?: string },
+  meta: RequestMeta,
+) {
   const phone = phoneOrThrow(input.phone);
   const r = await withCtx(SYS("auth.staff-otp.verify"), async (tx) => {
     if ((await getSetting(tx, "staffLoginMethod")) !== "PHONE_OTP") return { error: "LOGIN_METHOD_DISABLED" as const };
     const v = await verifyOtp(tx, { phone, purpose: "STAFF_LOGIN", code: input.code });
     if (!v.ok) return { error: v.reason };
-    const user = await tx.user.findUnique({ where: { phone }, select: { id: true, role: true, status: true, deletedAt: true, phone: true } });
+    const user = await tx.user.findUnique({
+      where: { phone },
+      select: { id: true, role: true, status: true, deletedAt: true, phone: true },
+    });
     if (!user) return { error: "OTP_INVALID" as const };
     if (user.status !== "ACTIVE" || user.deletedAt) return { error: "ACCOUNT_BLOCKED" as const };
     const scope = await resolveScope(tx, user, input.vendorId);
@@ -305,7 +341,10 @@ export async function verifyStaffLoginOtp(input: { phone: string; code: string; 
 }
 
 /** POST /api/auth/staff/2fa/verify — completes a 2FA-pending session (D31). */
-export async function verifyStaffTwoFactor(input: { sessionToken: string | null; code: string; rememberDevice: boolean }, meta: RequestMeta) {
+export async function verifyStaffTwoFactor(
+  input: { sessionToken: string | null; code: string; rememberDevice: boolean },
+  meta: RequestMeta,
+) {
   const state = await resolveSession(input.sessionToken);
   if (!state || !state.twoFactorPending) throw new AuthError("TWO_FACTOR_REQUIRED");
   const r = await withCtx(SYS("auth.staff-2fa.verify"), async (tx) => {
@@ -315,8 +354,17 @@ export async function verifyStaffTwoFactor(input: { sessionToken: string | null;
     if (!v.ok) return { error: v.reason };
     // Rotate: drop the pending session, issue a full one (no session fixation across the 2FA step).
     await tx.session.update({ where: { id: state.sessionId }, data: { revokedAt: new Date() } });
-    const old = await tx.session.findUniqueOrThrow({ where: { id: state.sessionId }, select: { scope: true, vendorId: true } });
-    const session = await createSession(tx, { userId: state.userId, scope: old.scope, vendorId: old.vendorId, ip: meta.ip, userAgent: meta.userAgent });
+    const old = await tx.session.findUniqueOrThrow({
+      where: { id: state.sessionId },
+      select: { scope: true, vendorId: true },
+    });
+    const session = await createSession(tx, {
+      userId: state.userId,
+      scope: old.scope,
+      vendorId: old.vendorId,
+      ip: meta.ip,
+      userAgent: meta.userAgent,
+    });
     await tx.session.update({ where: { id: session.sessionId }, data: { twoFactorVerifiedAt: new Date() } });
     await tx.user.update({ where: { id: state.userId }, data: { lastLoginAt: new Date() } });
     const cookies: CookieSpec[] = [sessionCookie(session.token, session.maxAgeSeconds)];
@@ -333,14 +381,18 @@ export async function verifyStaffTwoFactor(input: { sessionToken: string | null;
       });
       cookies.push(deviceCookie(deviceToken, days * 24 * 3600));
     }
-    await audit(tx, { kind: "system", reason: "auth.staff-2fa", userId: state.userId }, {
-      action: "auth.staff_login.2fa_ok",
-      entity: "User",
-      entityId: state.userId,
-      after: { rememberDevice: input.rememberDevice },
-      ip: meta.ip,
-      userAgent: meta.userAgent,
-    });
+    await audit(
+      tx,
+      { kind: "system", reason: "auth.staff-2fa", userId: state.userId },
+      {
+        action: "auth.staff_login.2fa_ok",
+        entity: "User",
+        entityId: state.userId,
+        after: { rememberDevice: input.rememberDevice },
+        ip: meta.ip,
+        userAgent: meta.userAgent,
+      },
+    );
     return { cookies, token: session.token, area: old.scope === "STAFF" ? ("admin" as const) : ("vendor" as const) };
   });
   if ("error" in r) throw new AuthError(r.error!);

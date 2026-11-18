@@ -23,7 +23,14 @@ function otpHash(challengeId: string, phone: string, purpose: OtpPurpose, code: 
 
 export async function issueOtp(
   tx: Tx,
-  input: { phone: string; purpose: OtpPurpose; userId?: string | null; ip?: string | null; ttlSeconds: number; maxAttempts: number },
+  input: {
+    phone: string;
+    purpose: OtpPurpose;
+    userId?: string | null;
+    ip?: string | null;
+    ttlSeconds: number;
+    maxAttempts: number;
+  },
 ): Promise<{ code: string; challengeId: string; expiresAt: Date }> {
   await tx.otpChallenge.updateMany({
     where: { phone: input.phone, purpose: input.purpose, consumedAt: null, lockedAt: null },
@@ -51,9 +58,20 @@ export type OtpVerifyResult =
   | { ok: true; challengeId: string; userId: string | null }
   | { ok: false; reason: "OTP_INVALID" | "OTP_EXPIRED" | "OTP_LOCKED" };
 
-export async function verifyOtp(tx: Tx, input: { phone: string; purpose: OtpPurpose; code: string }): Promise<OtpVerifyResult> {
+export async function verifyOtp(
+  tx: Tx,
+  input: { phone: string; purpose: OtpPurpose; code: string },
+): Promise<OtpVerifyResult> {
   const rows = await tx.$queryRaw<
-    { id: string; code_hash: string; attempts: number; max_attempts: number; expires_at: Date; locked_at: Date | null; user_id: string | null }[]
+    {
+      id: string;
+      code_hash: string;
+      attempts: number;
+      max_attempts: number;
+      expires_at: Date;
+      locked_at: Date | null;
+      user_id: string | null;
+    }[]
   >`
     SELECT id, code_hash, attempts, max_attempts, expires_at, locked_at, user_id
       FROM otp_challenges

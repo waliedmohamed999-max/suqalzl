@@ -52,7 +52,8 @@ export function applyBps(amount: Halalas, bps: number): Halalas {
 export function allocateLargestRemainder(total: Halalas, weights: readonly number[]): Halalas[] {
   assertHalalas(total, "total");
   if (weights.length === 0) throw new RangeError("weights must not be empty");
-  for (const w of weights) if (!Number.isSafeInteger(w) || w < 0) throw new TypeError("weights must be non-negative integers");
+  for (const w of weights)
+    if (!Number.isSafeInteger(w) || w < 0) throw new TypeError("weights must be non-negative integers");
   const sumW = weights.reduce((a, b) => a + BigInt(b), 0n);
   if (sumW === 0n) {
     if (total === 0) return weights.map(() => 0);

@@ -19,7 +19,8 @@ export interface AuditEntry {
   requestId?: string | null;
 }
 
-const SECRET_KEYS = /^(password|passwordHash|password_hash|iban|token|tokenHash|codeHash|floorPrice|autoAcceptPrice|secret)$/i;
+const SECRET_KEYS =
+  /^(password|passwordHash|password_hash|iban|token|tokenHash|codeHash|floorPrice|autoAcceptPrice|secret)$/i;
 
 /** Recursively replace secret-looking keys with "[REDACTED]". */
 export function redactForAudit(value: unknown): unknown {

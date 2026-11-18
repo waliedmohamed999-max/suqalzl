@@ -22,7 +22,8 @@ export class ConsoleWhatsAppProvider implements WhatsAppProvider {
   readonly name = "console";
   async sendTemplate(m: WhatsAppTemplateMessage) {
     if (process.env.APP_ENV === "production") throw new Error("console WhatsApp driver is not allowed in production");
-    if (process.env.NODE_ENV !== "test") console.info(`[whatsapp:console] to=${maskPhone(m.to)} template=${m.template}`);
+    if (process.env.NODE_ENV !== "test")
+      console.info(`[whatsapp:console] to=${maskPhone(m.to)} template=${m.template}`);
     return { providerMessageId: null };
   }
 }

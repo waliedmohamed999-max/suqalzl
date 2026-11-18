@@ -54,7 +54,8 @@ export const MIGRATION_PLAN: MigrationStep[] = [
   },
   {
     name: "0003_orders_payments",
-    description: "carts, addresses, coupons, orders (H12-H14), payments (C4, C5), returns, reviews, tax invoices (D13), sequences (M1)",
+    description:
+      "carts, addresses, coupons, orders (H12-H14), payments (C4, C5), returns, reviews, tax invoices (D13), sequences (M1)",
     models: [
       "Address",
       "Coupon",

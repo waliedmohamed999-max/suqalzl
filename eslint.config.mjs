@@ -50,7 +50,10 @@ const config = [
     files: ["src/**/*.{ts,tsx}"],
     ignores: ["src/lib/money.ts", "src/lib/format/**"],
     rules: {
-      "no-restricted-globals": ["error", { name: "parseFloat", message: "Money is Int halalas: use lib/money.ts (D7)." }],
+      "no-restricted-globals": [
+        "error",
+        { name: "parseFloat", message: "Money is Int halalas: use lib/money.ts (D7)." },
+      ],
     },
   },
   {

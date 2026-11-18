@@ -31,7 +31,9 @@ export class S3StorageProvider implements StorageProvider {
 
   constructor(private readonly cfg: S3Config) {
     const credentials =
-      cfg.accessKeyId && cfg.secretAccessKey ? { accessKeyId: cfg.accessKeyId, secretAccessKey: cfg.secretAccessKey } : undefined;
+      cfg.accessKeyId && cfg.secretAccessKey
+        ? { accessKeyId: cfg.accessKeyId, secretAccessKey: cfg.secretAccessKey }
+        : undefined;
     const base = { region: cfg.region, forcePathStyle: cfg.forcePathStyle, credentials };
     this.server = new S3Client({ ...base, endpoint: cfg.endpoint });
     this.signer = new S3Client({ ...base, endpoint: cfg.publicEndpoint ?? cfg.endpoint });
@@ -41,7 +43,12 @@ export class S3StorageProvider implements StorageProvider {
     return this.cfg.buckets[kind];
   }
 
-  async createSignedUpload(input: { bucket: BucketKind; key: string; contentType: string; contentLength: number }): Promise<SignedUpload> {
+  async createSignedUpload(input: {
+    bucket: BucketKind;
+    key: string;
+    contentType: string;
+    contentLength: number;
+  }): Promise<SignedUpload> {
     const ttl = this.cfg.signedUrlTtlSeconds;
     const cmd = new PutObjectCommand({
       Bucket: this.bucket(input.bucket),
@@ -49,7 +56,10 @@ export class S3StorageProvider implements StorageProvider {
       ContentType: input.contentType,
       ContentLength: input.contentLength,
     });
-    const url = await getSignedUrl(this.signer, cmd, { expiresIn: ttl, signableHeaders: new Set(["content-type", "content-length"]) });
+    const url = await getSignedUrl(this.signer, cmd, {
+      expiresIn: ttl,
+      signableHeaders: new Set(["content-type", "content-length"]),
+    });
     return {
       url,
       method: "PUT",
@@ -63,7 +73,9 @@ export class S3StorageProvider implements StorageProvider {
     const cmd = new GetObjectCommand({
       Bucket: this.bucket(input.bucket),
       Key: input.key,
-      ResponseContentDisposition: input.downloadName ? `attachment; filename="${input.downloadName.replace(/"/g, "")}"` : undefined,
+      ResponseContentDisposition: input.downloadName
+        ? `attachment; filename="${input.downloadName.replace(/"/g, "")}"`
+        : undefined,
     });
     return getSignedUrl(this.signer, cmd, { expiresIn: input.ttlSeconds ?? this.cfg.signedUrlTtlSeconds });
   }
@@ -76,7 +88,12 @@ export class S3StorageProvider implements StorageProvider {
 
   async putObject(input: { bucket: BucketKind; key: string; body: Uint8Array; contentType: string }) {
     await this.server.send(
-      new PutObjectCommand({ Bucket: this.bucket(input.bucket), Key: input.key, Body: input.body, ContentType: input.contentType }),
+      new PutObjectCommand({
+        Bucket: this.bucket(input.bucket),
+        Key: input.key,
+        Body: input.body,
+        ContentType: input.contentType,
+      }),
     );
   }
 

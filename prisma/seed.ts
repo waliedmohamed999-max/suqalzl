@@ -92,7 +92,14 @@ async function main() {
         const existing = await tx.category.findUnique({ where: { slug: c.slug }, select: { id: true } });
         if (existing) continue;
         await tx.category.create({
-          data: { slug: c.slug, nameAr: c.nameAr, nameEn: c.nameEn, sort: i, homeSort: i, vendorsAllowed: c.vendorsAllowed ?? true },
+          data: {
+            slug: c.slug,
+            nameAr: c.nameAr,
+            nameEn: c.nameEn,
+            sort: i,
+            homeSort: i,
+            vendorsAllowed: c.vendorsAllowed ?? true,
+          },
         });
         categories++;
       }
@@ -126,7 +133,8 @@ async function main() {
         const existing = await tx.user.findUnique({ where: { email: adminEmail }, select: { id: true, role: true } });
         if (existing) {
           admin = "exists";
-          if (existing.role !== "SUPER_ADMIN") throw new Error(`SUPER_ADMIN_EMAIL belongs to a ${existing.role} account`);
+          if (existing.role !== "SUPER_ADMIN")
+            throw new Error(`SUPER_ADMIN_EMAIL belongs to a ${existing.role} account`);
         } else {
           await tx.user.create({
             data: {
@@ -150,7 +158,8 @@ async function main() {
   console.log(
     `seed: +${summary.categories} categories, +${summary.cities} cities, +${summary.settings} settings, super admin ${summary.admin}`,
   );
-  if (summary.admin === "skipped") console.warn("seed: SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWORD not set — no admin created");
+  if (summary.admin === "skipped")
+    console.warn("seed: SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWORD not set — no admin created");
 }
 
 main()

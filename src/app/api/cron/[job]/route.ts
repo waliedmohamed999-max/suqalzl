@@ -24,7 +24,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ job: st
   const lockConn = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await lockConn.connect();
   try {
-    const lock = await lockConn.query<{ ok: boolean }>("SELECT pg_try_advisory_lock(hashtext($1)) AS ok", [`cron:${job}`]);
+    const lock = await lockConn.query<{ ok: boolean }>("SELECT pg_try_advisory_lock(hashtext($1)) AS ok", [
+      `cron:${job}`,
+    ]);
     if (!lock.rows[0]?.ok) return Response.json({ job, skipped: "running" }, { status: 202 });
     try {
       const result = await handler();

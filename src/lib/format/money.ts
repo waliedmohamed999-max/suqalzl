@@ -36,7 +36,9 @@ function formatCompact(abs: number, locale: MoneyLocale): string {
     notation: "compact",
     maximumFractionDigits: 1,
   });
-  return nf.format(abs / 100);
+  return nf
+    .format(abs / 100)
+    .replace(/[\u00A0\u202F\u200F\u200E\u061C]/g, (c) => (c === "\u00A0" || c === "\u202F" ? " " : ""));
 }
 
 export interface SARParts {
@@ -71,7 +73,8 @@ export function formatSAR(
 ): string {
   const { amount } = formatSARParts(halalas, o);
   const display = effectiveDisplay(o.display ?? "text");
-  if (display === "symbol") return o.locale === "ar" ? `${amount}${NBSP}${RIYAL_SIGN}` : `${RIYAL_SIGN}${NBSP}${amount}`;
+  if (display === "symbol")
+    return o.locale === "ar" ? `${amount}${NBSP}${RIYAL_SIGN}` : `${RIYAL_SIGN}${NBSP}${amount}`;
   const unit = display === "code" ? "SAR" : TEXT_UNIT[o.locale];
   return o.locale === "ar" ? `${amount} ${unit}` : `${unit} ${amount}`;
 }

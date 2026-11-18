@@ -19,7 +19,8 @@ const MAXMEM = 128 * N * R * 2;
 export const PASSWORD_MIN_LENGTH = 10;
 
 export async function hashPassword(password: string): Promise<string> {
-  if (password.length < PASSWORD_MIN_LENGTH) throw new RangeError(`password must be at least ${PASSWORD_MIN_LENGTH} characters`);
+  if (password.length < PASSWORD_MIN_LENGTH)
+    throw new RangeError(`password must be at least ${PASSWORD_MIN_LENGTH} characters`);
   const salt = randomBytes(16);
   const key = await scrypt(password.normalize("NFKC"), salt, KEYLEN, { N, r: R, p: P, maxmem: MAXMEM });
   return `scrypt$${N}$${R}$${P}$${salt.toString("base64")}$${key.toString("base64")}`;
@@ -42,5 +43,4 @@ export async function verifyPassword(password: string, stored: string | null | u
 }
 
 // scrypt of a random throwaway password; never matches anything.
-const DUMMY_HASH =
-  "scrypt$32768$8$1$c3VxYWx6bC1kdW1teS1zYWx0$" + Buffer.alloc(64, 7).toString("base64");
+const DUMMY_HASH = "scrypt$32768$8$1$c3VxYWx6bC1kdW1teS1zYWx0$" + Buffer.alloc(64, 7).toString("base64");

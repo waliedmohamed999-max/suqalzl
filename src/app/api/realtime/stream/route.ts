@@ -50,7 +50,11 @@ export async function GET(req: Request) {
       const unsub = await hub.subscribe(
         auth.topics,
         (m) => (buffering ? buffer.push(m) : emit(m)),
-        () => void hub.replay(auth.topics, maxSent).then((ms) => ms.forEach(emit)).catch(() => cleanup()),
+        () =>
+          void hub
+            .replay(auth.topics, maxSent)
+            .then((ms) => ms.forEach(emit))
+            .catch(() => cleanup()),
       );
       write("retry: 3000\n\n");
       if (lastId !== null) for (const m of await hub.replay(auth.topics, lastId)) emit(m);

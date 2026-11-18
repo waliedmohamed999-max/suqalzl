@@ -11,7 +11,10 @@ export async function POST(req: Request) {
     assertSameOrigin(req);
     const input = staffOtpVerifyInput.parse(await readJson(req));
     const r = await verifyStaffLoginOtp(input, requestMeta(req));
-    return withCookies(NextResponse.json({ ok: true, requires2fa: false, area: r.area }, { headers: noStore }), r.cookies);
+    return withCookies(
+      NextResponse.json({ ok: true, requires2fa: false, area: r.area }, { headers: noStore }),
+      r.cookies,
+    );
   } catch (e) {
     return handleError(e);
   }

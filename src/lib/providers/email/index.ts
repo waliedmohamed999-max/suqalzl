@@ -38,7 +38,14 @@ export class SmtpEmailProvider implements EmailProvider {
   readonly name = "smtp";
   private transport: Transporter | undefined;
   constructor(
-    private readonly cfg: { host: string; port: number; secure: boolean; user?: string; password?: string; from: string },
+    private readonly cfg: {
+      host: string;
+      port: number;
+      secure: boolean;
+      user?: string;
+      password?: string;
+      from: string;
+    },
   ) {}
   async send(m: EmailMessage) {
     if (!this.transport) {
@@ -50,7 +57,14 @@ export class SmtpEmailProvider implements EmailProvider {
         auth: this.cfg.user ? { user: this.cfg.user, pass: this.cfg.password } : undefined,
       });
     }
-    const info = await this.transport.sendMail({ from: this.cfg.from, to: m.to, subject: m.subject, html: m.html, text: m.text, replyTo: m.replyTo });
+    const info = await this.transport.sendMail({
+      from: this.cfg.from,
+      to: m.to,
+      subject: m.subject,
+      html: m.html,
+      text: m.text,
+      replyTo: m.replyTo,
+    });
     return { providerMessageId: info.messageId ?? null };
   }
 }
@@ -63,7 +77,14 @@ export class ResendEmailProvider implements EmailProvider {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { authorization: `Bearer ${this.cfg.apiKey}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: this.cfg.from, to: [m.to], subject: m.subject, html: m.html, text: m.text, reply_to: m.replyTo }),
+      body: JSON.stringify({
+        from: this.cfg.from,
+        to: [m.to],
+        subject: m.subject,
+        html: m.html,
+        text: m.text,
+        reply_to: m.replyTo,
+      }),
       signal: AbortSignal.timeout(10_000),
     });
     if (!res.ok) throw new Error(`Resend send failed: HTTP ${res.status}`);

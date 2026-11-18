@@ -16,9 +16,21 @@ export interface CronJobDef {
 /** Single source for infra: dev-cron DEV_CRON_JOBS and the production scheduler use these slugs. */
 export const CRON_JOBS: CronJobDef[] = [
   { slug: "run-queue", schedule: "* * * * *", description: "process due rows of the jobs table" },
-  { slug: "release-expired-reservations", schedule: "*/5 * * * *", description: "free expired stock reservations (6.2-5, C3)" },
-  { slug: "purge-auth", schedule: "17 * * * *", description: "delete expired OTP challenges, sessions, rate-limit buckets" },
-  { slug: "purge-realtime-events", schedule: "23 3 * * *", description: "delete realtime outbox rows older than 24 h (SPEC 5.1)" },
+  {
+    slug: "release-expired-reservations",
+    schedule: "*/5 * * * *",
+    description: "free expired stock reservations (6.2-5, C3)",
+  },
+  {
+    slug: "purge-auth",
+    schedule: "17 * * * *",
+    description: "delete expired OTP challenges, sessions, rate-limit buckets",
+  },
+  {
+    slug: "purge-realtime-events",
+    schedule: "23 3 * * *",
+    description: "delete realtime outbox rows older than 24 h (SPEC 5.1)",
+  },
 ];
 
 export interface JobScheduler {

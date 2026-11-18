@@ -51,9 +51,15 @@ export async function applyMigrations(connectionString: string, log = console.lo
       const id = randomUUID();
       await c.query("BEGIN");
       try {
-        await c.query(`INSERT INTO "_prisma_migrations" (id, checksum, migration_name) VALUES ($1, $2, $3)`, [id, sum, name]);
+        await c.query(`INSERT INTO "_prisma_migrations" (id, checksum, migration_name) VALUES ($1, $2, $3)`, [
+          id,
+          sum,
+          name,
+        ]);
         await c.query(sql);
-        await c.query(`UPDATE "_prisma_migrations" SET finished_at = now(), applied_steps_count = 1 WHERE id = $1`, [id]);
+        await c.query(`UPDATE "_prisma_migrations" SET finished_at = now(), applied_steps_count = 1 WHERE id = $1`, [
+          id,
+        ]);
         await c.query("COMMIT");
         applied.push(name);
         log(`applied ${name}`);

@@ -12,8 +12,10 @@ export function toLatinDigits(input: string): string {
     const c = ch.codePointAt(0)!;
     if (c >= ARABIC_INDIC_ZERO && c <= ARABIC_INDIC_ZERO + 9) out += String(c - ARABIC_INDIC_ZERO);
     else if (c >= PERSIAN_ZERO && c <= PERSIAN_ZERO + 9) out += String(c - PERSIAN_ZERO);
-    else if (ch === "٫") out += "."; // ARABIC DECIMAL SEPARATOR
-    else if (ch === "٬") out += ","; // ARABIC THOUSANDS SEPARATOR
+    else if (ch === "٫")
+      out += "."; // ARABIC DECIMAL SEPARATOR
+    else if (ch === "٬")
+      out += ","; // ARABIC THOUSANDS SEPARATOR
     else out += ch;
   }
   return out;

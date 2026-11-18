@@ -14,11 +14,7 @@ export const LOGIN_PATH: Record<Area, string> = { admin: "/staff/login", vendor:
 export async function requireArea(area: Area, locale: string = "ar"): Promise<Principal> {
   const p = await getPrincipal();
   const ok =
-    area === "account"
-      ? can(p, { area: "account" })
-      : area === "admin"
-        ? p?.kind === "staff"
-        : p?.kind === "vendor";
+    area === "account" ? can(p, { area: "account" }) : area === "admin" ? p?.kind === "staff" : p?.kind === "vendor";
   if (!p || !ok) {
     const prefix = locale === "en" && area === "account" ? "/en" : "";
     redirect(`${prefix}${LOGIN_PATH[area]}`);

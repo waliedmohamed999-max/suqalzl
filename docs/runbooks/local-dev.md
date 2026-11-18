@@ -106,7 +106,8 @@ docker compose logs -f app
 | `docker compose stop` / `docker compose start` | إيقاف وتشغيل من غير ما البيانات تتمسح |
 | `docker compose exec postgres psql -U postgres -d suqalzl` | psql كمستخدم superuser |
 | `bash scripts/dev-db-backup.sh` | نسخة احتياطية محلية (القسم 6) |
-| `node scripts/dev-cron.mjs --once` | تشغيل الـ cron jobs مرة واحدة (بعد P5-03) |
+| `node scripts/dev-cron.mjs --once` | تشغيل الـ cron jobs مرة واحدة (كل اللي في `DEV_CRON_JOBS`، من غير جدول) |
+| `node scripts/dev-cron.mjs --list` | الـ jobs وجدول كل واحد (UTC) والتشغيل الجاي. الجدول من `CRON_JOBS` في `src/lib/providers/jobs/index.ts`؛ `DEV_CRON_INTERVAL_SECONDS=N` بيتجاهل الجدول ويشغّل كل N ثانية للتجربة السريعة |
 | `bash scripts/dev-setup.sh --reset` | **يمسح** كل البيانات المحلية ويبدأ من جديد (بيطلب تأكيد) |
 
 ---

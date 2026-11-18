@@ -19,8 +19,8 @@ function currencyUnit(locale: MoneyLocale): { text: string; isSign: boolean } {
 
 /**
  * Bare amount + unit with the binding markup of tokens.md 8.4.4:
- *  ar: <bdi dir=rtl><bdi dir=ltr>1,250.00</bdi>&nbsp;<span role=img aria-label="ريال سعودي">⃁</span></bdi>
- *  en: <bdi dir=ltr><span …>⃁</span>&nbsp;<bdi dir=ltr>1,250.00</bdi></bdi>
+ *  ar: <bdi dir=rtl><bdi dir=ltr>1,250.00</bdi>&nbsp;<span role=img aria-label="ريال سعودي">SIGN</span></bdi>
+ *  en: <bdi dir=ltr><span …>SIGN</span>&nbsp;<bdi dir=ltr>1,250.00</bdi></bdi>
  * The sign sits LEFT of the number in both languages, same size and colour, never mirrored.
  */
 export function Money({

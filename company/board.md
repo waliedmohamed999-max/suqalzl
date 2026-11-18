@@ -30,7 +30,7 @@
 |---|---|---|---|---|
 | P1-00 | spike العزل و RLS و SSE + LISTEN/NOTIFY على Postgres محلي (T10، C1، C2) | backend-engineer + devops-engineer | Todo | **جاهز للبدء** |
 | P1-01 | أساس الـ Backend (schema كامل، seed بالافتراضيات، Auth + OTP ذاتي) | backend-engineer | Todo | جاهز بعد P1-00 |
-| P1-02 | أساس الـ Frontend (tokens 1.1، layouts، الدخول/OTP) | frontend-engineer | Todo | يعتمد على P1-01 (auth)؛ رمز الريال حسب tokens.md 1.1 §8.4 |
+| P1-02 | أساس الـ Frontend (tokens 1.1، layouts، الدخول/OTP، المكونات) | frontend-engineer | Todo | **يبدأ مع هيكل المشروع في بداية P1-01** (D30): بيانات Zod في الاختبارات و Storybook/dev فقط؛ اللوحات عربي فقط والمتجر ar + en (D29)؛ رمز الريال حسب tokens.md 1.1 §8.4 |
 | P1-03 | `docker compose` + interfaces + ملفات CI + Sentry بتنظيف PII | devops-engineer | Todo | **جاهز للبدء**؛ تشغيل الـ CI فعلياً ينتظر مستودع GitHub من المالك |
 | P2-01 | الكتالوج والبحث | frontend-engineer + backend-engineer | Todo | يعتمد على P1 |
 | P2-02 | السلة والكوبونات (ضابط D18) والـ Checkout | backend-engineer + frontend-engineer | Todo | يعتمد على P2-01 |

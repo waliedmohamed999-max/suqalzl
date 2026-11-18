@@ -12,7 +12,9 @@
 3. **الفاتورة: تأسيس في P3** (D13)، وربط ZATCA في P8.
 4. **الشحن يدوي فقط** (D17) حتى يضبطه المالك؛ لا مزود شحن في P5.
 5. **كل الأوراق والاستشارات في P8** (D15) قبل الإطلاق الفعلي.
-6. **القرارات بانتظار المالك** (O1، O3، O7، O10–O13) لا توقف البناء: إعدادات بقيم افتراضية (`docs/decisions.md` §8).
+6. **لغة اللوحات** (D29): الإدارة والتاجر عربي فقط عند الإطلاق، والمتجر عربي + إنجليزي.
+7. **الواجهة بالتوازي** (D30): بيانات Zod في الاختبارات و Storybook/dev فقط.
+8. **القرارات بانتظار المالك** (O1، O3، O7، O10–O13) لا توقف البناء: إعدادات بقيم افتراضية (`docs/decisions.md` §8).
 
 ## البوابات (Gates)
 
@@ -49,7 +51,7 @@
 |---|---|---|---|---|---|
 | P1-00 | spike العزل والـ Realtime على Postgres محلي | العزل في طبقة الخدمة + RLS بـ `SET LOCAL app.vendor_id` كطبقة إضافية، و SSE + `LISTEN/NOTIFY` بقنوات منفصلة (C1)، وإعادة كتابة C2 و migration 0009 على Postgres عام (T10) | backend-engineer + devops-engineer | G1 | قرار مكتوب في ملفات المختصين؛ اختبار: تاجر B لا يشترك في قناة تاجر A |
 | P1-01 | أساس الـ Backend | Next.js 15 + TS strict على Postgres 16 محلي، `prisma/schema.prisma` كامل (قسم 5 + 5.1)، migrations، seed (التصنيفات الـ 14، SUPER_ADMIN من env، Settings الافتراضية ومنها قيم O1/O3/O7 و D22)، `lib/money.ts` (رمز الريال حسب tokens)، `lib/vat.ts`، Auth جوال `+9665` + OTP ذاتي عبر `SmsProvider`، إيميل/كلمة مرور للإدارة والتجار، `lib/permissions.ts` + middleware، AuditLog helper append-only | backend-engineer | P1-00 | Unit: الضريبة، ROUND_HALF_UP، الآيبان، دوال `netOfGross`/`vatOnNet`، OTP (6 محاولات خاطئة ← قفل)؛ لا Float؛ `/admin` و `/vendor` و `/account` محمية؛ Rate limit للـ OTP؛ لا استيراد `@supabase/*`؛ DoD |
-| P1-02 | أساس الـ Frontend | Tailwind + shadcn بالـ tokens v1.1، IBM Plex Sans Arabic (400/600/700)، RTL، next-intl، layouts المتجر/admin/vendor، المكونات المشتركة (`docs/design/README.md` §4)، صفحات الدخول و OTP، `Price` برمز الريال U+20C1، زر واتساب أخضر | frontend-engineer | P0-04، P0-05، P1-01 (auth) | لا نص ثابت خارج ملفات الترجمة؛ لا بيانات وهمية؛ axe بدون أخطاء حرجة؛ DoD |
+| P1-02 | أساس الـ Frontend (بالتوازي، D30) | Tailwind + shadcn بالـ tokens v1.1، IBM Plex Sans Arabic (400/600/700)، RTL، next-intl، layouts المتجر/admin/vendor، المكونات المشتركة (`docs/design/README.md` §4)، صفحات الدخول و OTP، `Price` برمز الريال U+20C1، زر واتساب أخضر | frontend-engineer | P0-04، P0-05، **هيكل المشروع في بداية P1-01** (الربط بالـ auth الحقيقي عند جاهزيته) | المكونات تُبنى ببيانات مولّدة من مخططات Zod داخل الاختبارات و Storybook/صفحات dev فقط، ولا بيانات وهمية في واجهات الإنتاج (القاعدة 7)؛ المتجر ar + en، و `/admin` و `/vendor` عربي فقط ونصوصهما في ملفات الترجمة (D29)؛ axe بدون أخطاء حرجة؛ DoD |
 | P1-03 | بيئة التطوير والـ CI | `docker compose` (Postgres 16 + تخزين S3-compatible محلي)، interfaces `StorageProvider` و `JobScheduler` و `RealtimeProvider` مع تنفيذ محلي، ملفات GitHub Actions (lint، typecheck، tests) جاهزة، Sentry بتنظيف PII | devops-engineer (+ backend-engineer للـ interfaces) | G1 | `docker compose up` يشغّل التطبيق بالـ seed؛ `.env.example` محدث؛ الـ CI يعمل فعلياً بعد وصول مستودع GitHub من المالك |
 
 ## P2 — المتجر

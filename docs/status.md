@@ -32,7 +32,7 @@
 1. **P1-00** spike العزل والـ Realtime على Postgres محلي — backend-engineer + devops-engineer.
 2. **P1-01** أساس الـ Backend — backend-engineer (بعد P1-00).
 3. **P1-03** بيئة التطوير (`docker compose`) والـ interfaces وملفات الـ CI — devops-engineer.
-4. **P1-02** أساس الـ Frontend — frontend-engineer (بعد auth من P1-01؛ بـ tokens.md 1.1).
+4. **P1-02** أساس الـ Frontend — frontend-engineer، يبدأ مع هيكل المشروع في بداية P1-01 (D30)، واللوحات عربي فقط (D29).
 5. **P0-17** designer يحدّث التصاميم برمز الريال وزر واتساب الأخضر حسب tokens.md 1.1.
 
 ## المخاطر المفتوحة

@@ -51,6 +51,8 @@
 | D26 | **السيوف (افتراضي مؤقت بانتظار المالك):** منتجات المنصة فقط، وتصنيف "سيوف فاخرة" مقفول للتجار حتى قرار المالك مع الشحن. |
 | D27 | **قيم مؤقتة بانتظار المالك (O1، O3، O7):** إعدادات قابلة للتغيير في الكود بقيم finance-zatca المقترحة كافتراضي (جدول O أدناه و `docs/decisions.md` §8). |
 | D28 | **(2026-11-18) التصميم الحالي معتمد** (الهوية، التوكنات v1.1، الشاشات في `docs/design/`)، مع إمكانية تعديلات لاحقة. بوابة G1 **معتمدة**. |
+| D29 | **(2026-11-18، 10:01) لغة اللوحات:** لوحة الإدارة ولوحة التاجر **بالعربي فقط عند الإطلاق**، والمتجر عربي + إنجليزي. البنية جاهزة لإضافة الإنجليزي للوحات لاحقاً (كل النصوص في `messages/*.json`)، بدون ترجمة إنجليزية للوحات الآن. |
+| D30 | **(2026-11-18، 10:01) بناء الواجهة بالتوازي:** frontend-engineer يبني المكونات بالتوازي مع الباك إند باستخدام بيانات تجريبية مولّدة من مخططات Zod **داخل الاختبارات و Storybook/صفحات dev فقط**، وليس في واجهات الإنتاج (القاعدة 7 في CLAUDE.md سارية على الإنتاج). P1-02 يبدأ بمجرد أن يعمل backend-engineer هيكل المشروع في بداية P1-01. |
 
 ### قرارات مفتوحة أو متأجلة (2026-11-18)
 
@@ -74,7 +76,7 @@
 
 - **Framework:** Next.js 15 (App Router) + TypeScript (strict) + React Server Components + Server Actions
 - **UI:** Tailwind CSS + shadcn/ui + lucide-react — RTL افتراضي — خط **IBM Plex Sans Arabic فقط بثلاثة أوزان (400/600/700)** وحذف Tajawal (design-system-performance، `docs/design/tokens.md` 1.1)
-- **i18n:** next-intl (ar افتراضي، en)
+- **i18n:** next-intl (ar افتراضي، en) — المتجر عربي + إنجليزي؛ `/admin` و `/vendor` عربي فقط عند الإطلاق ونصوصهما في ملفات الترجمة (D29)
 - **DB:** **PostgreSQL 16** + Prisma ORM + Prisma Migrate. التطوير على Postgres محلي بـ `docker compose`. أي ميزة نستخدمها تكون من Postgres نفسه (SEQUENCE، triggers، exclusion constraints بـ `btree_gist`، `LISTEN/NOTIFY`، RLS) وليست من مزود
 - **Auth:** Better Auth (أو Auth.js) — دخول بالجوال + OTP، وإيميل/كلمة مرور للإدارة والتجار، مع جلسات من السيرفر
 - **Storage:** خلف interface `StorageProvider` (S3-compatible): bucket عام للصور وbucket خاص للوثائق بروابط موقعة مؤقتة. التطوير على خادم S3-compatible محلي داخل `docker compose` (يختاره devops-engineer)

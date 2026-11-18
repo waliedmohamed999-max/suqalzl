@@ -82,11 +82,28 @@ jobs:
           if [ -f package.json ] && [ -f package-lock.json ]; then node_ready=true; fi
           echo "node=$node_ready" >> "$GITHUB_OUTPUT"
           has() { [ "$node_ready" = true ] && node -e "process.exit(require('./package.json').scripts?.['$1'] ? 0 : 1)"; }
-          for pair in lint:lint typecheck:typecheck test:test build:build e2e:test:e2e migrate:db:migrate:deploy seed:db:seed; do
+          for pair in lint:lint typecheck:typecheck test:test build:build migrate:db:migrate:deploy seed:db:seed; do
             out="${pair%%:*}"; script="${pair#*:}"
             if has "$script"; then echo "$out=true" >> "$GITHUB_OUTPUT"; else echo "$out=false" >> "$GITHUB_OUTPUT"; fi
           done
           if [ "$node_ready" = true ] && [ -f prisma/schema.prisma ]; then echo "prisma=true" >> "$GITHUB_OUTPUT"; else echo "prisma=false" >> "$GITHUB_OUTPUT"; fi
+          # e2e needs more than the npm script: Playwright must really be set up,
+          # otherwise `playwright test` fails ("command not found" / "No tests found").
+          # Required: the script + a playwright.config.* + @playwright/test declared in
+          # package.json + at least one tracked *.spec.* / *.e2e.* file. Works both
+          # before and after frontend-engineer adds Playwright: no edit needed then.
+          e2e_reason=""
+          pw_config=""
+          for f in playwright.config.ts playwright.config.mts playwright.config.js playwright.config.mjs playwright.config.cjs; do
+            if [ -f "$f" ]; then pw_config="$f"; break; fi
+          done
+          if [ "$node_ready" != true ]; then e2e_reason="no package.json/lockfile"
+          elif ! has test:e2e; then e2e_reason="no npm script test:e2e"
+          elif [ -z "$pw_config" ]; then e2e_reason="no playwright.config.*"
+          elif ! node -e "const p=require('./package.json');process.exit((p.devDependencies||{})['@playwright/test']||(p.dependencies||{})['@playwright/test']?0:1)"; then e2e_reason="@playwright/test is not in package.json"
+          elif [ -z "$(git ls-files -- '*.spec.ts' '*.spec.tsx' '*.spec.js' '*.spec.mjs' '*.e2e.ts' ':!:node_modules' | head -n1)" ]; then e2e_reason="no *.spec.* / *.e2e.* test files"
+          fi
+          if [ -z "$e2e_reason" ]; then echo "e2e=true" >> "$GITHUB_OUTPUT"; else echo "e2e=false" >> "$GITHUB_OUTPUT"; fi
           {
             echo "### Project state"
             if [ "$node_ready" = true ]; then
@@ -95,6 +112,7 @@ jobs:
               echo "No package.json/package-lock.json yet (P1-01 not merged). Node jobs are **skipped**, not failed."
               echo "Only the infra checks run."
             fi
+            if [ -n "$e2e_reason" ]; then echo "- e2e **skipped**: $e2e_reason (it turns on by itself once Playwright is set up)."; fi
           } >> "$GITHUB_STEP_SUMMARY"
           cat "$GITHUB_OUTPUT"
 

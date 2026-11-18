@@ -2,9 +2,9 @@
 
 > مصدر الحقيقة الوحيد لحالة المهام. التفاصيل ومعايير القبول في `docs/plan.md`، والقرارات في `docs/decisions.md`.
 > الحالات: Todo / Doing / Review / Done / Blocked. أي مهمة تحتاج موافقة المالك تبقى في Review.
-> آخر تحديث: 2026-11-18 (مساءً) — الفرع: `main`
+> آخر تحديث: 2026-11-18 (ليلاً) — الفرع: `main`
 > قاعدة التنفيذ (CLAUDE.md 13، 14): كل مهمة ينفذها المختص بنفسه في ملفاته، والـ CEO ينسق ويجمع ويراجع فقط.
-> **بوابة G1: معتمدة** (القرارات 2026-11-17 + التصميم 2026-11-18). **P1 بدأت:** P1-00 نجح 54/54 (2026-11-18). قرارات جديدة: D31–D34 (`docs/decisions.md` §10).
+> **بوابة G1: معتمدة** (القرارات 2026-11-17 + التصميم 2026-11-18). **P1 بدأت:** P1-00 نجح 54/54 (2026-11-18). قرارات جديدة: D31–D34 (`docs/decisions.md` §10)، و D35 نقاط P1-01 (§11). **P1-01 في Review، و P1-02 بدأ.**
 
 ## P0 — التجهيز (منتهية)
 
@@ -32,9 +32,11 @@
 | P1-00b | مراجعة devops للـ spike: القسم 1، الـ pooler، اتصال LISTEN، الـ buffering، أدوار `docker compose`، موافقة T10 | devops-engineer | Todo | المراجعة في ملف مراجعة منفصل (CLAUDE.md 14) |
 | P1-00c | مراجعة qa-tester لاختبارات الـ spike كأساس سيناريو 5 و 8 | qa-tester | Todo | قاعدة: مخرجات هندسية تمر على qa-tester قبل Done |
 | O14 | سؤال المالك: الطريقة المفعّلة لدخول الإدارة والتجار (كلمة السر أم OTP بالجوال) | المالك | Review | الافتراضي: كلمة السر، و 2FA مقفول (D31) |
-| P1-01 | أساس الـ Backend (schema كامل، seed بالافتراضيات، Auth + OTP ذاتي) | backend-engineer | Todo | **جاهز للبدء** (فرع `agent/backend/p1-01-foundation` بدون commits). يشمل `withCtx`/RLS/outbox من P1-00، ونقل الـ 54 اختبار للـ CI، و D31: كلمة السر + 2FA خلف `staffTwoFactorEnabled=false` و `staffLoginMethod=PASSWORD` |
-| P1-02 | أساس الـ Frontend (tokens 1.1، layouts، الدخول/OTP، المكونات) | frontend-engineer | Todo | **يبدأ مع هيكل المشروع في بداية P1-01** (D30): بيانات Zod في الاختبارات و Storybook/dev فقط؛ اللوحات عربي فقط والمتجر ar + en (D29)؛ رمز الريال حسب tokens.md 1.1 §8.4؛ شاشة 2FA و"تذكر الجهاز 30 يوماً" تظهر فقط لو `requires2fa` (D31) |
-| P1-03 | `docker compose` + interfaces + ملفات CI + Sentry بتنظيف PII | devops-engineer | Todo | فيه commit على `agent/devops/p1-03-local-env` (لم يُراجع في هذا التحديث). **مضاف من P1-00:** سكربت init للأدوار، `PRISMA_ENGINES_MIRROR` و registry لـ `postgres:16`، CI على Postgres حقيقي. تشغيل الـ CI فعلياً ينتظر مستودع GitHub |
+| P1-01 | أساس الـ Backend (schema كامل، seed بالافتراضيات، Auth + OTP ذاتي) | backend-engineer | Review | **مُسلَّم** على `agent/backend/p1-01-foundation` (آخر commit `93f65f3`، worktree `/home/claude/suqalzl-backend`، فيه P1-03 مدموج). نقاط القرار الثلاث محسومة **D35** (`docs/decisions.md` §11): جلسات سيرفر ذاتية بدل Better Auth/Auth.js، `pickupAddress` بدل `VendorPickupLocation` (O4)، أسماء الأدوار `suqalzl_*`. Done بعد P1-01b و P1-01c ثم الدمج في `main` |
+| P1-01b | مراجعة qa-tester لـ P1-01: الاختبارات + **أمان الجلسات الذاتية (D35-1)**: التوكن والـ hash، أعلام الـ cookie، تدوير الجلسة بعد الدخول و2FA، الإبطال، CSRF، rate limit، "تذكر الجهاز"، عدم تسريب وجود الحساب | qa-tester | Doing | ملف مراجعة منفصل (CLAUDE.md 14). ملاحظة مانعة = D35-1 يرجع للنقاش |
+| P1-01c | مراجعة devops-engineer لـ P1-01: الأدوار والمتغيرات (D35-3)، قائمة الجداول المسموح فيها `DELETE` لدور التشغيل، الـ CI و compose بعد الدمج | devops-engineer | Doing | ملف مراجعة منفصل |
+| P1-02 | أساس الـ Frontend (tokens 1.1، layouts، الدخول/OTP، المكونات) | frontend-engineer | Doing | **بدأ** على `agent/frontend/p1-02-ui-foundation` (worktree `/home/claude/suqalzl-frontend`) فوق هيكل Next.js من P1-01 (D30): بيانات Zod في الاختبارات و Storybook/dev فقط؛ اللوحات عربي فقط والمتجر ar + en (D29)؛ رمز الريال حسب tokens.md 1.1 §8.4؛ شاشة 2FA و"تذكر الجهاز 30 يوماً" تظهر فقط لو `requires2fa` (D31). الجلسة cookie `httpOnly` من السيرفر (D35-1)، فالواجهة ما تقراش التوكن. مراجعة designer و qa-tester قبل Done |
+| P1-03 | `docker compose` + interfaces + ملفات CI + Sentry بتنظيف PII | devops-engineer | Review | فيه commit على `agent/devops/p1-03-local-env` (`882e4c3`)، **مدموج في فرع backend P1-01**؛ أسماء الأدوار بتاعته معتمدة في SPEC (D35-3). **مضاف من P1-00:** سكربت init للأدوار، `PRISMA_ENGINES_MIRROR` و registry لـ `postgres:16`، CI على Postgres حقيقي. تشغيل الـ CI فعلياً ينتظر مستودع GitHub |
 | P2-01 | الكتالوج والبحث | frontend-engineer + backend-engineer | Todo | يعتمد على P1. الفلاتر عند الإطلاق: السعر والتاجر والأعلام؛ الخصائص لاحقاً (D33-3) |
 | P2-02 | السلة والكوبونات (ضابط D18) والـ Checkout | backend-engineer + frontend-engineer | Todo | يعتمد على P2-01. سطر التقسيط لكل الزوار (D32) |
 | P2-03 | Moyasar sandbox والـ webhooks | backend-engineer | Todo | يعتمد على P2-02 |

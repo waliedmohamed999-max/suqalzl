@@ -4,6 +4,7 @@
 > ضع الملف في جذر المستودع باسم `SPEC.md` وانسخ قسم "قواعد العمل للإيجنتس" إلى `CLAUDE.md`.
 > **آخر تحديث: 2026-11-18** — دُمجت قرارات المالك (2026-11-17) والتعديلات المعتمدة من `docs/decisions.md` §5 بصياغة المختصين. التعديلات المرتبطة بقرار متأجل أو بانتظار المالك **لم تُدمج** وهي في قسم 15. سجل الحالات: `docs/decisions.md` §0 و§5.1.
 > **تحديث 2026-11-18 (مساءً):** قرارا المالك D31 (التحقق للإدارة والتجار) و D32 (سطر التقسيط)، وقرارات الـ CEO D33، ونتيجة P1-00 (D34، 54/54)، ودمج تعديلات SPEC التقنية من `spikes/p1-00/REPORT.md` §7 (فرع `agent/backend/p1-00-spike`) بصياغة backend-engineer في §2 و§4 و§5.1 و§6.8 و§9 و§10 و§11. سجل الدمج: `docs/decisions.md` §10.
+> **تحديث 2026-11-18 (ليلاً):** قرار الـ CEO D35 على نقاط P1-01 (فرع `agent/backend/p1-01-foundation`): مكتبة الـ Auth، و`VendorPickupLocation`، وأسماء أدوار القاعدة. عُدّل §2 (DB و Auth) و§11 (P1-03) و§15 (S8). سجل القرار: `docs/decisions.md` §11.
 
 ---
 
@@ -58,6 +59,7 @@
 | D32 | **(2026-11-18) سطر التقسيط (تابي وتمارا) أداة تسويق لكل الزوار:** يظهر على صفحة المنتج والسلة لكل الزوار، وليس للمؤهلين فقط. الموافقة الفعلية على العميل من تابي أو تمارا وقت الدفع. الصياغة **لا توعد بالموافقة** (مثال: "قسّطها مع تابي أو تمارا")، و**لا يُعرض رقم قسط** على منتج أو سلة فوق سقف المزود. زر الدفع بالتقسيط في الـ checkout يبقى حسب تأهيل المزود (6.2 البند 13). مرتبط بملاحظات legal-contracts: الشروط 5-2 (التقسيط يخضع لموافقة المزود وحدوده) و R-02 (حظر الإعلان المضلل، ولا رسوم إضافية على وسيلة الدفع، والتاجر لا يرفع سعره لعملاء التقسيط). الصياغة النهائية: arabic-content-seo بمراجعة legal-contracts. |
 | D33 | **(2026-11-18) قرارات نطاق من الـ CEO** (`spikes/p1-00/REPORT.md` §8، اعتماد توصيات backend-engineer): (1) **انتهاء مهلة PriceLock والعنصر في السلة:** يتحول لعنصر عادي بالسعر الحالي مع بانر يوضح الفرق، أو "غير متاح"، ولا يُمسح من السلة بدون علم العميل؛ الحذف بـ dialog تأكيد ثم `release()`. (2) **أزرار "نبّهني"** (عند التوفر، بعروض مشابهة، عند بدء العرض) **مخفية عند الإطلاق**، ولا يُبنى لها نموذج بيانات الآن. (3) **فلاتر الكتالوج عند الإطلاق:** السعر والتاجر والأعلام (قابل للفصال، عليه خصم، متوفر)؛ فلاتر الخصائص (taxonomy موحدة) لاحقاً. الحيثيات: `docs/decisions.md` §10.2. |
 | D34 | **(2026-11-18) T10 — العزل و RLS (نتيجة P1-00، 54/54):** طبقتان: طبقة الخدمة أساسية، و RLS بـ `FORCE` و `SET LOCAL` داخل `withCtx` طبقة رفض ثانية؛ بدون سياق لا بيانات. Realtime: `LISTEN/NOTIFY` مع جدول outbox. **محسوم من ناحية backend-engineer؛ مراجعة devops-engineer لم تتم بعد** (المهمة مشتركة). النص في §2 و§4 و§6.8. |
+| D35 | **(2026-11-18) قرارات الـ CEO على P1-01** (اعتماد توصيات backend-engineer، `docs/decisions.md` §11): (1) **الـ Auth: جلسات سيرفر من تنفيذنا بدل Better Auth / Auth.js.** توكن عشوائي معتم في cookie `httpOnly` (`__Host-` في الإنتاج)، والقاعدة تخزن SHA-256 بتاعه بس، وكل طلب يتحقق من الجلسة في القاعدة. السبب: Better Auth يفرض إيميل إلزامي والعملاء بالجوال فقط، و Auth.js مع كلمة السر يشتغل بـ JWT (لا إبطال من السيرفر)، والاتنين بيكلموا القاعدة بدون سياق RLS فـ `FORCE` يرفضهم. التبديل لمكتبة لاحقاً محصور في `src/lib/auth/session.ts` و `service.ts`. **مشروط بمراجعة أمان qa-tester (board P1-01b)**؛ لو فيه ملاحظة مانعة القرار يرجع للنقاش. (2) **`VendorPickupLocation` لا يُبنى الآن** (معلق مع O4، §15 S8)، و `Vendor.pickupAddress` (JSON، §5) هو عنوان الاستلام الوحيد لحد قرار الشحن. (3) **أسماء أدوار القاعدة:** أسماء devops-engineer (`suqalzl_migrator` و `suqalzl_app`، و `DIRECT_URL` و `DATABASE_URL`) بدل أسماء الـ spike؛ نفس المعنى (§2 DB). |
 
 ### قرارات مفتوحة أو متأجلة (2026-11-18)
 
@@ -84,11 +86,11 @@
 - **UI:** Tailwind CSS + shadcn/ui + lucide-react — RTL افتراضي — خط **IBM Plex Sans Arabic فقط بثلاثة أوزان (400/600/700)** وحذف Tajawal (design-system-performance، `docs/design/tokens.md` 1.1)
 - **i18n:** next-intl (ar افتراضي، en) — المتجر عربي + إنجليزي؛ `/admin` و `/vendor` عربي فقط عند الإطلاق ونصوصهما في ملفات الترجمة (D29)
 - **DB:** **PostgreSQL 16** + Prisma ORM + Prisma Migrate. التطوير على Postgres محلي بـ `docker compose`. أي ميزة نستخدمها تكون من Postgres نفسه (SEQUENCE، triggers، exclusion constraints بـ `btree_gist`، `LISTEN/NOTIFY`، RLS) وليست من مزود
-  - **دوران في القاعدة** (`spikes/p1-00/REPORT.md` §3 و§7): `suq_owner` مالك الجداول ويشغّل الـ migrations بس. `suq_app` دور التشغيل: `NOBYPASSRLS`، مش مالك، ومن غير `DELETE` ولا `TRUNCATE`. `DATABASE_URL` للـ migrations و `APP_DATABASE_URL` للتشغيل.
-  - `FORCE` بيطبق RLS على المالك نفسه، فالـ seed يمشي عبر `suq_app` في سياق `system`.
+  - **دوران في القاعدة** (`spikes/p1-00/REPORT.md` §3 و§7، والأسماء حسب D35-3): `suqalzl_migrator` مالك الجداول ويشغّل الـ migrations بس، عبر `DIRECT_URL`. `suqalzl_app` دور التشغيل عبر `DATABASE_URL`: `NOBYPASSRLS`، مش مالك، ومن غير `TRUNCATE`، ومن غير `DELETE` إلا على الجداول المسموح لها صراحة في الـ migration (`app.secure_table(..., p_allow_delete => true)`). اتصال LISTEN اختياري عبر `REALTIME_DATABASE_URL` (فاضي = `DATABASE_URL`، ومن غير pooler بنظام transaction). أسماء الـ spike (`suq_owner`/`suq_app` و `APP_DATABASE_URL`) ملغية.
+  - `FORCE` بيطبق RLS على المالك نفسه، فالـ seed يمشي عبر `suqalzl_app` في سياق `system`.
   - الـ IDs `gen_random_uuid()` من القاعدة.
   - RLS يتضاف مع كل جدول في نفس الـ migration اللي بيعمله.
-- **Auth:** Better Auth (أو Auth.js) — دخول بالجوال + OTP للعملاء، وإيميل/كلمة مرور للإدارة والتجار، مع جلسات من السيرفر. **التحقق بخطوتين (D31):** OTP على الجوال المسجل بنفس المحرك + "تذكر هذا الجهاز 30 يوماً"، خلف `staffTwoFactorEnabled` (افتراضي `false`) و `staffLoginMethod` (افتراضي `PASSWORD`)
+- **Auth (D35-1):** **جلسات سيرفر من تنفيذنا** (بدون Better Auth ولا Auth.js): توكن عشوائي معتم في cookie `httpOnly` و `SameSite=Lax` (`__Host-` و `Secure` في الإنتاج)، والقاعدة تخزن SHA-256 للتوكن بس، وكل طلب يتحقق من الجلسة في القاعدة داخل `withCtx` (إبطال، مستخدم محظور، عضوية التاجر). تطبيق الجوال يبعت نفس التوكن كـ `Authorization: Bearer`. دخول بالجوال + OTP للعملاء، وإيميل/كلمة مرور للإدارة والتجار. أي تبديل لمكتبة لاحقاً محصور في `src/lib/auth/session.ts` و `service.ts`. مراجعة الأمان: qa-tester (board P1-01b). **التحقق بخطوتين (D31):** OTP على الجوال المسجل بنفس المحرك + "تذكر هذا الجهاز 30 يوماً"، خلف `staffTwoFactorEnabled` (افتراضي `false`) و `staffLoginMethod` (افتراضي `PASSWORD`)
 - **Storage:** خلف interface `StorageProvider` (S3-compatible): bucket عام للصور وbucket خاص للوثائق بروابط موقعة مؤقتة. التطوير على خادم S3-compatible محلي داخل `docker compose` (يختاره devops-engineer)
 - **Validation:** Zod — **Forms:** react-hook-form — **Tables:** TanStack Table — **Charts:** Recharts
 - **Email:** Resend + react-email (قوالب عربية)
@@ -540,7 +542,7 @@ DELIVERED → RETURN_REQUESTED → RETURNED
 | | هوية بصرية + Design tokens + شاشات رئيسية — **معتمدة** (D28) | designer، design-system-performance | — |
 | **P1 الأساس** | المستودع، Prisma schema كامل (قسم 5 + 5.1)، migrations، seed (التصنيفات، SUPER_ADMIN، الإعدادات بالقيم الافتراضية في جدول O و D22)، Auth + OTP ذاتي، الصلاحيات، layouts، i18n، RTL | backend-engineer، frontend-engineer | P0 design tokens |
 | | spike أول P1: العزل و RLS (`SET LOCAL app.vendor_id`) و SSE + `LISTEN/NOTIFY` على Postgres محلي — **نفذه backend-engineer: 54/54 (D34)؛ مراجعة devops-engineer باقية** | backend-engineer + devops-engineer | — |
-| | `docker compose` (Postgres 16 + تخزين S3-compatible محلي)، CI (lint, typecheck, tests) كملفات جاهزة تعمل عند وصول مستودع GitHub من المالك، Sentry بتنظيف PII، interfaces `StorageProvider` و `JobScheduler` و `RealtimeProvider`. **من P1-00:** سكربت init للأدوار (`suq_owner` و `suq_app`)، ومصادر الـ binaries والـ images (إتاحة `binaries.prisma.sh` أو `PRISMA_ENGINES_MIRROR`، و registry لـ `postgres:16` في أي بيئة محجوبة) | devops-engineer | — |
+| | `docker compose` (Postgres 16 + تخزين S3-compatible محلي)، CI (lint, typecheck, tests) كملفات جاهزة تعمل عند وصول مستودع GitHub من المالك، Sentry بتنظيف PII، interfaces `StorageProvider` و `JobScheduler` و `RealtimeProvider`. **من P1-00:** سكربت init للأدوار (`suqalzl_migrator` و `suqalzl_app`، D35-3)، ومصادر الـ binaries والـ images (إتاحة `binaries.prisma.sh` أو `PRISMA_ENGINES_MIRROR`، و registry لـ `postgres:16` في أي بيئة محجوبة) | devops-engineer | — |
 | **P2 المتجر** | الكتالوج، البحث، صفحة المنتج، السلة، الكوبونات (ضابط D18)، Checkout، Moyasar sandbox + webhooks، حساب العميل (تصدير البيانات والتجهيل) | frontend-engineer، backend-engineer | P1 |
 | | نصوص الواجهة، صفحات السياسات (مسودات حتى المحامي في P8)، SEO و JSON-LD | arabic-content-seo | P1 |
 | **P3 لوحة الإدارة** | الأرقام، المنتجات، التصنيفات، الباقات، الطلبات، الاسترجاع، العملاء، المحتوى، الإعدادات، الموظفون، سجل العمليات، **تأسيس الفاتورة** (6.9: النموذج، الترقيم، PDF، QR TLV كهيكل) | frontend-engineer، backend-engineer | P2 |
@@ -733,7 +735,7 @@ DELIVERED → RETURN_REQUESTED → RETURNED
 |---|---|---|---|
 | S2 (جزء) | DB: Cloud SQL PostgreSQL 16؛ Storage: Cloud Storage؛ Jobs: Cloud Scheduler؛ Monitoring: + Cloud Monitoring؛ كل الموارد في `me-central2` عبر CNTXT | `devops.md` §5.1 | O6 (P7/P8) |
 | S5 (جزء) | `docs/DISASTER-RECOVERY.md` | `devops.md` §6.3 | O6 |
-| S8 (جزء) | `VendorPickupLocation` (H2)، `Product.shippingClass` (H4)، `CarrierCityAlias` (M4) | `backend.md` §5.2–5.3 | O4 |
+| S8 (جزء) | `VendorPickupLocation` (H2)، `Product.shippingClass` (H4)، `CarrierCityAlias` (M4). **لحد القرار (D35-2):** `Vendor.pickupAddress` (JSON، §5) هو عنوان الاستلام الوحيد، و`VendorPickupLocation` لم يُبنَ في P1-01؛ عند قرار O4 يُنقل العنوان له بـ migration بيانات | `backend.md` §5.2–5.3 | O4 |
 | S10 (جزء) | `maxDiscount` إلزامي في الكوبون العام النسبي؛ `FREE_SHIPPING` العام تتحمله المنصة وتدفع للتاجر صاحب الشحن الذاتي رسومه | `decisions.md` T5 (2)(3) | O13 |
 | S11 (جزء) | إظهار التقسيط فوق 10,000 ر.س حسب تأكيد سقف ساما والخطط الممتدة | `backend.md` 4.3-4، T4 | P8 |
 | S13 (جزء) | منع غير المقيمين كقرار نهائي (الآن افتراضي مؤقت) | `finance.md` 3.4-7 | O10 |

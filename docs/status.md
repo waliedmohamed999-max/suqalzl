@@ -1,10 +1,15 @@
 # حالة المشروع — سوق الزل
 
-> آخر تحديث: 2026-11-18 (مساءً) — الفرع: `main`
+> آخر تحديث: 2026-11-18 (ليلاً) — الفرع: `main`
 > لوحة المهام: `company/board.md` — الخطة: `docs/plan.md` — القرارات: `docs/decisions.md` — المواصفات: `SPEC.md`
 
-## المرحلة الحالية: **P1 بدأت — P1-00 (الـ spike) نجح 54/54 وبانتظار مراجعة devops-engineer و qa-tester.**
-لا كود تطبيق على `main` بعد؛ كود الـ spike على فرع `agent/backend/p1-00-spike`.
+## المرحلة الحالية: **P1 — P1-01 (أساس الـ Backend) في Review، و P1-02 (أساس الـ Frontend) بدأ.**
+لا كود تطبيق على `main` بعد. P1-01 على فرع `agent/backend/p1-01-foundation` (worktree `/home/claude/suqalzl-backend`، فيه P1-03 من devops مدموج). P1-02 مع frontend-engineer على `agent/frontend/p1-02-ui-foundation` (worktree `/home/claude/suqalzl-frontend`).
+
+## P1-01 — التسليم والقرارات (2026-11-18، ليلاً)
+- backend-engineer سلّم: migrations 0001–0010 بـ RLS في نفس الـ migration، `lib/money.ts` و`vat` و`withCtx`/`asSystem` والصلاحيات، interfaces المزودين، Auth (OTP العميل، كلمة سر الإدارة والتجار + 2FA اختياري D31)، seed idempotent، واختبارات الـ spike منقولة على Postgres حقيقي.
+- **قرار الـ CEO D35** (`docs/decisions.md` §11): (1) جلسات سيرفر من تنفيذنا بدل Better Auth / Auth.js، **مشروط بمراجعة أمان qa-tester**؛ (2) `VendorPickupLocation` معلق مع O4، و`Vendor.pickupAddress` هو المعتمد؛ (3) أسماء الأدوار `suqalzl_*` و`DATABASE_URL`/`DIRECT_URL`. SPEC §2 و D و§11 و§15 اتحدّثوا.
+- **المراجعات الجارية:** qa-tester (P1-01b، تشمل أمان الـ Auth) و devops-engineer (P1-01c). P1-01 يبقى Review لحد الاتنين.
 
 ## P1-00 — النتيجة (2026-11-18)
 - **54/54 اختبار نجحوا في 3 تشغيلات كاملة متتالية**، `tsc` نظيف و `next build` ناجح (تقرير backend-engineer: `spikes/p1-00/REPORT.md` على `agent/backend/p1-00-spike`).
@@ -40,10 +45,10 @@
 - **P8 الأمور الورقية والاعتمادات:** السجل والرقم الضريبي، المستشار الضريبي، المحامي، عروض وعقود المزودين، تسجيل اسم المرسل ورقم واتساب، تراخيص التخفيضات، ربط ZATCA المرحلة الثانية.
 
 ## التالي في P1
-1. **P1-00b** مراجعة devops-engineer للـ spike (T10، الـ pooler، LISTEN، الـ buffering، الأدوار، مصادر الـ binaries)، و **P1-00c** مراجعة qa-tester للاختبارات.
-2. **P1-01** أساس الـ Backend — backend-engineer (يقدر يبدأ؛ يشمل `withCtx` و RLS والـ outbox و D31).
-3. **P1-03** بيئة التطوير (`docker compose`) والـ interfaces وملفات الـ CI — devops-engineer.
-4. **P1-02** أساس الـ Frontend — frontend-engineer، يبدأ مع هيكل المشروع في بداية P1-01 (D30)، واللوحات عربي فقط (D29).
+1. **P1-01b** مراجعة qa-tester لـ P1-01 (الاختبارات + أمان الجلسات المكتوبة بإيدينا، D35-1)، و **P1-01c** مراجعة devops-engineer (الأدوار، قائمة جداول `DELETE`، الـ CI).
+2. **P1-00b / P1-00c** مراجعتا الـ spike (devops و qa) لسه مفتوحتين؛ ممكن يتقفلوا مع مراجعتي P1-01 لو المراجعين غطوا نفس البنود.
+3. **P1-02** أساس الـ Frontend — frontend-engineer (Doing) على هيكل Next.js من P1-01.
+4. دمج P1-01 و P1-03 في `main` بعد المراجعتين.
 5. **P0-17** designer يحدّث التصاميم برمز الريال وزر واتساب الأخضر حسب tokens.md 1.1.
 
 ## المخاطر المفتوحة
@@ -58,3 +63,4 @@
 | سقف التقسيط 10,000 ر.س | لا تقسيط للمنتجات الغالية | زر الدفع حسب التأهيل، والسطر بدون رقم قسط فوق السقف (D32)؛ التأكيد في P8 | backend-engineer |
 | سطر التقسيط لكل الزوار يُفهم كوعد بالموافقة | إعلان مضلل (R-02) | صياغة بدون وعد + مراجعة legal-contracts (P2-05b) | arabic-content-seo + legal-contracts |
 | devops يعترض على تصميم P1-00 | إعادة عمل في P1-01 | المراجعة P1-00b قبل دمج الـ migrations في P1-01 | devops-engineer + backend-engineer |
+| جلسات Auth مكتوبة بإيدينا بدل مكتبة (D35-1) | ثغرة أمان في الدخول أو الجلسات | مراجعة qa-tester إلزامية (P1-01b) قبل Done؛ التبديل لمكتبة محصور في ملفين | qa-tester + backend-engineer |

@@ -183,7 +183,7 @@ vendorPayable     = vendorNet + (vendorVatRegistered ? roundHalfUp(vendorNet × 
 | S5 | **مدمج جزئياً** | `lib/providers/{storage, realtime, jobs, whatsapp}` و `scripts/fonts/`. **معلق:** `docs/DISASTER-RECOVERY.md` (مع الاستضافة) |
 | S6 | **مدمج** | العزل في طبقة الخدمة + RLS إضافي حسب spike P1 + DTOs و Prisma `omit` |
 | S7 | **مدمج** | الحقول من `finance.md` §7؛ قيم O1/O3/O7 كإعدادات افتراضية بانتظار المالك. `zatcaStatus` و `xmlUrl` حقول هيكلية فقط حتى P8 |
-| S8 | **مدمج جزئياً** | كل `backend.md` §5 عدا: **معلق** مع O4: `VendorPickupLocation` (H2)، `Product.shippingClass` (H4)، `CarrierCityAlias` (M4) |
+| S8 | **مدمج جزئياً** | كل `backend.md` §5 عدا: **معلق** مع O4: `VendorPickupLocation` (H2)، `Product.shippingClass` (H4)، `CarrierCityAlias` (M4). لحد O4: `Vendor.pickupAddress` (JSON) هو المعتمد (D35-2، §11) |
 | S9 | **مدمج بصيغة المالك** | حقول الترخيص + إعداد `souqDiscountsRequireLicense = false` |
 | S10 | **مدمج** | معادلة finance (T8 كأثر لـ O2) + ضابط الكوبون العام (T5-1). **معلق:** T5-2 و T5-3 |
 | S11 | **مدمج** | تحقق Moyasar، `given_id`، void، بديل الاسترجاع اليدوي، تابي/تمارا، cron المطابقة، الإظهار حسب التأهيل. **معلق → P8:** تأكيد السقف والخطط الممتدة |
@@ -339,3 +339,16 @@ vendorPayable     = vendorNet + (vendorVatRegistered ? roundHalfUp(vendorNet × 
 | §10: اختبارات الـ spike تتنقل للـ CI على Postgres حقيقي | §10 | **مدمج** |
 | §11 P1-03: سكربت init للأدوار، ومصادر الـ binaries والـ images | §11 | **مدمج** |
 
+---
+
+## 11. نقاط قرار P1-01 (2026-11-18، ليلاً) — SPEC D35
+
+> المصدر: backend-engineer على فرع `agent/backend/p1-01-foundation` (آخر commit `93f65f3`، الـ worktree `/home/claude/suqalzl-backend`). الـ CEO قرأ الكود للتحقق فقط ولم يعدّل فيه. قرارات تقنية بحتة بدون أثر تجاري أو مالي أو قانوني، فهي من اختصاص الـ CEO (CLAUDE.md 12 لا تنطبق)، لكنها تغيّر نص SPEC فاتسجلت هنا.
+
+| # | السؤال | القرار | الحيثيات | الشرط / المتابعة |
+|---|---|---|---|---|
+| 1 | مكتبة الـ Auth: SPEC §2 كان "Better Auth (أو Auth.js)" | **اعتماد تنفيذ backend: جلسات سيرفر من تنفيذنا.** توكن عشوائي معتم في cookie `httpOnly` (`__Host-szl_session` في الإنتاج)، والقاعدة تخزن SHA-256 بتاعه بس، وكل طلب يتحقق من الجلسة في القاعدة (إبطال، حظر، عضوية التاجر). مدد الجلسة: عميل 30 يوم، تاجر 7 أيام، إدارة 12 ساعة، وجلسة 2FA المعلقة 10 دقائق | (أ) Better Auth بيفرض `email` إلزامي في جدول المستخدم، والعملاء بالجوال بس (§5 `User.email?`)، فكان هيحتاج إيميلات وهمية. (ب) Auth.js مع Credentials (كلمة السر) بيشتغل بـ JWT بس، وده بيلغي الإبطال من السيرفر اللي SPEC §2 بيطلبه ("جلسات من السيرفر") ومش بيخدم قفل المستخدم المحظور فوراً. (ج) الـ adapters بتوع الاتنين بيكلموا القاعدة من غير `withCtx`، فـ RLS بـ `FORCE` (D34) بيرفضهم، والحل كان هيبقى ثغرة (دور بـ `BYPASSRLS` أو سياق `system` لكل طلب). (د) المساحة صغيرة ومعزولة: التبديل لمكتبة لاحقاً محصور في `src/lib/auth/session.ts` و `service.ts` | **كود أمان مكتوب بإيدينا = مراجعة إلزامية.** qa-tester يراجع (board P1-01b، في ملف مراجعة منفصل): عشوائية التوكن وطوله، المقارنة بالـ hash، أعلام الـ cookie، تدوير الجلسة بعد الدخول وبعد 2FA (session fixation)، الإبطال عند الخروج والحظر وتغيير كلمة السر، CSRF (SameSite + فحص Origin في Server Actions)، rate limit للـ OTP وكلمة السر، "تذكر الجهاز 30 يوماً"، وعدم تسريب وجود الحساب. **لو فيه ملاحظة مانعة، القرار يرجع للنقاش** (الإصلاح أو مكتبة) قبل Done |
+| 2 | `VendorPickupLocation` | **لا يُبنى الآن.** `Vendor.pickupAddress` (JSON، §5) هو عنوان الاستلام الوحيد لحد O4 | SPEC §15 S8 بيعلّقه مع O4 (الشحن متأجل، D17 يدوي فقط)، والشحن اليدوي محتاجش أكتر من عنوان واحد. بناؤه دلوقتي = افتراض على قرار المالك في الشحن | عند قرار O4: backend-engineer يعمل الجدول + migration بيانات من `pickupAddress` |
+| 3 | أسماء أدوار القاعدة ومتغيرات الاتصال | **أسماء devops-engineer:** `suqalzl_migrator` (مالك، migrations، `DIRECT_URL`) و `suqalzl_app` (تشغيل، `NOBYPASSRLS`، `DATABASE_URL`)، و `REALTIME_DATABASE_URL` اختياري لاتصال LISTEN. أسماء الـ spike (`suq_owner`/`suq_app` و `APP_DATABASE_URL`) ملغية | نفس المعنى بالظبط؛ الـ compose والـ CI و `.env.example` و `dev-setup.sh` (P1-03) مبنيين على أسماء devops، وتوحيدها مع SPEC أرخص من تغيير البنية. ملاحظة تحقق: `DELETE` مسحوب من دور التشغيل على كل الجداول ما عدا المسموح لها صراحة في الـ migration (`app.secure_table(..., true)`: الجلسات والسلة والعناوين وغيرها)، فـ SPEC §2 اتعدّل يقول كده بدل "من غير DELETE" مطلقاً | devops-engineer يأكد في مراجعته (board P1-01c) إن قائمة الجداول المسموح فيها `DELETE` مقبولة |
+
+**ما اتعدّل في SPEC:** سطر التحديث في الرأس، جدول D (D35)، §2 DB (الأدوار والمتغيرات) و §2 Auth، §11 P1-03 (أسماء الأدوار)، §15 S8. `docs/plan.md` السطر P1-01 لسه فيه `suq_owner`/`suq_app` كوصف تاريخي للمهمة؛ المرجع الملزم SPEC §2.

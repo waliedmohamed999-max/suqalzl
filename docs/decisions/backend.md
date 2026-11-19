@@ -484,3 +484,24 @@ ModerationFlag ; AuditLog (append-only)
 - النماذج (Dart) تُبنى من DTOs الـ API وليس من الجداول: المبالغ `int` بالهللة دائماً، والتواريخ UTC بصيغة ISO 8601.
 
 **لم يُحدّث `company/board.md`** لأن المهمة حصرت التعديل في هذا الملف؛ الـ CEO يحدّث P0-06 ويضيف رابط هذا الملف.
+
+---
+
+## 10. ملاحظات تنفيذ P1-01 (backend-engineer، 2026-11-18)
+
+> قرارات تقنية اتخذت أثناء P1-01. اللي محتاج اعتماد الـ CEO مكتوب عليه **[CEO]**.
+
+1. **مكتبة الـ Auth [CEO]:** SPEC §2 بيقول Better Auth أو Auth.js. نفذت جلسات سيرفر داخلية (`src/lib/auth/`): توكن عشوائي في cookie `httpOnly` و SHA-256 بس في جدول `sessions`، والتحقق من القاعدة في كل طلب. السبب: Better Auth بيفرض `User.email` إلزامي (عملاءنا بالجوال بس، و SPEC §5 بيقول `email?`)، و Auth.js مع Credentials بيشتغل بـ JWT بس مش جلسات سيرفر، والاتنين بيعدوا على Prisma من غير سياق RLS (`FORCE` بيرفضهم). التبديل لاحقاً محصور في `src/lib/auth/session.ts` و `service.ts`.
+2. **أسماء الأدوار والمتغيرات:** SPEC §2 فيه أسماء الـ spike (`suq_owner`/`suq_app`، `APP_DATABASE_URL`). المشروع ماشي على أسماء devops (`suqalzl_migrator`/`suqalzl_app`، `DIRECT_URL`/`DATABASE_URL`). نفس المعنى. الـ migrations مبتكتبش اسم دور: `app.runtime_roles()`.
+3. **`VendorPickupLocation` [CEO]:** التكليف طلبه، لكن SPEC §15 (S8) بيقول إنه معلّق مع O4. **ما اتعملش**؛ `Vendor.pickupAddress` (JSON) زي SPEC §5. نفس الكلام لـ `Product.shippingClass` و `CarrierCityAlias`.
+4. **Migrations:** binary الـ schema-engine محجوب (زي P1-00). الـ baseline اتولد من الـ DMMF بمولد بتسميات Prisma (`scripts/db/`)، واختبار drift بيقارن القاعدة بالـ schema. `docs/runbooks/db-migrations.md`.
+5. **`SessionScope`:** دخول موظف بـ OTP العميل بيدي جلسة عميل بس؛ صلاحيات الإدارة/التاجر محتاجة دخول الإدارة (D31).
+6. **`SubOrder`:** حقول التتبع (`trackingNumber`، `labelUrl`) في `Shipment` بس (H3)، و حالة `PENDING_PAYMENT` للطلب الفرعي قبل تأكيد الدفع (6.2-4 بيحوله لـ `NEW`).
+7. **"المواسم" (6.7):** مفيش جدول لسه؛ يتضاف في P4.5-02.
+
+**ردود على `docs/runbooks/notes-for-backend.md` §9 (devops):**
+1. مكتبة الـ Auth: داخلية (بند 1). `AUTH_SECRET` محجوز ومش إلزامي؛ مفيش `BETTER_AUTH_*`.
+2. الـ Prisma client في `src/generated/prisma/` (متجاهل في git، بيتولد بـ `postinstall`).
+3. الـ seed بيشتغل بدور **التطبيق** في سياق `system` (مش الـ migrator)، لأن `FORCE` بيطبق RLS على المالك كمان.
+4. job slugs: `run-queue`، `release-expired-reservations`، `purge-auth`، `purge-realtime-events` (`CRON_JOBS` في `src/lib/providers/jobs/index.ts`).
+- الـ CI: مقترح خطوة `prisma migrate diff --from-migrations ... --to-schema ... --exit-code`، و `TEST_DB_POOL_MAX=20` لاختبارات التزامن.

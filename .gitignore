@@ -1,2 +1,74 @@
+# --- Secrets: never commit. Only .env.example is tracked. -------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.age
+age-key*.txt
+credentials*.json
+service-account*.json
+.claude/settings.local.json
+
+# --- Node / Next.js ------------------------------------------------------------
+node_modules/
+.next/
+out/
+build/
+dist/
+next-env.d.ts
+*.tsbuildinfo
+.turbo/
+.vercel/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+
+# --- Prisma --------------------------------------------------------------------
+# generated client when generated into the repo (output path set in P1-01)
+src/generated/prisma/
+prisma/*.db*
+
+# --- Tests ---------------------------------------------------------------------
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+.vitest/
+
+# --- Sentry --------------------------------------------------------------------
+.sentryclirc
+.env.sentry-build-plugin
+
+# --- Local dev data ------------------------------------------------------------
+backups/
+*.dump
+*.dump.partial
+*.dump.sha256
+*.sql.gz
+tmp/
+.cache/
+
+# --- Python (design tooling) ---------------------------------------------------
 __pycache__/
 *.pyc
+.venv/
+
+# --- OS / editors --------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Playwright e2e dev-server log (P1-02)
+.e2e/

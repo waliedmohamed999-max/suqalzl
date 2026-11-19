@@ -73,3 +73,6 @@ desktop.ini
 
 # Playwright e2e dev-server log (P1-02)
 .e2e/
+
+# Owner preview runtime state (scripts/preview.sh): logs, pid, printed credentials.
+.preview/

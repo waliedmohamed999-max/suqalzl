@@ -633,12 +633,16 @@ def deal_card_mini(d, holes=None, w=168):
         sar(d['price'], 15, 700, C['s50'], True), sar(d['was'], 12, 400, C['ondark'], False, True), stockbar(d['left'], d['total'], True, d.get('urgent')))
 
 # ---------------------------------------------------------------- dashboards
+ADMIN_LINKS = {'home': 'Admin-desktop.dc.html', 'products': 'AdminProducts-desktop.dc.html', 'cats': 'AdminCategories-desktop.dc.html', 'bundles': 'AdminBundles-desktop.dc.html',
+               'orders': 'AdminOrders-desktop.dc.html', 'returns': 'AdminReturns-desktop.dc.html', 'customers': 'AdminCustomers-desktop.dc.html', 'coupons': 'AdminCoupons-desktop.dc.html',
+               'reviews': 'AdminReviews-desktop.dc.html', 'cms': 'AdminContent-desktop.dc.html', 'settings': 'AdminSettings-desktop.dc.html', 'staff': 'AdminStaff-desktop.dc.html', 'audit': 'AdminAudit-desktop.dc.html'}
+
 def sidebar(kind='admin', active='home'):
     if kind == 'admin':
-        items = [('home', 'home', 'الرئيسية', None), ('box', 'products', 'المنتجات', '12'), ('grid', 'cats', 'التصنيفات', None), ('bag', 'orders', 'الطلبات', '8'),
+        items = [('home', 'home', 'الرئيسية', None), ('box', 'products', 'المنتجات', '12'), ('grid', 'cats', 'التصنيفات', None), ('gift', 'bundles', 'الباقات', None), ('bag', 'orders', 'الطلبات', '8'),
                  ('return', 'returns', 'الاسترجاعات', '2'), ('users', 'customers', 'العملاء', None), ('store', 'vendors', 'التجار', '3'), ('wallet', 'finance', 'المالية', None),
                  ('zap', 'souq', 'سوق الزل', '5'), ('tag', 'coupons', 'الكوبونات والعروض', None), ('star', 'reviews', 'التقييمات', None), ('image', 'cms', 'المحتوى', None),
-                 ('gear', 'settings', 'الإعدادات', None), ('file', 'audit', 'سجل العمليات', None)]
+                 ('gear', 'settings', 'الإعدادات', None), ('shield', 'staff', 'الموظفون والصلاحيات', None), ('file', 'audit', 'سجل العمليات', None)]
         head = '<div style="display: flex; flex-direction: column; gap: 4px; padding: 4px 8px 16px">%s<span style="font-size: 12px; color: %s; padding-inline-start: 44px">لوحة الإدارة</span></div>' % (logo(True, 17), C['ondark'])
     else:
         items = [('home', 'home', 'الرئيسية', None), ('box', 'products', 'المنتجات', None), ('bag', 'orders', 'الطلبات', '6'), ('inbox', 'requests', 'طلبات الأسعار', '5'),
@@ -651,7 +655,7 @@ def sidebar(kind='admin', active='home'):
     for icn, key, lab, cnt in items:
         on = key == active
         out += ('<a href="%s"%s style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: %d; color: %s; background: %s;%s">%s<span style="flex: 1">%s</span>%s</a>') % (
-            'VendorInbox-desktop.dc.html' if key == 'requests' else '#', ' aria-current="page"' if on else '', 600 if on else 400, C['s50'] if on else C['s100'], C['b7'] if on else 'transparent',
+            ADMIN_LINKS.get(key, '#') if kind == 'admin' else ('VendorInbox-desktop.dc.html' if key == 'requests' else '#'), ' aria-current="page"' if on else '', 600 if on else 400, C['s50'] if on else C['s100'], C['b7'] if on else 'transparent',
             (' border-inline-start: 3px solid %s;' % C['g5']) if on else ' border-inline-start: 3px solid transparent;', ic(icn, 20, C['g5'] if on else C['ondark']), lab,
             ('<span style="min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: %s; color: %s; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">%s</span>' % (C['g5'], C['ink'], num(cnt))) if cnt else '')
     out += '</nav><div style="margin-top: auto; padding-top: 16px">%s</div></aside>' % (

@@ -25,6 +25,10 @@
   {
    "id": "dash",
    "name": "لوحات الإدارة والتاجر"
+  },
+  {
+   "id": "admin",
+   "name": "لوحة الإدارة (P0-18)"
   }
  ],
  "boards": {
@@ -234,6 +238,155 @@
    "title": "Login · الحالات",
    "page": "store"
   },
+  "AccountOrders-mobile.dc.html": {
+   "x": 0,
+   "y": 17480,
+   "w": 390,
+   "h": 1900,
+   "title": "AccountOrders · جوال",
+   "page": "store"
+  },
+  "AccountOrder-mobile.dc.html": {
+   "x": 470,
+   "y": 17480,
+   "w": 390,
+   "h": 3100,
+   "title": "AccountOrder · جوال",
+   "page": "store"
+  },
+  "AccountAddresses-mobile.dc.html": {
+   "x": 940,
+   "y": 17480,
+   "w": 390,
+   "h": 2200,
+   "title": "AccountAddresses · جوال",
+   "page": "store"
+  },
+  "AccountWishlist-mobile.dc.html": {
+   "x": 1410,
+   "y": 17480,
+   "w": 390,
+   "h": 1900,
+   "title": "AccountWishlist · جوال",
+   "page": "store"
+  },
+  "AccountReturn-mobile.dc.html": {
+   "x": 1880,
+   "y": 17480,
+   "w": 390,
+   "h": 1700,
+   "title": "AccountReturn · جوال",
+   "page": "store"
+  },
+  "AccountProfile-mobile.dc.html": {
+   "x": 2350,
+   "y": 17480,
+   "w": 390,
+   "h": 2000,
+   "title": "AccountProfile · جوال",
+   "page": "store"
+  },
+  "Account-desktop.dc.html": {
+   "x": 2820,
+   "y": 17480,
+   "w": 1440,
+   "h": 1400,
+   "title": "Account · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Account-states.dc.html": {
+   "x": 4340,
+   "y": 17480,
+   "w": 1760,
+   "h": 1720,
+   "title": "Account · الحالات",
+   "page": "store"
+  },
+  "Bundle-mobile.dc.html": {
+   "x": 0,
+   "y": 21040,
+   "w": 390,
+   "h": 2000,
+   "title": "Bundle · جوال",
+   "page": "store"
+  },
+  "Bundle-desktop.dc.html": {
+   "x": 470,
+   "y": 21040,
+   "w": 1440,
+   "h": 1700,
+   "title": "Bundle · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "OrderSuccess-mobile.dc.html": {
+   "x": 1990,
+   "y": 21040,
+   "w": 390,
+   "h": 2050,
+   "title": "OrderSuccess · جوال",
+   "page": "store"
+  },
+  "OrderSuccess-desktop.dc.html": {
+   "x": 2460,
+   "y": 21040,
+   "w": 1440,
+   "h": 1500,
+   "title": "OrderSuccess · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "OrderSuccess-states.dc.html": {
+   "x": 3980,
+   "y": 21040,
+   "w": 1330,
+   "h": 880,
+   "title": "OrderSuccess · الحالات",
+   "page": "store"
+  },
+  "Policy-mobile.dc.html": {
+   "x": 0,
+   "y": 23550,
+   "w": 390,
+   "h": 2300,
+   "title": "Policy · جوال",
+   "page": "store"
+  },
+  "Policy-desktop.dc.html": {
+   "x": 470,
+   "y": 23550,
+   "w": 1440,
+   "h": 1700,
+   "title": "Policy · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Search-mobile.dc.html": {
+   "x": 1990,
+   "y": 23550,
+   "w": 390,
+   "h": 2300,
+   "title": "Search · جوال",
+   "page": "store"
+  },
+  "Search-desktop.dc.html": {
+   "x": 2460,
+   "y": 23550,
+   "w": 1440,
+   "h": 2100,
+   "title": "Search · ديسكتوب",
+   "page": "store",
+   "expand": "fill"
+  },
+  "Search-states.dc.html": {
+   "x": 3980,
+   "y": 23550,
+   "w": 1330,
+   "h": 1720,
+   "title": "Search · الحالات",
+   "page": "store"
+  },
   "Souq-mobile.dc.html": {
    "x": 0,
    "y": 260,
@@ -418,6 +571,173 @@
    "title": "VendorBargainSettings · ديسكتوب",
    "page": "dash",
    "expand": "fill"
+  },
+  "AdminKit.dc.html": {
+   "x": 0,
+   "y": 260,
+   "w": 1440,
+   "h": 3300,
+   "title": "AdminKit · مكونات الإدارة",
+   "page": "admin"
+  },
+  "Admin-states-p018.dc.html": {
+   "x": 1520,
+   "y": 260,
+   "w": 2140,
+   "h": 2440,
+   "title": "الإدارة · الحالات",
+   "page": "admin"
+  },
+  "Admin-responsive.dc.html": {
+   "x": 3740,
+   "y": 260,
+   "w": 1320,
+   "h": 1280,
+   "title": "الإدارة · تابلت وجوال",
+   "page": "admin"
+  },
+  "AdminProducts-desktop.dc.html": {
+   "x": 0,
+   "y": 4020,
+   "w": 1440,
+   "h": 1300,
+   "title": "AdminProducts · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminProduct-desktop.dc.html": {
+   "x": 1520,
+   "y": 4020,
+   "w": 1440,
+   "h": 3400,
+   "title": "AdminProduct · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminCategories-desktop.dc.html": {
+   "x": 0,
+   "y": 7880,
+   "w": 1440,
+   "h": 1400,
+   "title": "AdminCategories · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminBundles-desktop.dc.html": {
+   "x": 1520,
+   "y": 7880,
+   "w": 1440,
+   "h": 1240,
+   "title": "AdminBundles · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminOrders-desktop.dc.html": {
+   "x": 0,
+   "y": 9740,
+   "w": 1440,
+   "h": 1100,
+   "title": "AdminOrders · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminOrder-desktop.dc.html": {
+   "x": 1520,
+   "y": 9740,
+   "w": 1440,
+   "h": 1800,
+   "title": "AdminOrder · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminInvoice-print.dc.html": {
+   "x": 3040,
+   "y": 9740,
+   "w": 900,
+   "h": 1220,
+   "title": "الفاتورة · طباعة A4",
+   "page": "admin"
+  },
+  "AdminReturns-desktop.dc.html": {
+   "x": 4020,
+   "y": 9740,
+   "w": 1440,
+   "h": 1300,
+   "title": "AdminReturns · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminCustomers-desktop.dc.html": {
+   "x": 0,
+   "y": 12000,
+   "w": 1440,
+   "h": 1000,
+   "title": "AdminCustomers · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminCustomer-desktop.dc.html": {
+   "x": 1520,
+   "y": 12000,
+   "w": 1440,
+   "h": 1200,
+   "title": "AdminCustomer · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminCoupons-desktop.dc.html": {
+   "x": 0,
+   "y": 13660,
+   "w": 1440,
+   "h": 1240,
+   "title": "AdminCoupons · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminReviews-desktop.dc.html": {
+   "x": 1520,
+   "y": 13660,
+   "w": 1440,
+   "h": 1100,
+   "title": "AdminReviews · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminContent-desktop.dc.html": {
+   "x": 3040,
+   "y": 13660,
+   "w": 1440,
+   "h": 1500,
+   "title": "AdminContent · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminSettings-desktop.dc.html": {
+   "x": 0,
+   "y": 15620,
+   "w": 1440,
+   "h": 3500,
+   "title": "AdminSettings · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminStaff-desktop.dc.html": {
+   "x": 1520,
+   "y": 15620,
+   "w": 1440,
+   "h": 1100,
+   "title": "AdminStaff · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "AdminAudit-desktop.dc.html": {
+   "x": 3040,
+   "y": 15620,
+   "w": 1440,
+   "h": 1250,
+   "title": "AdminAudit · ديسكتوب",
+   "page": "admin",
+   "expand": "fill"
   }
  },
  "order": [
@@ -446,6 +766,24 @@
   "Login-desktop.dc.html",
   "Login-staff-desktop.dc.html",
   "Login-states.dc.html",
+  "AccountOrders-mobile.dc.html",
+  "AccountOrder-mobile.dc.html",
+  "AccountAddresses-mobile.dc.html",
+  "AccountWishlist-mobile.dc.html",
+  "AccountReturn-mobile.dc.html",
+  "AccountProfile-mobile.dc.html",
+  "Account-desktop.dc.html",
+  "Account-states.dc.html",
+  "Bundle-mobile.dc.html",
+  "Bundle-desktop.dc.html",
+  "OrderSuccess-mobile.dc.html",
+  "OrderSuccess-desktop.dc.html",
+  "OrderSuccess-states.dc.html",
+  "Policy-mobile.dc.html",
+  "Policy-desktop.dc.html",
+  "Search-mobile.dc.html",
+  "Search-desktop.dc.html",
+  "Search-states.dc.html",
   "Souq-mobile.dc.html",
   "Souq-desktop.dc.html",
   "Souq-states.dc.html",
@@ -467,7 +805,26 @@
   "VendorInbox-mobile.dc.html",
   "VendorReply-mobile.dc.html",
   "VendorInbox-states.dc.html",
-  "VendorBargainSettings-desktop.dc.html"
+  "VendorBargainSettings-desktop.dc.html",
+  "AdminKit.dc.html",
+  "Admin-states-p018.dc.html",
+  "Admin-responsive.dc.html",
+  "AdminProducts-desktop.dc.html",
+  "AdminProduct-desktop.dc.html",
+  "AdminCategories-desktop.dc.html",
+  "AdminBundles-desktop.dc.html",
+  "AdminOrders-desktop.dc.html",
+  "AdminOrder-desktop.dc.html",
+  "AdminInvoice-print.dc.html",
+  "AdminReturns-desktop.dc.html",
+  "AdminCustomers-desktop.dc.html",
+  "AdminCustomer-desktop.dc.html",
+  "AdminCoupons-desktop.dc.html",
+  "AdminReviews-desktop.dc.html",
+  "AdminContent-desktop.dc.html",
+  "AdminSettings-desktop.dc.html",
+  "AdminStaff-desktop.dc.html",
+  "AdminAudit-desktop.dc.html"
  ],
  "notes": {
   "base_r0": {
@@ -522,6 +879,30 @@
    "x": 0,
    "y": 15040,
    "text": "الدخول و OTP /login",
+   "kind": "title1",
+   "maxW": 5310,
+   "page": "store"
+  },
+  "store_r5": {
+   "x": 0,
+   "y": 17220,
+   "text": "حسابي /account (P0-18)",
+   "kind": "title1",
+   "maxW": 6100,
+   "page": "store"
+  },
+  "store_r6": {
+   "x": 0,
+   "y": 20780,
+   "text": "الباقة /bundles/[slug] ونجاح الطلب /checkout/success (P0-18)",
+   "kind": "title1",
+   "maxW": 5310,
+   "page": "store"
+  },
+  "store_r7": {
+   "x": 0,
+   "y": 23290,
+   "text": "السياسات /pages/[slug] والبحث وكل المنتجات (P0-18)",
    "kind": "title1",
    "maxW": 5310,
    "page": "store"
@@ -589,6 +970,62 @@
    "kind": "title1",
    "maxW": 1440,
    "page": "dash"
+  },
+  "admin_r0": {
+   "x": 0,
+   "y": 0,
+   "text": "مكونات الإدارة المشتركة والحالات والتجاوب",
+   "kind": "title1",
+   "maxW": 5060,
+   "page": "admin"
+  },
+  "admin_r1": {
+   "x": 0,
+   "y": 3760,
+   "text": "المنتجات: القائمة والنموذج",
+   "kind": "title1",
+   "maxW": 2960,
+   "page": "admin"
+  },
+  "admin_r2": {
+   "x": 0,
+   "y": 7620,
+   "text": "التصنيفات والباقات",
+   "kind": "title1",
+   "maxW": 2960,
+   "page": "admin"
+  },
+  "admin_r3": {
+   "x": 0,
+   "y": 9480,
+   "text": "الطلبات والفاتورة والاسترجاع",
+   "kind": "title1",
+   "maxW": 5460,
+   "page": "admin"
+  },
+  "admin_r4": {
+   "x": 0,
+   "y": 11740,
+   "text": "العملاء",
+   "kind": "title1",
+   "maxW": 2960,
+   "page": "admin"
+  },
+  "admin_r5": {
+   "x": 0,
+   "y": 13400,
+   "text": "الكوبونات والتقييمات والمحتوى",
+   "kind": "title1",
+   "maxW": 4480,
+   "page": "admin"
+  },
+  "admin_r6": {
+   "x": 0,
+   "y": 15360,
+   "text": "الإعدادات والموظفون وسجل العمليات",
+   "kind": "title1",
+   "maxW": 4480,
+   "page": "admin"
   }
  },
  "designSystems": []

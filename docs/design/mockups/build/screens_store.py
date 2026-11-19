@@ -10,7 +10,8 @@ def cover():
         ('المتجر', [('Home-mobile.dc.html', 'الرئيسية'), ('Category-mobile.dc.html', 'التصنيف والفلاتر'), ('Product-mobile.dc.html', 'صفحة المنتج'),
                     ('Cart-mobile.dc.html', 'السلة'), ('Checkout-mobile.dc.html', 'الدفع')]),
         ('سوق الزل والفصال', [('Souq-mobile.dc.html', 'السوق الحي /souq'), ('Bargain-mobile.dc.html', 'نافذة اطلب سعرك'), ('Offers-mobile.dc.html', 'مقارنة العروض والجولات')]),
-        ('اللوحات', [('Admin-desktop.dc.html', 'لوحة الإدارة'), ('Vendor-desktop.dc.html', 'لوحة التاجر'), ('VendorInbox-desktop.dc.html', 'صندوق طلبات الأسعار')]),
+        ('لوحة الإدارة (أولوية)', [('AdminKit.dc.html', 'مكونات الإدارة'), ('AdminProducts-desktop.dc.html', 'المنتجات'), ('AdminOrder-desktop.dc.html', 'الطلبات'), ('AdminSettings-desktop.dc.html', 'الإعدادات')]),
+        ('حساب العميل واللوحات', [('AccountOrders-mobile.dc.html', 'حسابي وطلباتي'), ('Search-mobile.dc.html', 'البحث'), ('Vendor-desktop.dc.html', 'لوحة التاجر (مؤجلة)')]),
     ]
     g = ''
     for t, items in groups:

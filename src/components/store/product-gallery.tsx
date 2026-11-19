@@ -29,6 +29,7 @@ export function ProductGallery({ images, name }: { images: ImageVM[]; name: stri
       <div className="relative min-w-0 flex-1">
         <div
           ref={scroller}
+          tabIndex={0}
           role="group"
           aria-roledescription={t("carousel")}
           aria-label={t("label", { name })}

@@ -81,6 +81,7 @@ describe("prisma/seed.ts (P1-01)", () => {
       SUPER_ADMIN_EMAIL: "Root@Example.com",
       SUPER_ADMIN_PASSWORD: "seed-password-123",
       SUPER_ADMIN_PHONE: "0551112233",
+      SEED_DEMO: "false", // the demo seed has its own test (tests/db/m1-*.test.ts)
     };
     const run = () =>
       execFileSync(process.execPath, ["node_modules/tsx/dist/cli.mjs", "prisma/seed.ts"], { env, encoding: "utf8" });

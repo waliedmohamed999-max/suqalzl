@@ -128,7 +128,8 @@ export const MIGRATION_PLAN: MigrationStep[] = [
   },
   {
     name: "0012_catalog_search",
-    description: "Arabic-normalised search: app.normalize_ar, app.search_query, products.search_vector trigger + backfill (M1-02)",
+    description:
+      "Arabic-normalised search: app.normalize_ar, app.search_query, products.search_vector trigger + backfill (M1-02)",
     models: [],
   },
 ];

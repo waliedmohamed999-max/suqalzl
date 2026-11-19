@@ -28,7 +28,8 @@
     "closeMenu": "Close menu",
     "cart": "Cart",
     "wishlist": "Wishlist",
-    "categories": "Categories"
+    "categories": "Categories",
+    "cartCount": "{count, plural, one {Cart, # item} other {Cart, # items}}"
   },
   "store": {
     "homeTitle": "Souq AlZal",
@@ -691,7 +692,8 @@
       "address": "Delivery address",
       "help": "Need help? Contact us",
       "notFoundTitle": "We couldn't find this order",
-      "notFoundBody": "Check the order number, or go back to your orders."
+      "notFoundBody": "Check the order number, or go back to your orders.",
+      "heading": "Order <n>{number}</n>"
     },
     "addresses": {
       "title": "Addresses",
@@ -723,7 +725,9 @@
       "remove": "Remove {name} from wishlist",
       "added": "Added to wishlist",
       "removed": "Removed from wishlist",
-      "loginRequired": "Sign in to save your wishlist"
+      "loginRequired": "Sign in to save your wishlist",
+      "soonTitle": "The wishlist is coming soon",
+      "soonBody": "We're preparing saved products. You can browse and add products to your cart now."
     },
     "profile": {
       "title": "My details",
@@ -737,7 +741,9 @@
       "saved": "Your details were saved",
       "privacy": "Privacy",
       "privacyBody": "Under the Personal Data Protection Law you can request a copy of your data or delete your account. These requests come in the next phase.",
-      "logout": "Sign out"
+      "logout": "Sign out",
+      "soonTitle": "Editing your details is coming soon",
+      "soonBody": "Changing your name, email, language and marketing consent comes in the next update."
     }
   }
 }

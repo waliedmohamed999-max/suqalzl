@@ -1,9 +1,11 @@
-import { Heart, ShoppingBag, User } from "lucide-react";
+import { Heart, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { NavCategoryDTO } from "@/features/shell/queries";
+import { getCartAction } from "@/features/cart/actions";
 import { Link } from "@/i18n/navigation";
+import { CartLink } from "./cart-link";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
 import { SearchBox } from "./search-box";
@@ -11,7 +13,7 @@ import { SearchBox } from "./search-box";
 /**
  * Store header (boards Home-mobile / Home-desktop, lib.py header_m/header_d/cat_rail).
  * Server Component inside data-surface="inverse-strong"; the only island is the mobile menu.
- * No cookies here (keeps store pages static): the cart count arrives with the cart in P2.
+ * No cookies here (keeps store pages static): the cart count is a client island (CartLink).
  */
 export function StoreHeader({
   categories,
@@ -49,11 +51,7 @@ export function StoreHeader({
                 <User aria-hidden="true" />
               </Link>
             </Button>
-            <Button asChild variant="ghost" size="icon">
-              <Link href="/cart" aria-label={t("cart")}>
-                <ShoppingBag aria-hidden="true" />
-              </Link>
-            </Button>
+            <CartLink getCart={getCartAction} />
           </nav>
         </div>
         <div className="px-2 pb-3 lg:hidden">

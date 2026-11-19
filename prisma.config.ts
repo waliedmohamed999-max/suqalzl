@@ -15,5 +15,8 @@ export default defineConfig({
   },
   datasource: {
     url: process.env.DIRECT_URL ?? "postgresql://invalid:invalid@127.0.0.1:1/invalid",
+    // Prisma 7 has no --shadow-database-url flag: `prisma migrate diff --from-migrations` and
+    // `migrate dev` read the shadow database from here (devops review P1-3). Owner role, throwaway DB.
+    shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL,
   },
 });

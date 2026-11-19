@@ -2,6 +2,7 @@
  * Route Handler helpers: JSON errors with stable codes (the UI maps `code` → messages/*.json
  * "errors.*"), CSRF origin check, request metadata, cookies.
  */
+import { isIP } from "node:net";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { AuthError } from "./auth/service";
@@ -47,11 +48,33 @@ export function assertSameOrigin(req: Request) {
   if (origin !== expected) throw new PermissionDeniedError();
 }
 
-/** Client IP: first X-Forwarded-For hop set by OUR proxy (configure the trusted proxy in P7). */
+/**
+ * Client IP (QA-B1, SPEC §9 / D36-2). X-Forwarded-For is a list every proxy APPENDS to, so only the
+ * entries added by OUR proxies can be trusted: with TRUSTED_PROXY_HOPS = N the client is the N-th
+ * entry from the RIGHT. Anything to its left was written by the client and is ignored.
+ * - N = 0 (default, safe): XFF and X-Real-IP are ignored completely -> ip = null (no IP-keyed limit;
+ *   the per-phone/e-mail limits and the global SMS budget still apply). Set N in staging/prod (P7).
+ * - Fewer entries than N: the request did not come through our proxy chain -> ip = null.
+ * - The value must parse as an IP (net.isIP); otherwise null.
+ */
+export function clientIp(headers: Headers, hops = trustedProxyHops()): string | null {
+  if (hops <= 0) return null;
+  const parts = (headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (parts.length < hops) return null;
+  const candidate = parts[parts.length - hops]!;
+  return isIP(candidate) ? candidate : null;
+}
+
+export function trustedProxyHops(): number {
+  const n = Number(process.env.TRUSTED_PROXY_HOPS ?? 0);
+  return Number.isInteger(n) && n >= 0 && n <= 10 ? n : 0;
+}
+
 export function requestMeta(req: Request) {
-  const xff = req.headers.get("x-forwarded-for");
-  const ip = (xff?.split(",")[0] ?? req.headers.get("x-real-ip") ?? "").trim() || null;
-  return { ip: ip && ip.length <= 64 ? ip : null, userAgent: req.headers.get("user-agent") };
+  return { ip: clientIp(req.headers), userAgent: req.headers.get("user-agent")?.slice(0, 400) ?? null };
 }
 
 export async function readJson(req: Request, maxBytes = 16_384): Promise<unknown> {

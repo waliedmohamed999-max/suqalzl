@@ -162,25 +162,27 @@ describe("customer phone + OTP (SPEC §9, D20)", () => {
     expect((await json(await post(otpVerifyPOST, { phone, code, locale: "ar" }))).error?.code).toBe("OTP_EXPIRED");
   });
 
-  it("rate limit: 5 requests/hour per phone and per IP (SPEC §9)", async () => {
+  it("rate limit: phone+IP strict 5/h, IP 5/h across phones (SPEC §9, D36-2)", async () => {
     const phone = randomPhone();
+    const ip = "198.51.100.20";
     const statuses: number[] = [];
-    for (let i = 0; i < 6; i++) statuses.push((await post(otpRequestPOST, { phone, locale: "ar" })).status);
+    for (let i = 0; i < 6; i++) statuses.push((await post(otpRequestPOST, { phone, locale: "ar" }, { ip })).status);
     expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
-    const limited = await post(otpRequestPOST, { phone, locale: "ar" });
+    const limited = await post(otpRequestPOST, { phone, locale: "ar" }, { ip });
     expect((await json(limited)).error).toMatchObject({ code: "RATE_LIMITED", retryAt: expect.any(String) });
 
-    const ip = "203.0.113.7";
+    const ip2 = "203.0.113.7";
     const byIp: number[] = [];
     for (let i = 0; i < 6; i++)
-      byIp.push((await post(otpRequestPOST, { phone: randomPhone(), locale: "ar" }, { ip })).status);
+      byIp.push((await post(otpRequestPOST, { phone: randomPhone(), locale: "ar" }, { ip: ip2 })).status);
     expect(byIp).toEqual([200, 200, 200, 200, 200, 429]);
   });
 
-  it("concurrent requests cannot bypass the limit (atomic upsert)", async () => {
+  it("concurrent requests cannot bypass the per-phone threshold (atomic upsert)", async () => {
     const phone = randomPhone();
-    const res = await Promise.all(Array.from({ length: 12 }, () => post(otpRequestPOST, { phone, locale: "ar" })));
-    expect(res.filter((r) => r.status === 200)).toHaveLength(5);
+    const res = await Promise.all(Array.from({ length: 14 }, () => post(otpRequestPOST, { phone, locale: "ar" })));
+    expect(res.filter((r) => r.status === 200)).toHaveLength(10);
+    expect(res.filter((r) => r.status === 428)).toHaveLength(4);
   });
 
   it("CSRF: cookie POST without our Origin is refused; strict input rejects extra keys", async () => {

@@ -19,7 +19,19 @@ import { PrismaClient } from "@/generated/prisma/client";
 const GLOBAL_OMIT = {
   variantNegotiationSettings: { floorPrice: true, autoAcceptPrice: true },
   user: { passwordHash: true },
-  vendor: { iban: true },
+  // D36-6: legal/bank/address data of a store is never returned unless a service asks for it
+  // explicitly (`omit: { legalName: false }` in the vendor's own profile or the admin review).
+  // Public pages use PublicVendorDTO (src/features/vendors/dto.ts).
+  vendor: {
+    iban: true,
+    legalName: true,
+    crNumber: true,
+    freelanceDocNumber: true,
+    vatNumber: true,
+    bankName: true,
+    accountHolderName: true,
+    pickupAddress: true,
+  },
 } as const;
 
 function create() {
@@ -89,14 +101,24 @@ export async function withCtx<T>(ctx: Ctx, fn: (tx: Tx) => Promise<T>, opts: TxO
 /**
  * Elevate to the `system` role for one step, then restore the caller context.
  * app.user_id stays the caller (audit/price-history attribution).
+ *
+ * Error path (devops review P1-8): if fn() failed because of a database error, Postgres has already
+ * aborted the transaction, so the restoring set_config fails too ("current transaction is aborted").
+ * That secondary error must never replace the ORIGINAL one: the restore is attempted (it matters
+ * when fn threw a plain JS error and the caller catches it and keeps using tx) and its own failure
+ * is swallowed — an aborted transaction can only roll back, so nothing can run as `system` anymore.
  */
 export async function asSystem<T>(tx: Tx, ctx: Ctx, fn: () => Promise<T>): Promise<T> {
   await tx.$executeRaw`SELECT set_config('app.role', 'system', true)`;
+  let result: T;
   try {
-    return await fn();
-  } finally {
-    await tx.$executeRaw`SELECT set_config('app.role', ${ctx.kind}, true)`;
+    result = await fn();
+  } catch (original) {
+    await tx.$executeRaw`SELECT set_config('app.role', ${ctx.kind}, true)`.catch(() => {});
+    throw original;
   }
+  await tx.$executeRaw`SELECT set_config('app.role', ${ctx.kind}, true)`;
+  return result;
 }
 
 /** Same message whether the row is missing or belongs to someone else (no existence oracle). */

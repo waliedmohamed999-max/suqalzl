@@ -114,14 +114,17 @@ export async function resolveSession(token: string | null | undefined): Promise<
 /** Re-checks ownership/membership on EVERY request: removing a team member takes effect at once. */
 async function vendorPrincipal(tx: Tx, userId: string, role: string, vendorId: string): Promise<Principal | null> {
   const vendor = await tx.vendor.findUnique({ where: { id: vendorId }, select: { ownerUserId: true, status: true } });
-  if (!vendor || vendor.status === "REJECTED") return null;
+  if (!vendor) return null;
+  // Every status keeps a session; WHAT it may do is decided centrally by VENDOR_STATUS_ALLOWLIST
+  // (D36-3: REJECTED can read the reason and resubmit, SUSPENDED fulfils existing orders).
+  const vendorStatus = vendor.status;
   if (vendor.ownerUserId === userId) {
-    return { kind: "vendor", userId, vendorId, role: "VENDOR_OWNER", permissions: [] };
+    return { kind: "vendor", userId, vendorId, role: "VENDOR_OWNER", permissions: [], vendorStatus };
   }
   const m = await tx.vendorMember.findUnique({ where: { vendorId_userId: { vendorId, userId } } });
   if (!m || !m.isActive) return null;
   void role;
-  return { kind: "vendor", userId, vendorId, role: "VENDOR_STAFF", permissions: m.permissions };
+  return { kind: "vendor", userId, vendorId, role: "VENDOR_STAFF", permissions: m.permissions, vendorStatus };
 }
 
 export async function revokeSession(token: string): Promise<void> {

@@ -42,7 +42,9 @@
     "invalidCredentials": "Incorrect email or password.",
     "accountBlocked": "This account is suspended. Please contact support.",
     "loginMethodDisabled": "This login method is not enabled.",
-    "twoFactorRequired": "Enter the verification code sent to your phone."
+    "twoFactorRequired": "Enter the verification code sent to your phone.",
+    "challengeRequired": "Complete the security check, then try again.",
+    "sessionRevoked": "Your session has ended. Please log in again."
   },
   "sms": {
     "otp": "Souq AlZal login code: {code}"

@@ -1,6 +1,6 @@
 /**
  * Cron handlers by slug (CRON_JOBS in lib/providers/jobs). Each one is idempotent and safe to run
- * concurrently with itself: the route takes a transaction-level advisory lock per slug and the
+ * concurrently with itself: the route takes a lease per slug (cron_leases, lib/providers/jobs/lease.ts) and the
  * handlers use SKIP LOCKED / conditional updates.
  */
 import { releaseExpired } from "@/features/inventory/reservations";

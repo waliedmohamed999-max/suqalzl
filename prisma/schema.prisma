@@ -2059,3 +2059,31 @@ model RealtimeEvent {
   @@index([createdAt])
   @@map("realtime_events")
 }
+
+// =====================================================================================
+// 0011 — P1-01d: cron lease + heartbeat (devops review P1-5/P1-6). Session-revocation triggers
+// (QA-B3/B4) and app.event_bounds() (resync) are SQL-only: prisma/sql/0011_*.sql.
+// =====================================================================================
+
+/// One row per cron slug (CRON_JOBS). The lease replaces the session-level advisory lock, which is
+/// unsafe behind a transaction-mode pooler: whoever holds an unexpired `lockedUntil` runs the job and
+/// extends it (heartbeat) while running; a crashed runner's lease simply expires.
+/// lastRunAt/lastSuccessAt/lastError feed monitoring (devops: alert when lastSuccessAt is stale).
+model CronLease {
+  slug                String    @id
+  lockedBy            String?   @map("locked_by")
+  lockedUntil         DateTime? @map("locked_until") @db.Timestamptz(3)
+  heartbeatAt         DateTime? @map("heartbeat_at") @db.Timestamptz(3)
+  lastRunAt           DateTime? @map("last_run_at") @db.Timestamptz(3)
+  lastFinishedAt      DateTime? @map("last_finished_at") @db.Timestamptz(3)
+  lastSuccessAt       DateTime? @map("last_success_at") @db.Timestamptz(3)
+  lastError           String?   @map("last_error")
+  lastDurationMs      Int?      @map("last_duration_ms")
+  lastProcessed       Int?      @map("last_processed")
+  runCount            Int       @default(0) @map("run_count")
+  consecutiveFailures Int       @default(0) @map("consecutive_failures")
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("cron_leases")
+}

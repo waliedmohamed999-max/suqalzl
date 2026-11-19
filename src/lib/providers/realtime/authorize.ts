@@ -1,5 +1,5 @@
 import { withCtx } from "../../db";
-import type { Principal } from "../../permissions";
+import { can, vendor, type Principal } from "../../permissions";
 import { parseTopic, type Topic } from "./events";
 
 export type AuthResult = { ok: true; topics: string[] } | { ok: false; status: 400 | 401 | 403 };
@@ -32,10 +32,12 @@ export async function authorizeTopics(principal: Principal | null, raw: string[]
         break;
       case "vendorInbox":
         if (principal!.kind !== "vendor" || p.vendorId !== principal!.vendorId) return { ok: false, status: 403 };
+        if (!can(principal, vendor("vendor.read"))) return { ok: false, status: 403 }; // D36-3
         break;
       case "prVendor": {
         const s = principal!;
         if (s.kind !== "vendor" || p.vendorId !== s.vendorId) return { ok: false, status: 403 };
+        if (!can(s, vendor("vendor.read"))) return { ok: false, status: 403 }; // D36-3
         const rec = await withCtx({ kind: "vendor", userId: s.userId, vendorId: s.vendorId }, (tx) =>
           tx.priceRequestRecipient.findFirst({
             where: { requestId: p.requestId, vendorId: s.vendorId },

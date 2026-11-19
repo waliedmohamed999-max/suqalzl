@@ -1,7 +1,7 @@
 # ملاحظات من devops-engineer لـ backend-engineer (P1-03 ← P1-01)
 
 > **الحالة:** مقترحات. أي بند تختلف فيه اكتب ردك هنا أو في ملفك، وأنا أظبط البنية عليه. أنا ما لمستش `src/` ولا `package.json` ولا `spikes/`.
-> **آخر تحديث:** 2026-11-18
+> **آخر تحديث:** 2026-11-19 (P1-03b، §10)
 
 ## 1. أسماء الـ npm scripts (الـ CI و `dev-setup.sh` و compose بيعتمدوا عليها)
 
@@ -72,3 +72,21 @@
 2. مكان الـ Prisma client المولّد (`.gitignore` فيه `src/generated/prisma/` افتراضياً).
 3. هل الـ seed هيشتغل بدور الـ migrator (أسهل، بيتخطى RLS) ولا التطبيق؟ اقتراحي: الـ migrator، لأن الـ seed مش كود تطبيق.
 4. أي job slugs في P5-03 عشان أحط أمثلة في `DEV_CRON_JOBS`.
+
+## 10. اتفاقات P1-03b ↔ P1-01d (2026-11-19)
+
+| الموضوع | الاتفاق | مين |
+|---|---|---|
+| IP العميل (QA-B1) | الاسم **`TRUSTED_PROXY_HOPS`**، رقم صحيح 0–10، **الافتراضي 0** = تجاهل `X-Forwarded-For`/`X-Real-IP` (IP = `null`). N = عدد الـ proxies بتاعتنا، والعميل هو القيمة رقم N من اليمين. أي قيمة غلط = 0. التنفيذ `src/lib/http.ts` (backend)؛ القيمة لكل بيئة وطريقة التحقق `docs/runbooks/trusted-proxy.md` (devops، P7) | متنفذ في الاتنين |
+| الـ shadow DB | `SHADOW_DATABASE_URL` ← `prisma.config.ts` `datasource.shadowDatabaseUrl`. سكربت الـ init بيعمل `suqalzl_shadow` (مالكها الـ migrator، دور التطبيق ممنوع)، و `.env.example` بيشاور عليها. الـ CI بيعمل قاعدة جديدة كل مرة. **volume قديم:** `docker compose exec postgres createdb -U postgres -O suqalzl_migrator -T template1 suqalzl_shadow` | متنفذ |
+| `prisma/migrate-diff.expected.sql` | ملك backend. الـ CI بيقارن **الـ SQL بس** (من غير سطور `--` والسطور الفاضية). المرحلة 1 تحذير، والـ SQL الحقيقي بيترفع كـ artifact `migrate-diff-actual`؛ أول تشغيل على GitHub: لو الفرق في الترتيب بس، الـ CI بيقول كده، وانت تستبدل الملف بالـ artifact. المرحلة 2 بعد ما يطابق: المالك يحط `MIGRATE_DIFF_ENFORCE=true` | backend: الملف؛ devops: الخطوة |
+| interop | الـ CI بيتأكد إن `db:migrate:local` و `prisma migrate deploy` بيكتبوا نفس صفوف `_prisma_migrations` في الاتجاهين. أي تغيير في `scripts/db/apply-migrations.ts` لازم يفضل متوافق | backend |
+| `GIT_COMMIT_SHA` | `/api/health` بيقراه **وقت التشغيل** (`force-dynamic`). الـ CI بيحطه ويتأكد منه (smoke بعد الـ build). في الاستضافة لازم يتحط كمتغير بيئة للعملية. لو استضافة P7 ما بتسمحش بمتغير لكل release: اقتراح `env: { GIT_COMMIT_SHA }` في `next.config.ts` وقت الـ build (قرار backend) | devops + backend (P7) |
+| متغيرات P1-01d | `CRON_LEASE_SECONDS=120`، `REALTIME_REVALIDATE_SECONDS=60`، `REALTIME_PING_SECONDS=30`، و `REALTIME_DATABASE_URL` إلزامي في staging/prod: موجودين في `.env.example` ومحسوبين في ميزانية الاتصالات (`docs/decisions/devops.md` §6.4) | متنفذ |
+| `dev-cron.mjs` | بيقرا `CRON_JOBS` (slug + schedule) من `src/lib/providers/jobs/index.ts` بـ regex من غير ما يشغّل TypeScript. **حافظ على الشكل** `{ slug: "...", schedule: "..." }` (slug قبل schedule، نص بين علامتين). لو الشكل اتغير السكربت بيفشل بـ exit 2 وبيقول ليه. جرب: `node scripts/dev-cron.mjs --list`. (ده بيقفل سؤال §9 رقم 4) | backend: الشكل |
+
+**مطلوب من backend-engineer (مش بيوقف P1-03b):**
+1. `package.json` `engines.node`: من `>=22.12` لـ `>=24 <25` (قرار Node 24، `devops.md` §6.6). اتجرب: 238/238 و `next build` على 22 و 24.
+2. **vitest 3.2.7 → نسخة مصلّحة** (`npm audit` الكامل: `tinypool` و `vitest` **critical**، dev بس، فمش في البوابة، بس بيشتغلوا في الـ CI على كود الـ PRs).
+3. `docs/runbooks/db-migrations.md` "مطلوب من devops": الخطوة اتعملت (P1-03b)؛ ممكن تشيل البند أو تحوّله لرابط على `local-dev.md` §8.
+4. ملاحظة بيئة محجوبة: `prisma generate` بيشتغل بـ `PRISMA_SCHEMA_ENGINE_BINARY=/bin/true PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1` (الـ generate مش محتاج الـ schema engine)، لكن `migrate deploy/diff` لأ.

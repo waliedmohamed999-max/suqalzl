@@ -14,7 +14,10 @@
 #                               NOT owner, NOBYPASSRLS -> Row Level Security applies
 #                               (SPEC §4, P1-00 spike). A superuser or table owner
 #                               silently bypasses RLS, so never run the app as either.
-#   - databases $POSTGRES_DB (dev) and $POSTGRES_TEST_DB (Vitest/Playwright).
+#   - databases $POSTGRES_DB (dev) and $POSTGRES_TEST_DB (Vitest/Playwright), plus
+#     the empty throwaway $POSTGRES_SHADOW_DB (owner: migrator) that Prisma resets
+#     for `prisma migrate diff --from-migrations` / `migrate dev`
+#     (SHADOW_DATABASE_URL, prisma.config.ts). It has no app grants on purpose.
 #   - extensions in template1 + both DBs: btree_gist (exclusion constraint, backend
 #     H6), citext (User.email, M14), pg_trgm (Arabic search helper).
 #   - timezone UTC everywhere (SPEC §2 "الوقت").
@@ -27,6 +30,7 @@ set -euo pipefail
 SUPERUSER="${POSTGRES_USER:-postgres}"
 APP_DB="${POSTGRES_DB:-suqalzl}"
 TEST_DB="${POSTGRES_TEST_DB:-suqalzl_test}"
+SHADOW_DB="${POSTGRES_SHADOW_DB:-suqalzl_shadow}"
 APP_USER="${DB_APP_USER:-suqalzl_app}"
 APP_PASSWORD="${DB_APP_PASSWORD:-suqalzl_app_dev_only}"
 MIGRATOR_USER="${DB_MIGRATOR_USER:-suqalzl_migrator}"
@@ -92,5 +96,14 @@ SQL
     fi
   } | psql_su "$db" -v app="$APP_USER" -v migrator="$MIGRATOR_USER"
 done
+
+# Shadow DB last, so it is copied from the finished template1 (extensions, UTC).
+echo "[init] shadow database: $SHADOW_DB (Prisma resets it; never put data in it)"
+psql_su postgres -v shadow_db="$SHADOW_DB" -v migrator="$MIGRATOR_USER" <<'SQL'
+SELECT format('CREATE DATABASE %I OWNER %I TEMPLATE template1', :'shadow_db', :'migrator')
+ WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = :'shadow_db') \gexec
+SELECT format('ALTER DATABASE %I SET timezone TO %L', :'shadow_db', 'UTC') \gexec
+SELECT format('REVOKE ALL ON DATABASE %I FROM PUBLIC', :'shadow_db') \gexec
+SQL
 
 echo "[init] done"

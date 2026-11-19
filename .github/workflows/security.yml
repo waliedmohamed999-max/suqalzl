@@ -2,6 +2,11 @@
 # Security — secret scan (gitleaks), dependency vulnerabilities (npm audit +
 # OSV-Scanner), and GitHub dependency review on PRs.
 #
+# Blocking: gitleaks; npm audit gate on PRODUCTION deps at >= high with the
+# expiring allowlist .github/audit-allowlist.json (.github/scripts/audit-gate.mjs);
+# dependency review (when enabled). Informational: full npm audit incl. dev deps,
+# OSV-Scanner (until P6).
+#
 # Safe before P1-01: gitleaks always runs; the dependency jobs skip cleanly when
 # there is no package-lock.json. Also runs weekly so new CVEs in unchanged
 # dependencies are caught.
@@ -72,9 +77,19 @@ jobs:
         if: steps.lock.outputs.present == 'true'
         with:
           node-version-file: .nvmrc
-      - name: npm audit — fail on high/critical in production dependencies
+      # Gate: high/critical advisories in PRODUCTION dependencies fail the job unless
+      # .github/audit-allowlist.json has a matching entry (GHSA id + package) that has
+      # not expired. Expired entries fail again; unused ones are flagged for removal.
+      # A broken/empty npm audit response fails closed (exit 2). The lockfile is the
+      # input, so no install is needed.
+      - name: npm audit gate — production dependencies (expiring allowlist)
         if: steps.lock.outputs.present == 'true'
-        run: npm audit --omit=dev --audit-level=high
+        run: |
+          set -uo pipefail
+          npm audit --omit=dev --json > "$RUNNER_TEMP/npm-audit-prod.json"
+          echo "npm audit exit code: $? (non-zero just means advisories exist; the gate decides)"
+          node .github/scripts/audit-gate.mjs "$RUNNER_TEMP/npm-audit-prod.json" \
+            --allowlist .github/audit-allowlist.json --level high
       - name: npm audit — full report (dev dependencies included, informational)
         if: steps.lock.outputs.present == 'true'
         continue-on-error: true
@@ -90,8 +105,13 @@ jobs:
           grep " osv-scanner_linux_amd64\$" osv-scanner_SHA256SUMS | sha256sum -c -
           install -m 0755 osv-scanner_linux_amd64 "$RUNNER_TEMP/osv-scanner"
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
-      - name: OSV-Scanner (lockfiles, recursive)
+      # INFORMATIONAL until P6 (docs/reviews/devops-p1-01.md): OSV also reports dev
+      # tooling and has no allowlist expiry, so it would block on the same build-time
+      # findings the gate above already decided on. In P6 this becomes blocking with an
+      # osv-scanner.toml whose [[IgnoredVulns]] carry `ignoreUntil` dates.
+      - name: OSV-Scanner (lockfiles, recursive) — informational until P6
         if: steps.lock.outputs.present == 'true'
+        continue-on-error: true
         run: osv-scanner scan source --recursive --allow-no-lockfiles .
 
   dependency-review:

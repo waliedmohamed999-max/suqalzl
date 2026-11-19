@@ -14,8 +14,7 @@
 # -----------------------------------------------------------------------------
 name: suqalzl
 
-x-node-app: &node-app
-  # Keep the Node major in sync with .nvmrc and the CI (node-version-file: .nvmrc).
+x-node-app: &node-app # Keep the Node major in sync with .nvmrc and the CI (node-version-file: .nvmrc).
   image: node:24-bookworm-slim
   working_dir: /app
   env_file:
@@ -47,6 +46,7 @@ services:
       PGTZ: UTC
       # read by docker/postgres/init/10-roles-databases-extensions.sh
       POSTGRES_TEST_DB: ${POSTGRES_TEST_DB:-suqalzl_test}
+      POSTGRES_SHADOW_DB: ${POSTGRES_SHADOW_DB:-suqalzl_shadow}
       DB_APP_USER: ${DB_APP_USER:-suqalzl_app}
       DB_APP_PASSWORD: ${DB_APP_PASSWORD:-suqalzl_app_dev_only}
       DB_MIGRATOR_USER: ${DB_MIGRATOR_USER:-suqalzl_migrator}
@@ -193,7 +193,13 @@ services:
       mail:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 5s
       retries: 30

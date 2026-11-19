@@ -1,5 +1,9 @@
 # -----------------------------------------------------------------------------
 # CI — lint, typecheck, unit (Vitest + Postgres), build, e2e (Playwright), infra.
+# The unit job also checks migrations: interop between db:migrate:local and
+# `prisma migrate deploy`, and `prisma migrate diff` against the reviewed
+# prisma/migrate-diff.expected.sql (warning in phase 1; repository variable
+# MIGRATE_DIFF_ENFORCE=true makes it blocking).
 #
 # Safe before P1-01: the `detect` job checks for package.json + package-lock.json
 # and for each npm script. Jobs whose prerequisites are missing are SKIPPED (not
@@ -30,6 +34,10 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
   CI: "true"
   TZ: UTC
+  # Commit the build/runtime reports in GET /api/health ({"commit": ...}); checked by
+  # the build smoke test and later by release:verify (devops.md §6.6-4). On PRs it is
+  # the PR head, not GitHub's temporary merge commit.
+  GIT_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   # Test-only values. Nothing here is a real secret; CI never uses live keys.
   APP_ENV: test
   APP_URL: http://localhost:3000
@@ -69,6 +77,7 @@ jobs:
       e2e: ${{ steps.d.outputs.e2e }}
       prisma: ${{ steps.d.outputs.prisma }}
       migrate: ${{ steps.d.outputs.migrate }}
+      migratelocal: ${{ steps.d.outputs.migratelocal }}
       seed: ${{ steps.d.outputs.seed }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -82,11 +91,28 @@ jobs:
           if [ -f package.json ] && [ -f package-lock.json ]; then node_ready=true; fi
           echo "node=$node_ready" >> "$GITHUB_OUTPUT"
           has() { [ "$node_ready" = true ] && node -e "process.exit(require('./package.json').scripts?.['$1'] ? 0 : 1)"; }
-          for pair in lint:lint typecheck:typecheck test:test build:build e2e:test:e2e migrate:db:migrate:deploy seed:db:seed; do
+          for pair in lint:lint typecheck:typecheck test:test build:build migrate:db:migrate:deploy seed:db:seed migratelocal:db:migrate:local; do
             out="${pair%%:*}"; script="${pair#*:}"
             if has "$script"; then echo "$out=true" >> "$GITHUB_OUTPUT"; else echo "$out=false" >> "$GITHUB_OUTPUT"; fi
           done
           if [ "$node_ready" = true ] && [ -f prisma/schema.prisma ]; then echo "prisma=true" >> "$GITHUB_OUTPUT"; else echo "prisma=false" >> "$GITHUB_OUTPUT"; fi
+          # e2e needs more than the npm script: Playwright must really be set up,
+          # otherwise `playwright test` fails ("command not found" / "No tests found").
+          # Required: the script + a playwright.config.* + @playwright/test declared in
+          # package.json + at least one tracked *.spec.* / *.e2e.* file. Works both
+          # before and after frontend-engineer adds Playwright: no edit needed then.
+          e2e_reason=""
+          pw_config=""
+          for f in playwright.config.ts playwright.config.mts playwright.config.js playwright.config.mjs playwright.config.cjs; do
+            if [ -f "$f" ]; then pw_config="$f"; break; fi
+          done
+          if [ "$node_ready" != true ]; then e2e_reason="no package.json/lockfile"
+          elif ! has test:e2e; then e2e_reason="no npm script test:e2e"
+          elif [ -z "$pw_config" ]; then e2e_reason="no playwright.config.*"
+          elif ! node -e "const p=require('./package.json');process.exit((p.devDependencies||{})['@playwright/test']||(p.dependencies||{})['@playwright/test']?0:1)"; then e2e_reason="@playwright/test is not in package.json"
+          elif [ -z "$(git ls-files -- '*.spec.ts' '*.spec.tsx' '*.spec.js' '*.spec.mjs' '*.e2e.ts' ':!:node_modules' | head -n1)" ]; then e2e_reason="no *.spec.* / *.e2e.* test files"
+          fi
+          if [ -z "$e2e_reason" ]; then echo "e2e=true" >> "$GITHUB_OUTPUT"; else echo "e2e=false" >> "$GITHUB_OUTPUT"; fi
           {
             echo "### Project state"
             if [ "$node_ready" = true ]; then
@@ -95,6 +121,7 @@ jobs:
               echo "No package.json/package-lock.json yet (P1-01 not merged). Node jobs are **skipped**, not failed."
               echo "Only the infra checks run."
             fi
+            if [ -n "$e2e_reason" ]; then echo "- e2e **skipped**: $e2e_reason (it turns on by itself once Playwright is set up)."; fi
           } >> "$GITHUB_STEP_SUMMARY"
           cat "$GITHUB_OUTPUT"
 
@@ -212,9 +239,129 @@ jobs:
           echo "CRON_SECRET=$(openssl rand -hex 24)" >> "$GITHUB_ENV"
           echo "FIELD_ENCRYPTION_KEY_ID=v1" >> "$GITHUB_ENV"
       - name: Migrate test database
+        id: migrate
         if: needs.detect.outputs.migrate == 'true'
         run: npm run db:migrate:deploy
       - run: npm test
+
+      # Interop (docs/reviews/devops-p1-01.md, P1-4): scripts/db/apply-migrations.ts
+      # (db:migrate:local, used where Prisma's schema engine is blocked) must write
+      # the SAME _prisma_migrations rows/checksums as `prisma migrate deploy`.
+      # A) fresh DB migrated by db:migrate:local -> prisma migrate deploy applies nothing
+      # B) suqalzl_test migrated by prisma above -> db:migrate:local applies nothing
+      # "Applies nothing" = _prisma_migrations is byte-identical before and after.
+      - name: Migration interop (db:migrate:local <-> prisma migrate deploy)
+        if: >-
+          !cancelled() && steps.migrate.outcome == 'success' &&
+          needs.detect.outputs.migratelocal == 'true'
+        env:
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres_ci_only
+          INTEROP_URL: postgresql://suqalzl_migrator:suqalzl_migrator_dev_only@localhost:5432/suqalzl_interop
+        run: |
+          set -euo pipefail
+          snapshot() {
+            psql "$1" -v ON_ERROR_STOP=1 -Atc "SELECT concat_ws(' ', migration_name, checksum, id, finished_at, rolled_back_at, applied_steps_count) FROM \"_prisma_migrations\" ORDER BY migration_name"
+          }
+          expected=$(find prisma/migrations -mindepth 2 -maxdepth 2 -name migration.sql | wc -l)
+
+          echo "::group::A) db:migrate:local on a fresh DB, then prisma migrate deploy"
+          psql -d postgres -v ON_ERROR_STOP=1 -q \
+            -c "SET client_min_messages = warning" -c "DROP DATABASE IF EXISTS suqalzl_interop" \
+            -c "CREATE DATABASE suqalzl_interop OWNER suqalzl_migrator TEMPLATE template1"
+          DIRECT_URL="$INTEROP_URL" npm run --silent db:migrate:local
+          before=$(snapshot "$INTEROP_URL")
+          DIRECT_URL="$INTEROP_URL" npx --no-install prisma migrate deploy
+          after=$(snapshot "$INTEROP_URL")
+          echo "::endgroup::"
+          rows=$(printf '%s\n' "$before" | grep -c . || true)
+          if [ "$rows" -ne "$expected" ]; then echo "::error::db:migrate:local recorded $rows migrations, prisma/migrations has $expected"; exit 1; fi
+          if [ "$before" != "$after" ]; then
+            echo "::error::prisma migrate deploy changed _prisma_migrations after db:migrate:local (not interoperable)"
+            diff <(echo "$before") <(echo "$after") || true
+            exit 1
+          fi
+
+          echo "::group::B) db:migrate:local on the DB prisma migrated (suqalzl_test)"
+          before=$(snapshot "$DIRECT_URL")
+          npm run --silent db:migrate:local
+          after=$(snapshot "$DIRECT_URL")
+          echo "::endgroup::"
+          if [ "$before" != "$after" ]; then
+            echo "::error::db:migrate:local changed _prisma_migrations after prisma migrate deploy (not interoperable)"
+            diff <(echo "$before") <(echo "$after") || true
+            exit 1
+          fi
+          psql -d postgres -q -c "DROP DATABASE IF EXISTS suqalzl_interop"
+          echo "Migration interop: OK ($expected migrations, both directions)" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # Drift between prisma/migrations and schema.prisma (devops.md §6.6). Prisma 7
+      # has no --shadow-database-url flag: the shadow DB comes from prisma.config.ts
+      # (datasource.shadowDatabaseUrl = SHADOW_DATABASE_URL, backend-engineer).
+      # `--exit-code` cannot be used: objects that live only in prisma/sql/ (partial
+      # indexes, CHECKs, RLS...) always show up as a diff. So the generated script is
+      # compared with the reviewed file prisma/migrate-diff.expected.sql.
+      # Phase 1 (now): mismatch/missing file = WARNING. Phase 2: set the repository
+      # variable MIGRATE_DIFF_ENFORCE=true and it becomes an error.
+      - name: prisma migrate diff vs prisma/migrate-diff.expected.sql
+        id: migratediff
+        if: >-
+          !cancelled() && steps.migrate.outcome == 'success' &&
+          needs.detect.outputs.prisma == 'true'
+        env:
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres_ci_only
+          SHADOW_DATABASE_URL: postgresql://suqalzl_migrator:suqalzl_migrator_dev_only@localhost:5432/suqalzl_shadow
+          ENFORCE: ${{ vars.MIGRATE_DIFF_ENFORCE == 'true' }}
+        run: |
+          set -uo pipefail
+          expected=prisma/migrate-diff.expected.sql
+          actual="$RUNNER_TEMP/migrate-diff/migrate-diff.actual.sql"
+          mkdir -p "$(dirname "$actual")"
+          level=warning; if [ "$ENFORCE" = true ]; then level=error; fi
+          finish() {
+            echo "::$level title=migrate diff::$1"
+            echo "- migrate diff ($level): $1" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$ENFORCE" = true ]; then exit 1; fi
+            exit 0
+          }
+          # Compare SQL only: drop CRLF, trailing spaces, `--` comment lines and blank
+          # lines (the expected file carries a review header; Prisma adds `-- DropIndex`).
+          norm() { sed -e 's/\r$//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*--/d' -e '/^$/d' "$1"; }
+
+          if ! grep -q 'shadowDatabaseUrl' prisma.config.ts; then
+            finish "prisma.config.ts has no datasource.shadowDatabaseUrl yet (backend-engineer: shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL)"
+          fi
+          psql -d postgres -v ON_ERROR_STOP=1 -q \
+            -c "SET client_min_messages = warning" -c "DROP DATABASE IF EXISTS suqalzl_shadow" \
+            -c "CREATE DATABASE suqalzl_shadow OWNER suqalzl_migrator TEMPLATE template1" || finish "could not create the shadow database"
+          if ! npx --no-install prisma migrate diff \
+              --from-migrations prisma/migrations --to-schema prisma/schema.prisma \
+              --script --output "$actual"; then
+            finish "prisma migrate diff failed (see the log above)"
+          fi
+          if [ ! -f "$expected" ]; then
+            finish "$expected is missing. Review the artifact 'migrate-diff-actual' and commit it as $expected (backend-engineer)"
+          fi
+          if diff -u <(norm "$expected") <(norm "$actual"); then
+            echo "migrate diff: matches $expected" | tee -a "$GITHUB_STEP_SUMMARY"
+          elif diff -q <(norm "$expected" | sort) <(norm "$actual" | sort) >/dev/null; then
+            finish "same statements as $expected but in a different order: replace the file with the artifact 'migrate-diff-actual' (no drift)"
+          else
+            finish "generated SQL differs from $expected (diff above). Either a migration is missing for a schema.prisma change, or the expected file must be updated in the same PR"
+          fi
+      - name: Upload migrate diff output
+        if: ${{ !cancelled() && steps.migratediff.outcome != 'skipped' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: migrate-diff-actual
+          path: ${{ runner.temp }}/migrate-diff/
+          retention-days: 7
+          if-no-files-found: ignore
 
   build:
     needs: detect
@@ -238,6 +385,29 @@ jobs:
         if: needs.detect.outputs.prisma == 'true'
         run: npx --no-install prisma generate
       - run: npm run build
+      # Smoke: the production server starts without DB/storage and /api/health
+      # reports this exact commit (what release:verify checks after a deploy).
+      - name: Smoke — next start, /api/health reports GIT_COMMIT_SHA
+        run: |
+          set -euo pipefail
+          port="${SMOKE_PORT:-3100}"
+          if curl -s -o /dev/null "http://127.0.0.1:$port/"; then echo "::error::port $port is already in use"; exit 1; fi
+          ./node_modules/.bin/next start --port "$port" > "$RUNNER_TEMP/next-start.log" 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          body=""
+          for _ in $(seq 1 60); do
+            # Our server must still be alive: never accept an answer from another process.
+            if ! kill -0 "$pid" 2>/dev/null; then cat "$RUNNER_TEMP/next-start.log"; echo "::error::next start exited"; exit 1; fi
+            if body=$(curl -fsS "http://127.0.0.1:$port/api/health" 2>/dev/null); then break; fi
+            sleep 1
+          done
+          echo "GET /api/health -> ${body:-<no answer>}"
+          if ! node -e 'const b=JSON.parse(process.argv[1]||"{}");process.exit(b.status==="ok"&&b.commit===process.env.GIT_COMMIT_SHA?0:1)' "$body"; then
+            echo "::error::/api/health must return status ok and commit=$GIT_COMMIT_SHA"
+            tail -n 50 "$RUNNER_TEMP/next-start.log"
+            exit 1
+          fi
 
   e2e:
     name: e2e (Playwright on the docker compose stack)

@@ -15,7 +15,7 @@
 name: suqalzl
 
 x-node-app: &node-app # Keep the Node major in sync with .nvmrc and the CI (node-version-file: .nvmrc).
-  image: node:24-bookworm-slim
+  image: node:26-bookworm-slim
   working_dir: /app
   env_file:
     - path: .env

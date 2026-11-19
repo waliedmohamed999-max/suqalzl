@@ -1,7 +1,18 @@
 /**
  * URL option lists shared by the list views (client) and their pages (server). Kept out of the
- * "use client" modules so server pages get the real arrays, not client references.
+ * "use client" modules so server pages get the real arrays, not client references, and free of
+ * value imports from features/admin/schema.ts (it imports lib/permissions, which pulls the DB
+ * client into a browser bundle). The type assertions below keep them in sync with the contract.
  */
+import type { AdminProductRowDTO } from "@/features/admin/schema";
+
+export const PRODUCT_STATUSES = [
+  "DRAFT",
+  "PENDING",
+  "PUBLISHED",
+  "REJECTED",
+  "ARCHIVED",
+] as const satisfies readonly AdminProductRowDTO["status"][];
 export const PAGE_SIZES = [25, 50, 100] as const;
 export const PRODUCT_SORTS = [
   "updated_desc",

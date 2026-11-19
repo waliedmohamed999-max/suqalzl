@@ -383,12 +383,12 @@ function Pager({
       </span>
       <span className="ms-auto flex gap-1">
         <PageLink href={hrefFor(page - 1)} disabled={page <= 1}>
-          <ChevronRight data-directional="" aria-hidden="true" />
+          <ChevronLeft data-directional="" aria-hidden="true" />
           {t("previous")}
         </PageLink>
         <PageLink href={hrefFor(page + 1)} disabled={page >= pages}>
           {t("next")}
-          <ChevronLeft data-directional="" aria-hidden="true" />
+          <ChevronRight data-directional="" aria-hidden="true" />
         </PageLink>
       </span>
     </nav>

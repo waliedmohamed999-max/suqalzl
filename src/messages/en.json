@@ -343,7 +343,8 @@
       "soldOut": "Sold out",
       "left": "{count, plural, one {# left} other {# left}}",
       "topProducts": "Top products",
-      "topVendors": "Top stores"
+      "topVendors": "Top stores",
+      "lowStockAll": "All alerts ({count})"
     },
     "products": {
       "title": "Products",

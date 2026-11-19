@@ -68,7 +68,7 @@ export function emptyProductForm(): ProductFormState {
     options: [],
     variants: [
       {
-        key: localKey("v"),
+        key: "v-initial", // fixed: rendered on the server too (hydration)
         sku: "",
         optionValueKeys: [],
         price: "",
@@ -144,7 +144,8 @@ export function regenerateVariants(
   const variants = combos.map(
     (combo) =>
       byCombo.get(combo.join("|")) ?? {
-        key: localKey("v"),
+        // deterministic per combination (stable across renders and server/client)
+        key: `new-${combo.join("|") || "single"}`,
         sku: "",
         optionValueKeys: combo,
         price: template?.price ?? "",

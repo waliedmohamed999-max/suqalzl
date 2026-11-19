@@ -343,7 +343,8 @@
       "soldOut": "نفد",
       "left": "{count, plural, one {باقي قطعة} two {باقي قطعتان} few {باقي # قطع} other {باقي # قطعة}}",
       "topProducts": "أفضل المنتجات",
-      "topVendors": "أفضل التجار"
+      "topVendors": "أفضل التجار",
+      "lowStockAll": "كل التنبيهات ({count})"
     },
     "products": {
       "title": "المنتجات",

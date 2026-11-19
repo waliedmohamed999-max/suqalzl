@@ -1,4 +1,4 @@
-import { BarChart3, ChevronLeft, Percent, ShoppingBag, Tag, UserPlus, Wallet } from "lucide-react";
+import { BarChart3, ChevronRight, Percent, ShoppingBag, Tag, UserPlus, Wallet } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Money } from "@/components/store/price";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import { SalesChart } from "../sales-chart";
 import { StatCard } from "../stat-card";
 
 type Period = (typeof DASHBOARD_PERIODS)[number];
+const LOW_STOCK_SHOWN = 6;
 
 /** Change vs the previous period in bps, integer math only; null when there is no base. */
 export function deltaBps(value: number, previous: number): number | null {
@@ -176,10 +177,20 @@ function Dashboard({ data }: { data: AdminDashboardDTO }) {
       </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-3">
-        <AdminCard title={t("lowStockTitle")}>
+        <AdminCard
+          title={t("lowStockTitle")}
+          action={
+            data.lowStock.length > LOW_STOCK_SHOWN ? (
+              <MoreLink
+                href="/admin/products?sort=stock_asc"
+                label={t("lowStockAll", { count: data.lowStock.length })}
+              />
+            ) : undefined
+          }
+        >
           {data.lowStock.length ? (
             <ul className="flex flex-col">
-              {data.lowStock.map((s) => (
+              {data.lowStock.slice(0, LOW_STOCK_SHOWN).map((s) => (
                 <li
                   key={s.variantId}
                   className="flex items-center justify-between gap-2 border-b border-border py-2.5 text-sm last:border-b-0"
@@ -244,7 +255,7 @@ function MoreLink({ href, label }: { href: string; label: string }) {
       className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-gold-text hover:underline"
     >
       {label}
-      <ChevronLeft aria-hidden="true" data-directional="" className="size-4" />
+      <ChevronRight aria-hidden="true" data-directional="" className="size-4" />
     </Link>
   );
 }

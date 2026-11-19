@@ -73,7 +73,10 @@ export function StaffView({ data }: { data: AdminStaffListDTO }) {
       {
         id: "lastLogin",
         header: t("colLastLogin"),
-        cell: ({ row }) => (row.original.lastLoginAt ? format.relativeTime(new Date(row.original.lastLoginAt)) : "—"),
+        cell: ({ row }) =>
+          row.original.lastLoginAt
+            ? format.dateTime(new Date(row.original.lastLoginAt), { dateStyle: "medium", timeStyle: "short" })
+            : "—",
       },
       {
         id: "status",

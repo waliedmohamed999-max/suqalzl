@@ -248,7 +248,7 @@ export function VariantMatrix({
           </div>
         ) : null}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[52rem] border-collapse text-sm">
+          <table className="w-full min-w-[44rem] border-collapse text-sm">
             <caption className="sr-only">{t("caption")}</caption>
             <thead className="bg-background text-xs text-muted-foreground">
               <tr>
@@ -311,7 +311,7 @@ export function VariantMatrix({
                       <CellInput
                         label={t("skuOf", { name })}
                         value={v.sku}
-                        className="w-40"
+                        className="w-36"
                         error={err(`variants.${i}.sku`)}
                         onChange={(sku) => setVariant(v.key, { sku: sku.toUpperCase() })}
                       />
@@ -322,7 +322,7 @@ export function VariantMatrix({
                         numeric
                         inputMode="decimal"
                         value={v.price}
-                        className="w-28"
+                        className="w-24"
                         error={err(`variants.${i}.price`)}
                         onChange={(price) => setVariant(v.key, { price })}
                       />
@@ -334,7 +334,7 @@ export function VariantMatrix({
                         inputMode="decimal"
                         placeholder="—"
                         value={v.compareAtPrice}
-                        className="w-28"
+                        className="w-24"
                         error={err(`variants.${i}.compareAtPrice`)}
                         onChange={(compareAtPrice) => setVariant(v.key, { compareAtPrice })}
                       />
@@ -355,7 +355,7 @@ export function VariantMatrix({
                           numeric
                           inputMode="numeric"
                           value={v.stock}
-                          className="w-20"
+                          className="w-16"
                           error={err(`variants.${i}.stock`)}
                           onChange={(s) => setVariant(v.key, { stock: s })}
                         />

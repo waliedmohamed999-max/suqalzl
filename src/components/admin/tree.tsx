@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -136,7 +136,7 @@ export function Tree<T>({
                 className="inline-flex size-7 cursor-pointer items-center justify-center rounded-sm hover:bg-accent"
                 title={isOpen ? t("collapse") : t("expand")}
               >
-                {isOpen ? <ChevronDown className="size-4" /> : <ChevronLeft data-directional="" className="size-4" />}
+                {isOpen ? <ChevronDown className="size-4" /> : <ChevronRight data-directional="" className="size-4" />}
               </button>
             ) : (
               <span aria-hidden="true" className="w-7" />

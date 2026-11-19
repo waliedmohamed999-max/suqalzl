@@ -53,7 +53,7 @@ export function CustomersListView({ list, filtered }: { list: AdminCustomerListD
         header: t("colLastOrder"),
         cell: ({ row }) =>
           row.original.lastOrderAt ? (
-            format.relativeTime(new Date(row.original.lastOrderAt))
+            format.dateTime(new Date(row.original.lastOrderAt), { dateStyle: "medium" })
           ) : (
             <span className="text-muted-foreground">—</span>
           ),

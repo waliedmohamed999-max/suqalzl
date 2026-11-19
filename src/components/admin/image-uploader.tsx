@@ -305,7 +305,7 @@ export function ImageUploader({
   );
 }
 
-/** Items from saved images (edit form). */
+/** Items from saved images (edit form). Deterministic keys: they render on the server too (hydration). */
 export function imageItemsFrom(images: { path: string; url: string; alt: string | null }[]): ImageItem[] {
-  return images.map((im) => ({ key: newKey(), status: "done", path: im.path, url: im.url, alt: im.alt ?? "" }));
+  return images.map((im, i) => ({ key: `saved-${i}`, status: "done", path: im.path, url: im.url, alt: im.alt ?? "" }));
 }

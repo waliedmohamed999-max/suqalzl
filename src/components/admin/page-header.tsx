@@ -1,4 +1,4 @@
-import { ChevronLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
@@ -50,7 +50,7 @@ export function PageHeader({
                     ) : (
                       <span aria-current={last ? "page" : undefined}>{c.label}</span>
                     )}
-                    {last ? null : <ChevronLeft aria-hidden="true" data-directional="" className="size-3" />}
+                    {last ? null : <ChevronRight aria-hidden="true" data-directional="" className="size-3" />}
                   </li>
                 );
               })}

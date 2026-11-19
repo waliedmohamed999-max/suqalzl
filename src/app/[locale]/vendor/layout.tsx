@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { DashShell } from "@/components/dash/dash-shell";
 import { requireArea } from "@/lib/auth/guard";
@@ -22,6 +23,9 @@ export default async function VendorLayout({
 }) {
   const { locale } = await params;
   const principal = await requireArea("vendor", locale); // DB-validated session + role (middleware only checks the cookie)
+  // D36-3: a store under review or rejected has no dashboard yet; its application page is /sell (P4-01).
+  if (principal.kind === "vendor" && (principal.vendorStatus === "PENDING" || principal.vendorStatus === "REJECTED"))
+    redirect("/sell");
   const vendor = await getVendorShell(principal);
   return (
     <DashShell area="vendor" vendor={vendor}>

@@ -147,7 +147,8 @@
     },
     "otp": {
       "label": "6-digit verification code"
-    }
+    },
+    "challengeSolving": "Running a quick security check…"
   },
   "account": {
     "title": "My account"

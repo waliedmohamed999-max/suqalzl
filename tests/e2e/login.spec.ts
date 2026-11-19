@@ -1,7 +1,15 @@
 import { expect, test } from "@playwright/test";
-import { freshIp, logOffset, otpFromLog, randomPhone, resetStaffLoginLimit, setSetting, superAdmin } from "./helpers";
+import {
+  exhaustPhoneHour,
+  logOffset,
+  otpFromLog,
+  randomPhone,
+  resetRateLimits,
+  setSetting,
+  superAdmin,
+} from "./helpers";
 
-test.beforeEach(async ({ page }) => freshIp(page));
+test.beforeAll(async () => resetRateLimits());
 
 test.describe("customer login (phone + OTP)", () => {
   test("protected /account → /login?next → OTP → back to /account", async ({ page }) => {
@@ -34,6 +42,21 @@ test.describe("customer login (phone + OTP)", () => {
     await expect(page.getByLabel("رمز التحقق من 6 أرقام")).toHaveAttribute("aria-invalid", "true");
   });
 
+  test("over the hourly per-phone limit: proof-of-work challenge is solved in the browser (D36-2)", async ({
+    page,
+  }) => {
+    const phone = randomPhone();
+    await exhaustPhoneHour(phone);
+    await page.goto("/login", { waitUntil: "networkidle" });
+    const offset = logOffset();
+    await page.getByLabel("رقم الجوال").fill(phone.slice(4));
+    const challenge = page.waitForResponse((r) => r.url().endsWith("/api/auth/challenge"));
+    await page.getByRole("button", { name: "أرسل رمز التحقق" }).click();
+    expect((await challenge).status()).toBe(200);
+    await expect(page.getByRole("heading", { name: "أدخل الرمز" })).toBeVisible();
+    expect(await otpFromLog(phone, offset)).toMatch(/^\d{6}$/);
+  });
+
   test("invalid phone is caught before any request", async ({ page }) => {
     await page.goto("/login", { waitUntil: "networkidle" });
     await page.getByLabel("رقم الجوال").fill("12345");
@@ -52,7 +75,7 @@ test.describe("staff login (D31)", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeEach(async () => {
-    await resetStaffLoginLimit(superAdmin().email);
+    await resetRateLimits();
   });
 
   test.afterAll(async () => {

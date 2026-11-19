@@ -13,7 +13,7 @@ import { OtpInput, OTP_LENGTH } from "@/components/ui/otp-input";
 import { toast } from "@/components/ui/toaster";
 import { Link } from "@/i18n/navigation";
 import { formatSaudiMobile, normalizeSaudiMobile } from "@/lib/phone";
-import { errorMessageKey, postJson, safeNext } from "../client";
+import { errorMessageKey, postJson, postWithChallenge, safeNext } from "../client";
 import { AuthErrorBanner } from "./auth-error";
 
 /** Client-side check only (D23 +9665 only); the server normalises and validates again. */
@@ -33,6 +33,7 @@ type ApiError = { code: string; retryAt?: string };
 export function CustomerLoginForm({ next }: { next?: string | null }) {
   const t = useTranslations("auth.customer");
   const tOtp = useTranslations("auth.otp");
+  const tAuth = useTranslations("auth");
   const te = useTranslations("errors");
   const locale = useLocale() as "ar" | "en";
 
@@ -44,6 +45,7 @@ export function CustomerLoginForm({ next }: { next?: string | null }) {
   const [codeError, setCodeError] = useState<ApiError | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
+  const [solving, setSolving] = useState(false);
   const otpRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<PhoneForm>({
@@ -54,7 +56,11 @@ export function CustomerLoginForm({ next }: { next?: string | null }) {
   });
 
   async function requestCode(e164: string): Promise<boolean> {
-    const r = await postJson<{ ok: true; expiresInSeconds: number }>("/api/auth/otp/request", { phone: e164, locale });
+    const r = await postWithChallenge<{ ok: true; expiresInSeconds: number }>(
+      "/api/auth/otp/request",
+      { phone: e164, locale },
+      setSolving,
+    );
     if (r.ok) {
       setExpiresIn(r.data.expiresInSeconds);
       setSendError(null);
@@ -128,6 +134,11 @@ export function CustomerLoginForm({ next }: { next?: string | null }) {
         <Button type="submit" size="lg" full loading={form.formState.isSubmitting}>
           {t("sendCode")}
         </Button>
+        {solving ? (
+          <p role="status" className="text-center text-sm text-muted-foreground">
+            {tAuth("challengeSolving")}
+          </p>
+        ) : null}
         <p className="text-xs text-muted-foreground">
           {t.rich("consent", {
             terms: (c) => (

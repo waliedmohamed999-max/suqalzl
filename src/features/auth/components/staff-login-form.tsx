@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { FieldError, FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { OtpInput, OTP_LENGTH } from "@/components/ui/otp-input";
-import { errorMessageKey, fetchSession, postJson, safeNext } from "../client";
+import { errorMessageKey, fetchSession, postJson, postWithChallenge, safeNext } from "../client";
 import { AuthErrorBanner } from "./auth-error";
 
 const loginSchema = z.object({
@@ -38,6 +38,8 @@ function destination(area: Area, next?: string | null) {
  */
 export function StaffLoginForm({ next }: { next?: string | null }) {
   const t = useTranslations("auth.staff");
+  const tAuth = useTranslations("auth");
+  const [solving, setSolving] = useState(false);
   const [step, setStep] = useState<"password" | "2fa">("password");
   const [error, setError] = useState<ApiError | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +64,11 @@ export function StaffLoginForm({ next }: { next?: string | null }) {
 
   const onSubmit = form.handleSubmit(async (values) => {
     setError(null);
-    const r = await postJson<{ ok: true; requires2fa: boolean; area: Area }>("/api/auth/staff/login", values);
+    const r = await postWithChallenge<{ ok: true; requires2fa: boolean; area: Area }>(
+      "/api/auth/staff/login",
+      values,
+      setSolving,
+    );
     if (!r.ok) {
       setError({ code: r.code, retryAt: r.retryAt });
       return;
@@ -141,6 +147,11 @@ export function StaffLoginForm({ next }: { next?: string | null }) {
       <Button type="submit" size="lg" full loading={form.formState.isSubmitting}>
         {t("submit")}
       </Button>
+      {solving ? (
+        <p role="status" className="text-center text-sm text-muted-foreground">
+          {tAuth("challengeSolving")}
+        </p>
+      ) : null}
     </form>
   );
 }

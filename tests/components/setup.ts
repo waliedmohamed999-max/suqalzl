@@ -27,22 +27,24 @@ declare global {
   var __searchParams: string | undefined;
 }
 
-// jsdom lacks these; Radix and sonner touch them.
-if (!window.matchMedia)
-  window.matchMedia = (q: string) =>
-    ({
-      matches: false,
-      media: q,
-      onchange: null,
-      addListener() {},
-      removeListener() {},
-      addEventListener() {},
-      removeEventListener() {},
-      dispatchEvent: () => false,
-    }) as MediaQueryList;
-window.requestAnimationFrame ??= (cb: FrameRequestCallback) => window.setTimeout(() => cb(performance.now()), 0);
-globalThis.ResizeObserver ??= class {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-} as unknown as typeof ResizeObserver;
+if (typeof window !== "undefined") {
+  // jsdom lacks these; Radix and sonner touch them.
+  if (!window.matchMedia)
+    window.matchMedia = (q: string) =>
+      ({
+        matches: false,
+        media: q,
+        onchange: null,
+        addListener() {},
+        removeListener() {},
+        addEventListener() {},
+        removeEventListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList;
+  window.requestAnimationFrame ??= (cb: FrameRequestCallback) => window.setTimeout(() => cb(performance.now()), 0);
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+}

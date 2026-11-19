@@ -32,6 +32,39 @@ export async function postJson<T>(url: string, body: unknown): Promise<ApiResult
   return { ok: false, code: err?.code ?? "INTERNAL", retryAt: err?.retryAt, status: res.status };
 }
 
+interface PowChallenge {
+  provider: "POW";
+  token: string;
+  difficultyBits: number;
+  expiresAt: string;
+}
+
+/**
+ * POST that transparently answers a 428 CHALLENGE_REQUIRED (D36-2): fetch a proof-of-work
+ * challenge, solve it in the browser, and send the same body again with `captcha: { token, solution }`.
+ * Only login / OTP-request endpoints answer 428. `onSolving` lets the form show a short status.
+ */
+export async function postWithChallenge<T>(
+  url: string,
+  body: Record<string, unknown>,
+  onSolving?: (solving: boolean) => void,
+): Promise<ApiResult<T>> {
+  const first = await postJson<T>(url, body);
+  if (first.ok || first.code !== "CHALLENGE_REQUIRED") return first;
+  const ch = await postJson<PowChallenge>("/api/auth/challenge", {});
+  if (!ch.ok) return ch;
+  onSolving?.(true);
+  try {
+    const { solvePowInBrowser } = await import("./pow");
+    const solution = await solvePowInBrowser(ch.data.token, ch.data.difficultyBits);
+    return await postJson<T>(url, { ...body, captcha: { token: ch.data.token, solution } });
+  } catch {
+    return { ok: false, code: "CHALLENGE_REQUIRED", status: 428 };
+  } finally {
+    onSolving?.(false);
+  }
+}
+
 export async function fetchSession(): Promise<SessionDTO | null> {
   try {
     const res = await fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
@@ -55,6 +88,8 @@ const CODE_TO_KEY: Record<string, string> = {
   TWO_FACTOR_REQUIRED: "twoFactorRequired",
   TWO_FACTOR_UNAVAILABLE: "twoFactorUnavailable",
   NO_VENDOR_ACCESS: "noVendorAccess",
+  CHALLENGE_REQUIRED: "challengeRequired",
+  SESSION_REVOKED: "sessionRevoked",
   VALIDATION: "validation",
   FORBIDDEN: "forbidden",
   UNAUTHORIZED: "unauthorized",

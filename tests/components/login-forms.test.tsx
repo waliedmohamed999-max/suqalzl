@@ -81,6 +81,22 @@ describe("CustomerLoginForm", () => {
     await waitFor(() => expect(assign).toHaveBeenCalledWith("/account"));
   });
 
+  it("428 CHALLENGE_REQUIRED: solves the proof-of-work and resends with captcha", async () => {
+    reply("/api/auth/otp/request", { status: 428, body: { error: { code: "CHALLENGE_REQUIRED" } } });
+    reply("/api/auth/challenge", {
+      status: 200,
+      body: { provider: "POW", token: "tok-0123456789", difficultyBits: 4, expiresAt: new Date().toISOString() },
+    });
+    reply("/api/auth/otp/request", { status: 200, body: { ok: true, expiresInSeconds: 300 } });
+    renderWithIntl(<CustomerLoginForm />);
+    fireEvent.change(screen.getByLabelText("رقم الجوال"), { target: { value: "551234567" } });
+    await userEvent.click(screen.getByRole("button", { name: "أرسل رمز التحقق" }));
+    await screen.findByRole("heading", { name: "أدخل الرمز" });
+    const sends = posted("/api/auth/otp/request");
+    expect(sends).toHaveLength(2);
+    expect(sends[1]!.body).toMatchObject({ phone: "+966551234567", captcha: { token: "tok-0123456789" } });
+  });
+
   it("rate limited: shows the countdown from retryAt", async () => {
     reply("/api/auth/otp/request", {
       status: 429,

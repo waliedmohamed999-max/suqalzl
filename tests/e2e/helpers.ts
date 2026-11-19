@@ -40,13 +40,6 @@ export function randomPhone(): string {
   return `+9665${String(Math.floor(Math.random() * 1e8)).padStart(8, "0")}`;
 }
 
-/** Rate limits are per IP (5 OTP/hour): give each test its own client IP (dev server trusts XFF until P7). */
-export async function freshIp(page: Page) {
-  const ip = `10.${rand()}.${rand()}.${rand()}`;
-  await page.context().setExtraHTTPHeaders({ "x-forwarded-for": ip });
-}
-const rand = () => Math.floor(Math.random() * 254) + 1;
-
 async function asSystem<T>(fn: (c: pg.Client) => Promise<T>): Promise<T> {
   const c = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await c.connect();
@@ -64,10 +57,23 @@ async function asSystem<T>(fn: (c: pg.Client) => Promise<T>): Promise<T> {
   }
 }
 
-/** Staff login is limited per e-mail (10 / 15 min): reset it so repeated local runs stay green. */
-export async function resetStaffLoginLimit(email: string) {
+/**
+ * Rate limits (per phone, per e-mail, global SMS budget) persist in rate_limit_buckets; clear them
+ * so repeated local runs stay green. Test database only.
+ */
+export async function resetRateLimits() {
+  await asSystem((c) => c.query("DELETE FROM rate_limit_buckets"));
+}
+
+/** Push a phone over the hourly per-phone threshold so the next OTP request answers 428 (D36-2). */
+export async function exhaustPhoneHour(phone: string, count = 10) {
   await asSystem((c) =>
-    c.query("DELETE FROM rate_limit_buckets WHERE key = $1", [`staff-login:${email.toLowerCase()}`]),
+    c.query(
+      `INSERT INTO rate_limit_buckets (key, count, window_start, expires_at)
+       VALUES ($1, $2, now(), now() + interval '1 hour')
+       ON CONFLICT (key) DO UPDATE SET count = EXCLUDED.count, expires_at = EXCLUDED.expires_at`,
+      [`otp:CUSTOMER_LOGIN:phone:${phone}`, count],
+    ),
   );
 }
 

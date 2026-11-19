@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { freshIp } from "./helpers";
+import { resetRateLimits } from "./helpers";
 
 /** SPEC §10 E2E 6 / tokens.md 12.5: no serious or critical axe violations, Arabic and English. */
 async function audit(page: Page) {
@@ -11,7 +11,7 @@ async function audit(page: Page) {
 
 const PAGES = ["/", "/en", "/login", "/en/login", "/staff/login", "/no-such-page", "/en/no-such-page"];
 
-test.beforeEach(async ({ page }) => freshIp(page));
+test.beforeAll(async () => resetRateLimits());
 
 for (const path of PAGES) {
   test(`axe ${path}`, async ({ page }) => {

@@ -16,8 +16,9 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: process.env.CI ? 1 : 0,
-  timeout: 60_000,
-  expect: { timeout: 15_000 },
+  timeout: 90_000,
+  // next dev compiles routes on first hit (cold API routes can take >15 s on CI-sized machines)
+  expect: { timeout: 30_000 },
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: BASE,

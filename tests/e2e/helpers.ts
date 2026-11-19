@@ -1,5 +1,5 @@
 import { readFileSync, statSync } from "node:fs";
-import { expect, type Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 import pg from "pg";
 
 const LOG = ".e2e/server.log";

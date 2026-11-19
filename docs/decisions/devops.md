@@ -255,7 +255,35 @@
 | **Alert policies** | 5xx فوق 2% لمدة 5 دقائق • p95 latency فوق 1.5 ث • CPU القاعدة فوق 80% أو اتصالاتها فوق 80% من `max_connections` • فشل webhook Moyasar أكتر من 3 مرات في 10 دقائق • **heartbeat الـ cron متأخر أكتر من مرتين قد الفترة** • فشل backup أو verify • ميزانية 80% | الإشعارات بالإيميل + SMS للمالك و devops |
 | **سجل التدقيق** | `AuditLog` في القاعدة (SPEC) + Cloud Audit Logs للبنية | — |
 
-**حدود اتصالات Prisma:** `max_instances × connection_limit + اتصالات الـ jobs` لازم يفضل أقل من 80% من `max_connections`. مثال: 4 instances × 5 اتصالات + 5 = 25. وبنظبط `pool_timeout=10` و `statement_timeout=15s` و `idle_in_transaction_session_timeout=30s`. **الـ timezone:** القاعدة والتطبيق على UTC (SPEC قسم 5)، والعرض بس بيكون بتوقيت `Asia/Riyadh`.
+**ميزانية الاتصالات بالقاعدة (محدّثة 2026-11-19 بعد T10 و P1-01d):**
+
+```
+max_instances × (DB_POOL_MAX + 2)  +  worker_instances × DB_POOL_MAX  +  2
+        ≤ 0.8 × (max_connections − superuser_reserved_connections)
+```
+
+| الحد | المعنى |
+|---|---|
+| `DB_POOL_MAX` | pool الـ `pg` بتاع Prisma في كل instance (افتراضي 5، `DB_POOL_TIMEOUT_MS=10000`). الـ cron بيشتغل جوه نفس الـ instance فبياخد من نفس الـ pool |
+| `+ 2` لكل instance | 1 اتصال `LISTEN` مباشر (`REALTIME_DATABASE_URL`) + 1 احتياطي لأن الـ hub بيفتح الاتصال الجديد قبل ما القديم يتقفل عند الاستبدال |
+| `worker_instances` | لو اتعمل worker منفصل للـ queue لاحقاً (P5)؛ صفر دلوقتي |
+| `+ 2` ثابتة | `prisma migrate deploy` وقت النشر + `pg_dump` بتاع الـ backup |
+| `superuser_reserved_connections` | 3 افتراضياً في Postgres؛ المزود المُدار ممكن يحجز أكتر (يتأكد في P7) |
+
+- مثال: 4 instances × (5 + 2) + 0 + 2 = **30** من حد 0.8 × (100 − 3) = **77**. والاختبارات بس بتستخدم `TEST_DB_POOL_MAX=20`.
+- لو فيه pooler (PgBouncer/Supavisor) قدام `DATABASE_URL`: حد الـ pooler هو اللي بيحكم الـ pool، لكن اتصالات `LISTEN` و `DIRECT_URL` بتعدّي عليه وبتتحسب على Postgres مباشرة، فالمعادلة تفضل صحيحة على Postgres نفسه.
+- التنبيه "اتصالات القاعدة فوق 80%" في الجدول اللي فوق هو نفس الحد ده.
+- وبنظبط `statement_timeout=15s` و `idle_in_transaction_session_timeout=30s` على دور التطبيق. **الـ timezone:** القاعدة والتطبيق على UTC (SPEC قسم 5)، والعرض بس بيكون بتوقيت `Asia/Riyadh`.
+
+**T10 (D34) — موافقة devops بالشروط 1–3 (D36-5):**
+
+| # | الشرط | الحالة (2026-11-19) | الإثبات / التحقق |
+|---|---|---|---|
+| 1 | `REALTIME_DATABASE_URL` إلزامي في staging/prod، اتصال مباشر مش من pooler بوضع transaction، والتطبيق يرفض يشتغل من غيره | **متنفذ** (backend P1-01d) | `.env.example` §2؛ في P7: التشغيل من غيره لازم يفشل، و `SELECT application_name, backend_type FROM pg_stat_activity` يوضح اتصال LISTEN على Postgres مش على الـ pooler |
+| 2 | اكتشاف موت اتصال LISTEN في ≤ 60 ثانية | **متنفذ**: `REALTIME_PING_SECONDS=30` + TCP keepalive بعد 30 ث | P6 (qa-tester): `SELECT pg_terminate_backend(pid)` على اتصال LISTEN ← اتصال جديد خلال 60 ث، والعميل يستكمل بـ `Last-Event-ID` من غير ما يضيع حدث |
+| 3 | تنبيه لما `pg_notification_queue_usage() > 0.1`، وقياسه في اختبار الحمل | **باقي (devops)**: التنبيه في P7-02 مع المراقبة، والقياس في P6 | الاستعلام: `SELECT pg_notification_queue_usage();` كل دقيقة؛ تحذير > 0.1 ولمدة 5 دقايق، حرج > 0.5 |
+
+- مكمّلات T10 من نفس المراجعة اتنفذت في P1-01d: `event: resync` للعميل الأقدم من الاحتفاظ، وإعادة التحقق من الجلسة كل `REALTIME_REVALIDATE_SECONDS=60`، والـ cron lease في `cron_leases` (`CRON_LEASE_SECONDS=120`) بدل advisory lock على مستوى الجلسة (مش آمن مع pooler).
 
 ### 6.5 الـ cron والـ jobs
 
@@ -288,6 +316,20 @@
    - prod (بموافقة يدوية في GitHub Environment): نفس الـ image ← migrate ← نشر revision بـ 0% ترافيك ← smoke على الـ tag URL ← 10% ← 100%.
 3. **Rollback:** نحوّل الترافيك للـ revision السابقة في أقل من دقيقة. الـ migrations بأسلوب expand/contract، يعني ما نحذفش عمود في نفس الـ release اللي بطّلت تستخدمه.
 4. **`release:verify` بعد النشر:** `/api/ready` يرجع 200، الـ commit SHA في `/api/health` مطابق، Sentry release اتسجلت، و webhooks sandbox بتوصل في staging.
+
+
+**الحالة الفعلية للـ CI (P1-03b، 2026-11-19)** — التفاصيل في `docs/runbooks/local-dev.md` §8:
+
+- e2e بيتشغل بس لما Playwright متجهز فعلاً (`test:e2e` + `playwright.config.*` + `@playwright/test` + ملف `*.spec.*`)، وإلا skipped بسبب مكتوب.
+- بوابة `npm audit` على اعتماديات الإنتاج (high/critical) بقائمة استثناءات ليها تاريخ انتهاء (`.github/audit-allowlist.json`، أقصى 120 يوم، والقائمة **فاضية** بعد P1-01d). OSV-Scanner والتقرير الكامل معلوماتيين لحد P6.
+- interop بين `db:migrate:local` و `prisma migrate deploy` في الاتجاهين، و `prisma migrate diff` مقارنة بـ `prisma/migrate-diff.expected.sql` (المرحلة 1 تحذير؛ المرحلة 2 بمتغير المستودع `MIGRATE_DIFF_ENFORCE=true`). `--exit-code` مش بيتستخدم لأن فهارس `prisma/sql/` بتظهر دايماً كفرق.
+- smoke بعد الـ build: `next start` و `/api/health` لازم يرجّع `commit` = `GIT_COMMIT_SHA` (نص `release:verify` اللي بيتعمل في الـ CI).
+
+**قرار نسخة Node (2026-11-19): Node 24 LTS، والمصدر الوحيد `.nvmrc`.**
+- التجربة على نفس الكود (بعد دمج P1-01d): Node 24.22.1 (npm 11.19.1) و Node 22.23.4 (npm 10.9.9): `vitest` 238/238 على الاتنين على Postgres 16، و `next build` ناجح على الاتنين، و `npm ci` بـ npm 11 ما غيّرش `package-lock.json`. مفيش اختلاف يجبرنا على 22.
+- السبب: 24 هو الـ Active LTS، و 22 في Maintenance لحد أبريل 2027، يعني قبل أو حوالين الإطلاق.
+- الـ CI (`node-version-file: .nvmrc`) و compose (`node:24-bookworm-slim`) ماشيين على 24. الاستضافة في P7 لازم تدعم Node 24 (شرط في تقييم O6).
+- مطلوب من backend-engineer: `engines.node` في `package.json` من `>=22.12` لـ `>=24 <25` عشان أي تشغيل على نسخة تانية يبان بدري (`docs/runbooks/notes-for-backend.md` §10).
 
 ---
 

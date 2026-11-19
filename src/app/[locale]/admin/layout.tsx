@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { DashShell } from "@/components/dash/dash-shell";
 import { visibleAdminNavKeys } from "@/components/dash/nav-items";
+import { PreviewBanner, isPreviewMode } from "@/components/ui/preview-banner";
 import { getAdminCapabilities } from "@/features/admin/queries";
 import { requireArea } from "@/lib/auth/guard";
 
@@ -25,7 +26,11 @@ export default async function AdminLayout({
   const principal = await requireArea("admin", locale); // DB-validated session + role (middleware only checks the cookie)
   const caps = await getAdminCapabilities(principal);
   return (
-    <DashShell area="admin" navKeys={visibleAdminNavKeys(caps.sections)}>
+    <DashShell
+      area="admin"
+      navKeys={visibleAdminNavKeys(caps.sections)}
+      banner={isPreviewMode() ? <PreviewBanner /> : undefined}
+    >
       {children}
     </DashShell>
   );

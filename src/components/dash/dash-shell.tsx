@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Logo } from "@/components/store/logo";
 import { StatusBadge } from "@/components/status/status-badge";
 import type { VendorShellDTO } from "@/features/shell/queries";
@@ -16,12 +16,15 @@ export function DashShell({
   area,
   vendor,
   navKeys,
+  banner,
   children,
 }: {
   area: "admin" | "vendor";
   vendor?: VendorShellDTO | null;
   /** sidebar items to show (admin: from the staff capabilities); all when omitted */
   navKeys?: string[];
+  /** sticky strip above everything (PreviewBanner); its height offsets the sticky sidebar */
+  banner?: ReactNode;
   children: ReactNode;
 }) {
   const t = useTranslations(area);
@@ -47,25 +50,31 @@ export function DashShell({
     </>
   );
   return (
-    <div className="flex min-h-dvh">
-      <aside
-        data-surface="inverse"
-        className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto px-3 py-5 lg:flex"
-      >
-        {head}
-        {nav}
-      </aside>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div data-surface="inverse" className="flex h-16 items-center gap-2 px-2 lg:hidden">
-          <DashMobileMenu title={t("title")}>
-            {head}
-            {nav}
-          </DashMobileMenu>
-          <Logo size="sm" />
+    <div
+      className="flex min-h-dvh flex-col"
+      style={banner ? ({ "--banner-h": "2.25rem" } as CSSProperties) : undefined}
+    >
+      {banner}
+      <div className="flex flex-1">
+        <aside
+          data-surface="inverse"
+          className="sticky top-[var(--banner-h,0px)] hidden h-[calc(100dvh-var(--banner-h,0px))] w-60 shrink-0 flex-col overflow-y-auto px-3 py-5 lg:flex"
+        >
+          {head}
+          {nav}
+        </aside>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div data-surface="inverse" className="flex h-16 items-center gap-2 px-2 lg:hidden">
+            <DashMobileMenu title={t("title")}>
+              {head}
+              {nav}
+            </DashMobileMenu>
+            <Logo size="sm" />
+          </div>
+          <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[90rem] flex-1 px-4 py-4 md:px-6">
+            {children}
+          </main>
         </div>
-        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[90rem] flex-1 px-4 py-4 md:px-6">
-          {children}
-        </main>
       </div>
     </div>
   );

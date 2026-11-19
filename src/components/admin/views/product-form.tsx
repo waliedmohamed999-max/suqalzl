@@ -151,7 +151,7 @@ export function ProductForm({
 
       <nav
         aria-label={t("sectionsNav")}
-        className="sticky top-0 z-[var(--z-sticky)] -mx-1 flex gap-1 overflow-x-auto border-b border-border bg-background px-1"
+        className="sticky top-[var(--banner-h,0px)] z-[var(--z-sticky)] -mx-1 flex gap-1 overflow-x-auto border-b border-border bg-background px-1"
       >
         {SECTIONS.map((s) => (
           <a
@@ -307,7 +307,7 @@ export function ProductForm({
             </FormSection>
           </div>
 
-          <aside className="flex min-w-0 flex-[1_1_18rem] flex-col gap-4 lg:sticky lg:top-14 lg:max-w-[21.25rem] lg:pt-6">
+          <aside className="flex min-w-0 flex-[1_1_18rem] flex-col gap-4 lg:sticky lg:top-[calc(var(--banner-h,0px)+3.5rem)] lg:max-w-[21.25rem] lg:pt-6">
             <AdminCard title={t("statusCard")}>
               <Field id="pf-status" label={t("status")} hint={t(`statusHint.${form.status}`)}>
                 <Select

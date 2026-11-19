@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { DashShell } from "@/components/dash/dash-shell";
+import { visibleAdminNavKeys } from "@/components/dash/nav-items";
+import { getAdminCapabilities } from "@/features/admin/queries";
 import { requireArea } from "@/lib/auth/guard";
 
 // Session-dependent: never prerender (a build-time render would bake the login redirect in).
@@ -20,6 +22,11 @@ export default async function AdminLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  await requireArea("admin", locale); // DB-validated session + role (middleware only checks the cookie)
-  return <DashShell area="admin">{children}</DashShell>;
+  const principal = await requireArea("admin", locale); // DB-validated session + role (middleware only checks the cookie)
+  const caps = await getAdminCapabilities(principal);
+  return (
+    <DashShell area="admin" navKeys={visibleAdminNavKeys(caps.sections)}>
+      {children}
+    </DashShell>
+  );
 }

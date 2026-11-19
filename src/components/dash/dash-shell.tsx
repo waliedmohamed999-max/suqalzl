@@ -15,10 +15,13 @@ import { SidebarNav } from "./sidebar-nav";
 export function DashShell({
   area,
   vendor,
+  navKeys,
   children,
 }: {
   area: "admin" | "vendor";
   vendor?: VendorShellDTO | null;
+  /** sidebar items to show (admin: from the staff capabilities); all when omitted */
+  navKeys?: string[];
   children: ReactNode;
 }) {
   const t = useTranslations(area);
@@ -37,7 +40,7 @@ export function DashShell({
   );
   const nav = (
     <>
-      <SidebarNav area={area} />
+      <SidebarNav area={area} visibleKeys={navKeys} />
       <div className="mt-auto pt-4">
         <LogoutButton />
       </div>

@@ -2,7 +2,7 @@
 
 > **المالك:** devops-engineer — **آخر تحديث:** 2026-11-18
 > **النطاق:** التطوير على جهازك فقط. مفيش أي سيرفر أو مزود سحابي (SPEC D12). الاستضافة في P7/P8.
-> **الملفات:** `docker-compose.yml`، `.env.example`، `scripts/dev-setup.sh`، `scripts/dev-db-backup.sh`، `scripts/dev-cron.mjs`، `docker/postgres/init/`، `docker/seaweedfs/s3.json`، `.github/workflows/`.
+> **الملفات:** `docker-compose.yml`، `.env.example`، `scripts/dev-setup.sh`، `scripts/dev-db-backup.sh`، `scripts/preview.sh` (معاينة المالك: [preview-mac.md](preview-mac.md))، `scripts/dev-cron.mjs`، `docker/postgres/init/`، `docker/seaweedfs/s3.json`، `.github/workflows/`.
 
 ## 0. الخلاصة (لو مستعجل)
 

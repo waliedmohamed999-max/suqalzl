@@ -38,3 +38,15 @@ export class RateLimitedError extends Error {
     super("RATE_LIMITED");
   }
 }
+
+/** Current count of a bucket without incrementing it (0 when absent or expired). */
+export async function peekRateLimit(tx: Tx, key: string): Promise<{ count: number; resetAt: Date | null }> {
+  const rows = await tx.$queryRaw<{ count: number; expires_at: Date }[]>`
+    SELECT count, expires_at FROM rate_limit_buckets WHERE key = ${key} AND expires_at > now()`;
+  return { count: rows[0]?.count ?? 0, resetAt: rows[0]?.expires_at ?? null };
+}
+
+/** Reset a failure counter after a success (D36-2: "يتصفّر عند النجاح"). */
+export async function resetRateLimit(tx: Tx, key: string): Promise<void> {
+  await tx.$executeRaw`UPDATE rate_limit_buckets SET count = 0 WHERE key = ${key}`;
+}

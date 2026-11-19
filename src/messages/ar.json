@@ -48,7 +48,9 @@
     "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     "accountBlocked": "الحساب موقوف. تواصل مع الدعم.",
     "loginMethodDisabled": "طريقة الدخول هذه غير مفعّلة.",
-    "twoFactorRequired": "أدخل رمز التحقق المرسل إلى جوالك."
+    "twoFactorRequired": "أدخل رمز التحقق المرسل إلى جوالك.",
+    "challengeRequired": "أكمل التحقق الأمني ثم أعد المحاولة.",
+    "sessionRevoked": "انتهت جلستك. سجّل الدخول من جديد."
   },
   "sms": {
     "otp": "رمز الدخول لسوق الزل: {code}"

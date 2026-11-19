@@ -20,6 +20,11 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export const revalidate = 300;
 
+/** No build-time prerender (no DB at build); each slug is rendered on first request, then ISR. */
+export function generateStaticParams() {
+  return [];
+}
+
 const load = cache(async (slug: string, locale: string) => {
   try {
     return await getBundle(slug, locale === "en" ? "en" : "ar");

@@ -124,6 +124,7 @@ docker compose logs -f app
 | `suqalzl_app` | `DATABASE_URL`: التطبيق | SELECT/INSERT/UPDATE/DELETE بس، **مش مالك و NOBYPASSRLS**، فالـ RLS بيتطبق عليه. `statement_timeout=15s` و `idle_in_transaction_session_timeout=30s` |
 | `postgres` | الـ init والنسخ المحلية | superuser، **التطبيق ما يتصلش بيه أبداً** (الـ superuser بيتخطى RLS) |
 
+- **قاعدة الـ shadow** `suqalzl_shadow` (`SHADOW_DATABASE_URL`): فاضية ومالكها الـ migrator، و Prisma **بيمسح كل اللي فيها** في `prisma migrate diff --from-migrations` و `migrate dev`. دور التطبيق ما يقدرش يتصل بيها. لو الـ volume عندك أقدم من السكربت ده: `docker compose exec postgres createdb -U postgres -O suqalzl_migrator -T template1 suqalzl_shadow`.
 - **الامتدادات** في `template1` و `suqalzl` و `suqalzl_test`: `btree_gist` (exclusion constraint للعروض، backend H6)، `citext` (الإيميل، M14)، `pg_trgm` (مساعد للبحث العربي).
 - **لو غيّرت السكربت أو الباسوردات** في `.env`: السكربت بيشتغل بس على volume فاضي، فلازم `bash scripts/dev-setup.sh --reset`.
 
@@ -171,11 +172,14 @@ bash scripts/dev-db-backup.sh --restore backups/suqalzl-20261118T090000Z.dump
 
 | الملف | الوظائف | قبل P1-01 |
 |---|---|---|
-| `.github/workflows/ci.yml` | `detect` ← `infra` (actionlint، shellcheck، `docker compose config`، فحص إن `.env.example` ما فيهوش أسرار) ← `lint` ← `typecheck` (+ `prisma validate/generate`) ← `unit` (Vitest + Postgres 16 service + نفس سكربت الـ init) ← `build` ← `e2e` (Playwright على نفس `docker-compose.yml`) ← `ci-ok` | `detect` و `infra` بيشتغلوا، والباقي **skipped** مع سبب في الـ summary |
-| `.github/workflows/security.yml` | `gitleaks` (كل الـ history) ← `dependencies` (`npm audit` على الـ production deps + OSV-Scanner) ← `dependency-review` (على الـ PR) ← `security-ok`. وكمان أسبوعياً يوم الأحد | gitleaks بيشتغل، الباقي skipped |
+| `.github/workflows/ci.yml` | `detect` ← `infra` (actionlint، shellcheck، `docker compose config`، فحص إن `.env.example` ما فيهوش أسرار) ← `lint` ← `typecheck` (+ `prisma validate/generate`) ← `unit` (Vitest + Postgres 16 service + نفس سكربت الـ init، وبعده: **interop** بين `db:migrate:local` و `prisma migrate deploy` في الاتجاهين، و **`prisma migrate diff`** مقارنة بـ `prisma/migrate-diff.expected.sql`) ← `build` (+ smoke: `next start` و `/api/health` لازم يرجّع `commit` = `GIT_COMMIT_SHA`) ← `e2e` (Playwright على نفس `docker-compose.yml`، **بيتشغل بس** لما يكون فيه `test:e2e` و `playwright.config.*` و `@playwright/test` وملف `*.spec.*`) ← `ci-ok` | `detect` و `infra` بيشتغلوا، والباقي **skipped** مع سبب في الـ summary |
+| `.github/workflows/security.yml` | `gitleaks` (كل الـ history) ← `dependencies` (بوابة `npm audit` على الـ production deps بقائمة استثناءات ليها تاريخ انتهاء، وتقرير كامل و OSV-Scanner معلوماتيين لحد P6) ← `dependency-review` (على الـ PR) ← `security-ok`. وكمان أسبوعياً يوم الأحد | gitleaks بيشتغل، الباقي skipped |
 | `.github/dependabot.yml` | تحديثات أسبوعية: actions، صور compose (من غير ترقية Postgres الـ major)، npm | — |
 
 - كل job بيتفعّل لوحده لما الـ npm script بتاعه يظهر في `package.json` (الأسماء في `notes-for-backend.md`).
+- **بوابة الـ audit:** أي ثغرة high/critical في اعتماديات الإنتاج بتوقف الـ CI، إلا لو ليها سطر في `.github/audit-allowlist.json` (رقم GHSA + الحزمة + السبب + المسؤول + تاريخ انتهاء ≤ 120 يوم). بعد التاريخ البوابة بتفشل تاني، والسطر اللي ما بقاش له لازمة بيطلع تحذير. التشغيل محلياً: `npm audit --omit=dev --json > /tmp/a.json; node .github/scripts/audit-gate.mjs /tmp/a.json`.
+- **`migrate diff` على مرحلتين:** المرحلة 1 (دلوقتي) أي اختلاف أو ملف ناقص = تحذير، والـ SQL المتولد بيترفع كـ artifact اسمه `migrate-diff-actual`. المرحلة 2: المالك يضيف متغير المستودع `MIGRATE_DIFF_ENFORCE=true` (Settings > Secrets and variables > Actions > Variables) فيبقى إلزامي.
+- **نسخة Node:** `.nvmrc` = 24 هو المصدر الوحيد؛ الـ CI (`node-version-file: .nvmrc`) و compose (`node:24-bookworm-slim`) ماشيين عليه. القرار والتجربة في `docs/decisions/devops.md` §6.6.
 - الـ actions مثبتة بالـ commit SHA، والأدوات (gitleaks، OSV-Scanner) بتتنزل بإصدار محدد وبيتحقق من الـ SHA-256 بتاعها.
 - `permissions: contents: read` بس، ومفيش `pull_request_target`، فالـ PRs من forks ما بتاخدش أسرار.
 - **الـ CI ما بيشتغلش فعلياً غير لما المالك يعمل مستودع GitHub** (`docs/plan.md` P1-03). بعدها: Settings > Branches > حماية `main` بشرط `ci-ok` و `security-ok`.

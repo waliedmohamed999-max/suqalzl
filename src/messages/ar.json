@@ -174,6 +174,54 @@
       "content": "المحتوى",
       "settings": "الإعدادات",
       "audit": "سجل العمليات"
+    },
+    "kit": {
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "discard": "تجاهل",
+      "saveRegion": "حفظ التغييرات",
+      "unsaved": "عندك تغييرات غير محفوظة",
+      "leaveTitle": "تخرج بدون حفظ؟",
+      "leaveBody": "عندك تغييرات ما حُفظت. لو خرجت الآن تضيع.",
+      "leaveConfirm": "خروج بدون حفظ",
+      "typeToConfirm": "اكتب «{text}» للتأكيد",
+      "typeToConfirmHint": "الزر يتفعل بعد مطابقة النص.",
+      "timeline": "سجل الحالة",
+      "system": "النظام",
+      "deltaUp": "ارتفاع عن الفترة السابقة",
+      "deltaDown": "انخفاض عن الفترة السابقة"
+    },
+    "filters": {
+      "label": "البحث والتصفية",
+      "views": "عروض محفوظة",
+      "search": "بحث",
+      "all": "الكل",
+      "clear": "مسح الفلاتر",
+      "searchChip": "بحث: «{q}»",
+      "remove": "إزالة {name}",
+      "results": "{count, plural, zero {لا نتائج} one {نتيجة واحدة} two {نتيجتان} few {# نتائج} many {# نتيجة} other {# نتيجة}}"
+    },
+    "table": {
+      "bulk": "إجراءات جماعية",
+      "selected": "تم تحديد {count}",
+      "clearSelection": "إلغاء التحديد",
+      "selectAll": "تحديد الكل",
+      "selectRow": "تحديد {name}",
+      "actions": "إجراءات",
+      "rowActions": "إجراءات {name}",
+      "showing": "عرض {from}–{to} من {total}",
+      "perPage": "لكل صفحة"
+    },
+    "states": {
+      "forbiddenTitle": "ما عندك صلاحية لهذه الصفحة",
+      "forbiddenBody": "اطلب الصلاحية من مدير الحساب.",
+      "forbiddenBodyPerm": "هذه الصفحة تحتاج صلاحية <perm></perm>. اطلبها من مدير الحساب.",
+      "backHome": "رجوع للرئيسية",
+      "loading": "جارٍ تحميل البيانات",
+      "loadErrorTitle": "تعذّر تحميل البيانات",
+      "loadErrorBody": "صار خلل في الاتصال بالخادم. الفلاتر محفوظة، حاول مرة ثانية.",
+      "noResultsTitle": "لا نتائج مطابقة",
+      "noResultsBody": "جرّب كلمة أقصر أو أزل بعض الفلاتر."
     }
   },
   "vendor": {

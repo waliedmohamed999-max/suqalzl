@@ -7,6 +7,9 @@
  *   BEFORE the URL is issued (the signed Content-Length/Content-Type must match).
  */
 import { env } from "../../env";
+import path from "node:path";
+import { AutoStorageProvider } from "./auto";
+import { LocalStorageProvider } from "./local";
 import { S3StorageProvider } from "./s3";
 
 export type BucketKind = "public" | "private";
@@ -91,21 +94,35 @@ export function objectKey(prefix: string, ext: string): string {
 }
 
 let instance: StorageProvider | undefined;
+/**
+ * STORAGE_PROVIDER: s3 (default) | local | auto (S3 when reachable, local disk otherwise — dev and
+ * the owner preview). Production always uses s3, whatever the variable says.
+ */
 export function storageProvider(): StorageProvider {
   if (instance) return instance;
   const e = env();
-  instance = new S3StorageProvider({
-    endpoint: e.S3_ENDPOINT,
-    publicEndpoint: e.S3_PUBLIC_ENDPOINT ?? e.S3_ENDPOINT,
-    region: e.S3_REGION,
-    forcePathStyle: e.S3_FORCE_PATH_STYLE,
-    accessKeyId: e.S3_ACCESS_KEY_ID,
-    secretAccessKey: e.S3_SECRET_ACCESS_KEY,
-    buckets: { public: e.S3_BUCKET_PUBLIC, private: e.S3_BUCKET_PRIVATE },
-    signedUrlTtlSeconds: e.S3_SIGNED_URL_TTL_SECONDS,
-  });
+  const s3 = () =>
+    new S3StorageProvider({
+      endpoint: e.S3_ENDPOINT,
+      publicEndpoint: e.S3_PUBLIC_ENDPOINT ?? e.S3_ENDPOINT,
+      region: e.S3_REGION,
+      forcePathStyle: e.S3_FORCE_PATH_STYLE,
+      accessKeyId: e.S3_ACCESS_KEY_ID,
+      secretAccessKey: e.S3_SECRET_ACCESS_KEY,
+      buckets: { public: e.S3_BUCKET_PUBLIC, private: e.S3_BUCKET_PRIVATE },
+      signedUrlTtlSeconds: e.S3_SIGNED_URL_TTL_SECONDS,
+    });
+  const kind = e.APP_ENV === "production" || e.NODE_ENV === "production" ? "s3" : e.STORAGE_PROVIDER;
+  const local = () => new LocalStorageProvider(path.resolve(e.LOCAL_STORAGE_DIR));
+  instance =
+    kind === "s3" ? s3() : kind === "local" ? local() : new AutoStorageProvider(e.S3_ENDPOINT ? s3() : null, local());
   return instance;
 }
 export function setStorageProvider(p: StorageProvider | undefined) {
   instance = p;
+}
+
+/** Public URL of a stored public-bucket key (product images, banners). */
+export function mediaUrl(key: string): string {
+  return storageProvider().publicUrl(key);
 }

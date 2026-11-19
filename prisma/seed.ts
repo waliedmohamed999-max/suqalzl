@@ -3,12 +3,15 @@
  * - Runs as the APP role in a `system` RLS context (FORCE RLS applies to the owner too; SPEC §2 DB).
  * - Categories (14), cities (reference data for addresses/zones), SUPER_ADMIN from env, default
  *   settings (O1/O3/O7/O10/O14 values awaiting the owner = finance-zatca proposals, D27, D31).
- * - Existing rows are NOT overwritten (admin edits win). No demo products/orders here (P2 decides).
+ * - Existing rows are NOT overwritten (admin edits win).
+ * - SEED_DEMO=true also runs prisma/seed-demo.ts (M1-01 preview catalogue, customers, orders, STAFF);
+ *   refused in production.
  */
 import "dotenv/config";
 import { hashPassword } from "../src/lib/auth/password";
 import { disconnectDb, withCtx } from "../src/lib/db";
 import { normalizeSaudiMobile } from "../src/lib/phone";
+import { assertDemoAllowed, seedDemo } from "./seed-demo";
 import { DEFAULT_SETTINGS, PENDING_OWNER_KEYS, PUBLIC_SETTING_KEYS, type SettingKey } from "../src/lib/settings";
 
 export const CATEGORIES: { slug: string; nameAr: string; nameEn: string; vendorsAllowed?: boolean }[] = [
@@ -160,7 +163,20 @@ async function main() {
   );
   if (summary.admin === "skipped")
     console.warn("seed: SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWORD not set — no admin created");
+
+  if (demoEnabled) {
+    const d = await seedDemo({ staffPassword: process.env.SEED_DEMO_STAFF_PASSWORD || undefined });
+    console.log(
+      `seed demo: +${d.products} products, +${d.bundles} bundles, +${d.banners} banners, +${d.sections} home sections, ` +
+        `+${d.pages} pages, +${d.customers} customers, +${d.orders} orders, staff ${d.staff} (images: ${d.storage})`,
+    );
+    if (d.staffPassword && !process.env.SEED_DEMO_STAFF_PASSWORD)
+      console.log(`seed demo: STAFF login staff.demo@suqalzl.invalid / ${d.staffPassword} (generated, shown once)`);
+  }
 }
+
+const demoEnabled = ["true", "1"].includes((process.env.SEED_DEMO ?? "").trim().toLowerCase());
+if (demoEnabled) assertDemoAllowed();
 
 main()
   .catch((e) => {

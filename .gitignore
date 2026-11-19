@@ -53,6 +53,7 @@ backups/
 *.sql.gz
 tmp/
 .cache/
+.data/
 
 # --- Python (design tooling) ---------------------------------------------------
 __pycache__/

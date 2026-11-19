@@ -125,3 +125,13 @@ export function DiscountBadge({
     </span>
   );
 }
+
+/**
+ * Whole-percent discount for the badge, from two integer halala amounts (display only: never used
+ * to compute a price). null when there is no real discount or it rounds to 0.
+ */
+export function discountPercent(price: number, compareAt: number | null | undefined): number | null {
+  if (compareAt == null || compareAt <= price || compareAt <= 0) return null;
+  const pct = Math.floor(((compareAt - price) * 100) / compareAt);
+  return pct > 0 ? pct : null;
+}

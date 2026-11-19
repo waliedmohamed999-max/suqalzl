@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreHeader } from "@/components/store/store-header";
 import { WhatsAppFab } from "@/components/store/whatsapp-fab";
+import { PreviewBanner } from "@/components/ui/preview-banner";
 import { getStoreShell } from "@/features/shell/queries";
 
 /**
@@ -21,6 +22,7 @@ export default async function StoreLayout({
   const shell = await getStoreShell(locale);
   return (
     <>
+      <PreviewBanner />
       <StoreHeader categories={shell.categories} whatsappNumber={shell.whatsappNumber} />
       <main id="main" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 md:px-6 lg:px-8">
         {children}

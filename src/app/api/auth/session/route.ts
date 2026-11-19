@@ -17,6 +17,8 @@ export async function GET(req: Request) {
       area: p ? (p.kind === "staff" ? "admin" : p.kind === "vendor" ? "vendor" : "account") : null,
       user: p ? { id: p.userId, role: p.role } : null,
       vendorId: p?.kind === "vendor" ? p.vendorId : null,
+      // D36-3: the UI routes PENDING/REJECTED stores to the application page
+      vendorStatus: p?.kind === "vendor" ? p.vendorStatus : null,
       permissions: p && p.kind !== "customer" ? [...p.permissions] : [],
     });
     return NextResponse.json(body, { headers: noStore });

@@ -339,7 +339,9 @@
     "loginMethodDisabled": "This login method is not enabled.",
     "twoFactorRequired": "Enter the verification code sent to your phone.",
     "twoFactorUnavailable": "Your account has no registered mobile to receive a code. Contact the platform admin.",
-    "noVendorAccess": "Your account is not linked to an active store."
+    "noVendorAccess": "Your account is not linked to an active store.",
+    "challengeRequired": "Complete the security check, then try again.",
+    "sessionRevoked": "Your session has ended. Please log in again."
   },
   "sms": {
     "otp": "Souq AlZal login code: {code}"

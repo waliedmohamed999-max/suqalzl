@@ -24,3 +24,6 @@ env.WHATSAPP_PROVIDER = "console";
 env.PAYMENTS_MODE = "sandbox";
 env.REALTIME_HEARTBEAT_SECONDS = "1";
 env.DB_POOL_MAX = env.TEST_DB_POOL_MAX ?? "20";
+// Tests talk to the route handlers as if behind ONE trusted proxy (QA-B1): the client is the last
+// X-Forwarded-For entry. The production default (0) ignores XFF; tests/unit covers both.
+env.TRUSTED_PROXY_HOPS = "1";

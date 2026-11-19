@@ -118,4 +118,12 @@ export const MIGRATION_PLAN: MigrationStep[] = [
     description: "realtime outbox + publish_event/read_events (P1-00, SPEC 6.8)",
     models: ["RealtimeEvent"],
   },
+  // ---- after the baseline (P1-01d). The generator rewrites 0001-0010 byte-identically; verify with
+  // `git diff --exit-code prisma/migrations/000*` before committing.
+  {
+    name: "0011_session_revocation_cron_leases",
+    description:
+      "QA-B3/B4 session revocation triggers + session.revoked NOTIFY, resync bounds, cron leases + heartbeat (devops P1-5/6)",
+    models: ["CronLease"],
+  },
 ];

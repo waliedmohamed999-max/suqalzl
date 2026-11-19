@@ -14,17 +14,20 @@ import type { Role } from "@/generated/prisma/enums";
 import { audit } from "../audit";
 import { withCtx, type Ctx, type Tx } from "../db";
 import { normalizeSaudiMobile } from "../phone";
+import { captchaProvider, type CaptchaAnswer } from "../providers/captcha";
 import { smsProvider } from "../providers/sms";
 import { getSetting } from "../settings";
+import { sanitizeName } from "../text";
 import { randomToken, sha256 } from "./crypto";
 import { issueOtp, verifyOtp } from "./otp";
 import { verifyPassword } from "./password";
-import { hitRateLimit } from "./rate-limit";
+import { hitRateLimit, peekRateLimit, resetRateLimit } from "./rate-limit";
 import { createSession, resolveSession, type CookieSpec, deviceCookie, sessionCookie } from "./session";
 
 export type AuthErrorCode =
   | "INVALID_PHONE"
   | "RATE_LIMITED"
+  | "CHALLENGE_REQUIRED"
   | "OTP_INVALID"
   | "OTP_EXPIRED"
   | "OTP_LOCKED"
@@ -38,6 +41,8 @@ export type AuthErrorCode =
 const STATUS: Record<AuthErrorCode, number> = {
   INVALID_PHONE: 400,
   RATE_LIMITED: 429,
+  /** D36-2: solve a CaptchaProvider challenge (POST /api/auth/challenge) and resend with `captcha` */
+  CHALLENGE_REQUIRED: 428,
   OTP_INVALID: 400,
   OTP_EXPIRED: 400,
   OTP_LOCKED: 423,
@@ -75,35 +80,91 @@ function phoneOrThrow(raw: string): string {
   return phone;
 }
 
-async function otpRateLimits(tx: Tx, phone: string, ip: string | null, purpose: string) {
+type OtpPurposeKey = "CUSTOMER_LOGIN" | "STAFF_LOGIN" | "STAFF_2FA";
+type Gate = { ok: true } | { ok: false; error: "RATE_LIMITED" | "CHALLENGE_REQUIRED"; retryAt?: Date };
+
+/**
+ * Limits for SENDING an OTP (SPEC §9, D36-2, QA-B1/B2/B5). Order matters: the cheap per-IP refusals
+ * first; the daily/global budgets are only spent by requests that will really send an SMS.
+ *   1. phone + IP (strict, per hour)                 -> RATE_LIMITED for that IP only
+ *   2. IP across phones (per hour)                   -> RATE_LIMITED
+ *   3. phone alone (per hour, any IP)                -> CHALLENGE_REQUIRED unless `captcha` is valid
+ *      (for STAFF_2FA there is no challenge step: the limit is hard, QA-B2)
+ *   4. phone per day (absolute, cost)                -> RATE_LIMITED
+ * IP-keyed steps are skipped when the IP is unknown (TRUSTED_PROXY_HOPS = 0, QA-B1).
+ * The global SMS budget is spent separately by spendSmsBudget() right before issuing.
+ */
+async function otpRequestGate(
+  tx: Tx,
+  input: { phone: string; ip: string | null; purpose: OtpPurposeKey; captcha?: CaptchaAnswer | null },
+): Promise<Gate> {
   const cfg = await getSetting(tx, "otp");
-  const byPhone = await hitRateLimit(tx, `otp:${purpose}:phone:${phone}`, cfg.perPhonePerHour, 3600);
-  const byIp = ip ? await hitRateLimit(tx, `otp:ip:${ip}`, cfg.perIpPerHour, 3600) : null;
-  if (!byPhone.allowed) return { ok: false as const, retryAt: byPhone.resetAt, cfg };
-  if (byIp && !byIp.allowed) return { ok: false as const, retryAt: byIp.resetAt, cfg };
-  return { ok: true as const, cfg };
+  const { phone, ip, purpose } = input;
+  if (ip) {
+    const strict = await hitRateLimit(tx, `otp:${purpose}:phone-ip:${phone}:${ip}`, cfg.perPhonePerHour, 3600);
+    if (!strict.allowed) return { ok: false, error: "RATE_LIMITED", retryAt: strict.resetAt };
+    const byIp = await hitRateLimit(tx, `otp:ip:${ip}`, cfg.perIpPerHour, 3600);
+    if (!byIp.allowed) return { ok: false, error: "RATE_LIMITED", retryAt: byIp.resetAt };
+  }
+  const hourLimit = purpose === "STAFF_2FA" ? cfg.perPhonePerHour : cfg.challengeAfterPerPhonePerHour;
+  const byPhone = await hitRateLimit(tx, `otp:${purpose}:phone:${phone}`, hourLimit, 3600);
+  if (!byPhone.allowed) {
+    if (purpose === "STAFF_2FA") return { ok: false, error: "RATE_LIMITED", retryAt: byPhone.resetAt };
+    if (byPhone.count === hourLimit + 1) await securityAlert(tx, "security.otp_challenge_threshold", null, ip, purpose);
+    if (!(await captchaProvider().verify(tx, input.captcha))) return { ok: false, error: "CHALLENGE_REQUIRED" };
+  }
+  const day = await hitRateLimit(tx, `otp:phone-day:${phone}`, cfg.perPhonePerDay, 24 * 3600);
+  if (!day.allowed) return { ok: false, error: "RATE_LIMITED", retryAt: day.resetAt };
+  return { ok: true };
+}
+
+/** QA-B1: platform-wide SMS budget per hour. Exceeding it is an incident: logged for alerting. */
+async function spendSmsBudget(tx: Tx, audience: "customer" | "staff"): Promise<Gate> {
+  const cfg = await getSetting(tx, "smsBudget");
+  const limit = audience === "customer" ? cfg.customerPerHour : cfg.staffPerHour;
+  const r = await hitRateLimit(tx, `sms:global:${audience}`, limit, 3600);
+  if (r.allowed) return { ok: true };
+  if (r.count === limit + 1) console.error(`[security] global SMS budget (${audience}) exhausted for this hour`);
+  return { ok: false, error: "RATE_LIMITED", retryAt: r.resetAt };
+}
+
+/** D36-2 (و): crossing an identity-wide threshold is logged as a security alert (no phone/e-mail in it). */
+async function securityAlert(tx: Tx, action: string, userId: string | null, ip: string | null, channel: string) {
+  await audit(tx, SYS("auth.security-alert"), {
+    action,
+    entity: "User",
+    entityId: userId,
+    after: { channel },
+    ip,
+  });
 }
 
 // ============================================================================ customers
 
 /** POST /api/auth/otp/request — same answer whether the phone has an account or not. */
-export async function requestCustomerOtp(input: { phone: string; locale: "ar" | "en" }, meta: RequestMeta) {
+export async function requestCustomerOtp(
+  input: { phone: string; locale: "ar" | "en"; captcha?: CaptchaAnswer },
+  meta: RequestMeta,
+) {
   const phone = phoneOrThrow(input.phone);
   const issued = await withCtx(SYS("auth.customer-otp.request"), async (tx) => {
-    const rl = await otpRateLimits(tx, phone, meta.ip, "CUSTOMER_LOGIN");
-    if (!rl.ok) return { limited: rl.retryAt } as const;
+    const gate = await otpRequestGate(tx, { phone, ip: meta.ip, purpose: "CUSTOMER_LOGIN", captcha: input.captcha });
+    if (!gate.ok) return gate;
+    const budget = await spendSmsBudget(tx, "customer");
+    if (!budget.ok) return budget;
+    const cfg = await getSetting(tx, "otp");
     const user = await tx.user.findUnique({ where: { phone }, select: { id: true } });
     const otp = await issueOtp(tx, {
       phone,
       purpose: "CUSTOMER_LOGIN",
       userId: user?.id ?? null,
       ip: meta.ip,
-      ttlSeconds: rl.cfg.ttlSeconds,
-      maxAttempts: rl.cfg.maxAttempts,
+      ttlSeconds: cfg.ttlSeconds,
+      maxAttempts: cfg.maxAttempts,
     });
-    return { otp, ttlSeconds: rl.cfg.ttlSeconds } as const;
+    return { ok: true as const, otp, ttlSeconds: cfg.ttlSeconds };
   });
-  if ("limited" in issued) throw new AuthError("RATE_LIMITED", issued.limited);
+  if (!issued.ok) throw new AuthError(issued.error, issued.retryAt);
   // After COMMIT (SPEC §9): never call a provider inside withCtx.
   await smsProvider().send({ to: phone, templateKey: "otp", vars: { code: issued.otp.code }, locale: input.locale });
   return { expiresInSeconds: issued.ttlSeconds };
@@ -129,7 +190,7 @@ export async function verifyCustomerOtp(
         data: {
           phone,
           phoneVerifiedAt: new Date(),
-          name: input.name?.trim().slice(0, 80) || "",
+          name: sanitizeName(input.name), // QA-B10 (the input schema cleans too: defence in depth)
           role: "CUSTOMER",
           locale: input.locale,
         },
@@ -164,12 +225,11 @@ interface StaffUser {
 async function resolveScope(tx: Tx, user: StaffUser, wantedVendorId?: string) {
   if (STAFF_ROLES.includes(user.role)) return { scope: "STAFF" as const, vendorId: null };
   if (!VENDOR_ROLES.includes(user.role)) return null;
-  const owned = await tx.vendor.findMany({
-    where: { ownerUserId: user.id, status: { not: "REJECTED" } },
-    select: { id: true },
-  });
+  // All statuses can log in (D36-3: a REJECTED owner reads the reason and resubmits); permissions per
+  // status are enforced by can()/requirePermission. Members of a non-approved store get nothing there.
+  const owned = await tx.vendor.findMany({ where: { ownerUserId: user.id }, select: { id: true } });
   const member = await tx.vendorMember.findMany({
-    where: { userId: user.id, isActive: true, vendor: { status: { not: "REJECTED" } } },
+    where: { userId: user.id, isActive: true },
     select: { vendorId: true },
   });
   const ids = [...owned.map((v) => v.id), ...member.map((m) => m.vendorId)];
@@ -208,6 +268,13 @@ async function openStaffSession(
   const trusted = twoFactorOn ? await trustedDeviceValid(tx, user.id, opts.deviceToken) : true;
   const needs2fa = twoFactorOn && !trusted;
   if (needs2fa && !user.phone) return { error: "TWO_FACTOR_UNAVAILABLE" as const };
+  if (needs2fa) {
+    // QA-B2: the 2FA SMS is under the same per-phone/IP/day limits and the staff SMS budget.
+    const gate = await otpRequestGate(tx, { phone: user.phone!, ip: meta.ip, purpose: "STAFF_2FA" });
+    if (!gate.ok) return { error: gate.error, retryAt: gate.retryAt };
+    const budget = await spendSmsBudget(tx, "staff");
+    if (!budget.ok) return { error: budget.error, retryAt: budget.retryAt };
+  }
   const session = await createSession(tx, {
     userId: user.id,
     scope: scope.scope,
@@ -256,20 +323,36 @@ async function finishStaffLogin(
   };
 }
 
-/** POST /api/auth/staff/login (staffLoginMethod = PASSWORD). */
+/**
+ * POST /api/auth/staff/login (staffLoginMethod = PASSWORD). Anti lock-out (D36-2, QA-B5): only FAILED
+ * attempts are counted, and nothing ever locks the account itself:
+ *   (a) e-mail + IP, strict: refuses that IP for the window; reset by a success;
+ *   (b) e-mail alone, higher: asks untrusted devices for a challenge (a valid trusted device of THIS
+ *       user skips (b) but never (a)); crossing it is a security alert in audit_logs;
+ *   (c) IP alone across e-mails (spraying).
+ * The password is verified (dummy hash for unknown e-mails) before any decision: same answers and
+ * timing for existing and unknown accounts.
+ */
 export async function staffPasswordLogin(
-  input: { email: string; password: string; vendorId?: string; deviceToken?: string | null },
+  input: { email: string; password: string; vendorId?: string; deviceToken?: string | null; captcha?: CaptchaAnswer },
   meta: RequestMeta,
 ): Promise<StaffLoginResult> {
   const email = input.email.trim().toLowerCase();
   const r = await withCtx(SYS("auth.staff-login.password"), async (tx) => {
     if ((await getSetting(tx, "staffLoginMethod")) !== "PASSWORD") return { error: "LOGIN_METHOD_DISABLED" as const };
     const cfg = await getSetting(tx, "staffLoginRateLimit");
-    const rl = await hitRateLimit(tx, `staff-login:${email}`, cfg.max, cfg.windowMinutes * 60);
-    const rlIp = meta.ip
-      ? await hitRateLimit(tx, `staff-login-ip:${meta.ip}`, cfg.max * 3, cfg.windowMinutes * 60)
-      : null;
-    if (!rl.allowed || (rlIp && !rlIp.allowed)) return { error: "RATE_LIMITED" as const, retryAt: rl.resetAt };
+    const strictKey = meta.ip ? `login-fail:email-ip:${email}:${meta.ip}` : null;
+    const idKey = `login-fail:email:${email}`;
+    const ipKey = meta.ip ? `login-fail:ip:${meta.ip}` : null;
+
+    if (strictKey) {
+      const strict = await peekRateLimit(tx, strictKey);
+      if (strict.count >= cfg.max) return { error: "RATE_LIMITED" as const, retryAt: strict.resetAt ?? undefined };
+    }
+    if (ipKey) {
+      const byIp = await peekRateLimit(tx, ipKey);
+      if (byIp.count >= cfg.ipMax) return { error: "RATE_LIMITED" as const, retryAt: byIp.resetAt ?? undefined };
+    }
 
     const user = await tx.user.findUnique({
       where: { email },
@@ -277,7 +360,22 @@ export async function staffPasswordLogin(
     });
     // verifyPassword runs even for unknown e-mails (dummy hash): no timing oracle.
     const ok = await verifyPassword(input.password, user?.passwordHash);
-    if (!user || !ok) return { error: "INVALID_CREDENTIALS" as const };
+
+    if ((await peekRateLimit(tx, idKey)).count >= cfg.challengeAfter) {
+      const trusted = user ? await trustedDeviceValid(tx, user.id, input.deviceToken) : false;
+      if (!trusted && !(await captchaProvider().verify(tx, input.captcha)))
+        return { error: "CHALLENGE_REQUIRED" as const };
+    }
+
+    if (!user || !ok) {
+      if (strictKey) await hitRateLimit(tx, strictKey, cfg.max, cfg.windowMinutes * 60);
+      if (ipKey) await hitRateLimit(tx, ipKey, cfg.ipMax, cfg.windowMinutes * 60);
+      const id = await hitRateLimit(tx, idKey, cfg.challengeAfter, cfg.challengeWindowMinutes * 60);
+      if (id.count === cfg.challengeAfter)
+        await securityAlert(tx, "security.login_challenge_threshold", user?.id ?? null, meta.ip, "password");
+      return { error: "INVALID_CREDENTIALS" as const };
+    }
+    if (strictKey) await resetRateLimit(tx, strictKey);
     if (user.status !== "ACTIVE" || user.deletedAt) return { error: "ACCOUNT_BLOCKED" as const };
     const scope = await resolveScope(tx, user, input.vendorId);
     if (!scope)
@@ -293,24 +391,28 @@ export async function staffPasswordLogin(
 }
 
 /** POST /api/auth/staff/otp/request (staffLoginMethod = PHONE_OTP). Silent for unknown phones. */
-export async function requestStaffLoginOtp(input: { phone: string }, meta: RequestMeta) {
+export async function requestStaffLoginOtp(input: { phone: string; captcha?: CaptchaAnswer }, meta: RequestMeta) {
   const phone = phoneOrThrow(input.phone);
   const r = await withCtx(SYS("auth.staff-otp.request"), async (tx) => {
     if ((await getSetting(tx, "staffLoginMethod")) !== "PHONE_OTP") return { error: "LOGIN_METHOD_DISABLED" as const };
-    const rl = await otpRateLimits(tx, phone, meta.ip, "STAFF_LOGIN");
-    if (!rl.ok) return { error: "RATE_LIMITED" as const, retryAt: rl.retryAt };
+    const gate = await otpRequestGate(tx, { phone, ip: meta.ip, purpose: "STAFF_LOGIN", captcha: input.captcha });
+    if (!gate.ok) return { error: gate.error, retryAt: gate.retryAt };
+    const cfg = await getSetting(tx, "otp");
     const user = await tx.user.findUnique({ where: { phone }, select: { id: true, role: true, status: true } });
     const eligible = user && user.status === "ACTIVE" && [...STAFF_ROLES, ...VENDOR_ROLES].includes(user.role);
-    if (!eligible) return { sms: null, ttlSeconds: rl.cfg.ttlSeconds };
+    if (!eligible) return { sms: null, ttlSeconds: cfg.ttlSeconds };
+    // budget only for SMS really sent (random unknown phones cannot drain the staff budget)
+    // same silent answer as an unknown phone when the budget is exhausted (no account oracle)
+    if (!(await spendSmsBudget(tx, "staff")).ok) return { sms: null, ttlSeconds: cfg.ttlSeconds };
     const otp = await issueOtp(tx, {
       phone,
       purpose: "STAFF_LOGIN",
       userId: user.id,
       ip: meta.ip,
-      ttlSeconds: rl.cfg.ttlSeconds,
-      maxAttempts: rl.cfg.maxAttempts,
+      ttlSeconds: cfg.ttlSeconds,
+      maxAttempts: cfg.maxAttempts,
     });
-    return { sms: { to: phone, code: otp.code }, ttlSeconds: rl.cfg.ttlSeconds };
+    return { sms: { to: phone, code: otp.code }, ttlSeconds: cfg.ttlSeconds };
   });
   if ("error" in r) throw new AuthError(r.error!, "retryAt" in r ? r.retryAt : undefined);
   if (r.sms) await smsProvider().send({ to: r.sms.to, templateKey: "otp", vars: { code: r.sms.code }, locale: "ar" });

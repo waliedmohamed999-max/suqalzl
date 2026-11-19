@@ -7,7 +7,7 @@ export const AUTO_A = 190_000;
 export const FLOOR_B = 140_000;
 export const AUTO_B = 185_000;
 
-const ALL_TABLES = `realtime_events, moderation_flags, price_locks, price_offers, negotiation_threads,
+const ALL_TABLES = `cron_leases, realtime_events, moderation_flags, price_locks, price_offers, negotiation_threads,
   price_request_recipients, price_requests, variant_negotiation_settings, negotiation_settings,
   deal_redemptions, deal_variants, deals, price_history, vendor_purchase_invoices, wallet_transactions,
   payouts, payout_batches, shipment_events, shipments, shipping_zone_cities, shipping_zones,

@@ -9,5 +9,9 @@ export interface RealtimeProvider {
   subscribe(topics: string[], onMessage: (m: RealtimeMessage) => void, onResync?: () => void): Promise<() => void>;
   /** Missed messages after lastEventId, for the given (already authorized) topics. */
   replay(topics: string[], afterId: bigint): Promise<RealtimeMessage[]>;
-  stats(): { subscribers: number; topics: number; connected: boolean; reconnects: number };
+  /** Oldest retained id and last id handed out: a Last-Event-ID below the window gets `event: resync`. */
+  bounds(): Promise<{ minId: bigint | null; headId: bigint }>;
+  /** D36-1: cb fires once the session is revoked (internal control message after COMMIT). */
+  onSessionRevoked(sessionId: string, cb: () => void): Promise<() => void>;
+  stats(): { subscribers: number; topics: number; sessions: number; connected: boolean; reconnects: number };
 }

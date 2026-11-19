@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  type ColumnDef,
-  type RowData,
-} from "@tanstack/react-table";
+import { flexRender, getCoreRowModel, useReactTable, type ColumnDef, type RowData } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -107,7 +101,9 @@ export function DataTable<T>({
                     <th
                       key={h.id}
                       scope="col"
-                      aria-sort={key ? (dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none") : undefined}
+                      aria-sort={
+                        key ? (dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none") : undefined
+                      }
                       className={cn(
                         "border-b border-border text-xs font-semibold whitespace-nowrap text-muted-foreground",
                         cell,

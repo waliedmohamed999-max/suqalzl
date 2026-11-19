@@ -6,9 +6,7 @@
  */
 import type { SessionDTO } from "./schema";
 
-export type ApiResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; code: string; retryAt?: string; status: number };
+export type ApiResult<T> = { ok: true; data: T } | { ok: false; code: string; retryAt?: string; status: number };
 
 export async function postJson<T>(url: string, body: unknown): Promise<ApiResult<T>> {
   let res: Response;
@@ -73,7 +71,10 @@ export function errorMessageKey(code: string): string {
 export function safeNext(next: string | null | undefined, allowedPrefixes?: string[]): string | null {
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return null;
   if (/[\u0000-\u001f]/.test(next)) return null;
-  if (allowedPrefixes && !allowedPrefixes.some((p) => next === p || next.startsWith(`${p}/`) || next.startsWith(`${p}?`)))
+  if (
+    allowedPrefixes &&
+    !allowedPrefixes.some((p) => next === p || next.startsWith(`${p}/`) || next.startsWith(`${p}?`))
+  )
     return null;
   return next;
 }

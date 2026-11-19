@@ -22,7 +22,7 @@ export function Checkbox({
         <CheckboxPrimitive.Root
           id={id}
           aria-describedby={hint ? `${id}-hint` : undefined}
-          className="peer inline-flex size-5 shrink-0 items-center justify-center rounded-sm border-2 border-neutral bg-card text-primary-foreground data-[state=checked]:border-primary data-[state=checked]:bg-primary disabled:cursor-not-allowed disabled:bg-muted"
+          className="peer inline-flex size-5 shrink-0 items-center justify-center rounded-sm border-2 border-neutral bg-card text-primary-foreground disabled:cursor-not-allowed disabled:bg-muted data-[state=checked]:border-primary data-[state=checked]:bg-primary"
           {...props}
         >
           <CheckboxPrimitive.Indicator>

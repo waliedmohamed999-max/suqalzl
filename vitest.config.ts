@@ -11,6 +11,9 @@ const alias = { "@": path.resolve(import.meta.dirname, "src") };
 export default defineConfig({
   resolve: { alias },
   test: {
+    // DB tests share one database: run files one at a time (tests inside a file may run concurrently).
+    // A root-only option in Vitest 3, so it also applies to the (fast) ui project.
+    fileParallelism: false,
     projects: [
       {
         resolve: { alias },
@@ -20,8 +23,6 @@ export default defineConfig({
           include: ["tests/unit/**/*.test.ts", "tests/db/**/*.test.ts"],
           setupFiles: ["tests/setup-env.ts"],
           globalSetup: ["tests/global-setup.ts"],
-          // DB tests share one database: run files one at a time (tests inside a file may run concurrently).
-          fileParallelism: false,
           testTimeout: 60_000,
           hookTimeout: 240_000,
         },

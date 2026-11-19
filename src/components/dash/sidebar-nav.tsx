@@ -32,7 +32,10 @@ export function SidebarNav({ area }: { area: "admin" | "vendor" }) {
                     : "border-transparent text-sidebar-foreground hover:bg-card",
                 )}
               >
-                <Icon aria-hidden="true" className={cn("size-5 shrink-0", active ? "text-gold" : "text-muted-foreground")} />
+                <Icon
+                  aria-hidden="true"
+                  className={cn("size-5 shrink-0", active ? "text-gold" : "text-muted-foreground")}
+                />
                 <span className="flex-1">{t(key)}</span>
               </Link>
             </li>

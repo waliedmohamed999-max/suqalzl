@@ -23,7 +23,10 @@ beforeEach(() => {
     vi.fn(async (url: string, init?: RequestInit) => {
       calls.push({ url, body: init?.body ? JSON.parse(String(init.body)) : undefined });
       const r = replies[url]?.shift() ?? { status: 200, body: { authenticated: false, requires2fa: false } };
-      return new Response(JSON.stringify(r.body), { status: r.status, headers: { "content-type": "application/json" } });
+      return new Response(JSON.stringify(r.body), {
+        status: r.status,
+        headers: { "content-type": "application/json" },
+      });
     }),
   );
   Object.defineProperty(window, "location", { configurable: true, value: { ...window.location, assign } });

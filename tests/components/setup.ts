@@ -24,14 +24,22 @@ vi.mock("next/navigation", () => ({
 }));
 
 declare global {
-  // eslint-disable-next-line no-var
   var __searchParams: string | undefined;
 }
 
 // jsdom lacks these; Radix and sonner touch them.
 if (!window.matchMedia)
   window.matchMedia = (q: string) =>
-    ({ matches: false, media: q, onchange: null, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {}, dispatchEvent: () => false }) as MediaQueryList;
+    ({
+      matches: false,
+      media: q,
+      onchange: null,
+      addListener() {},
+      removeListener() {},
+      addEventListener() {},
+      removeEventListener() {},
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
 window.requestAnimationFrame ??= (cb: FrameRequestCallback) => window.setTimeout(() => cb(performance.now()), 0);
 globalThis.ResizeObserver ??= class {
   observe() {}

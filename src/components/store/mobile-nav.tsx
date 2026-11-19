@@ -1,6 +1,20 @@
 "use client";
 
-import { ChevronLeft, Heart, Inbox, MapPin, Menu, MessageCircle, RefreshCw, ShoppingBag, Store, Truck, Undo2, Zap, Info } from "lucide-react";
+import {
+  ChevronLeft,
+  Heart,
+  Inbox,
+  MapPin,
+  Menu,
+  MessageCircle,
+  RefreshCw,
+  ShoppingBag,
+  Store,
+  Truck,
+  Undo2,
+  Zap,
+  Info,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +71,13 @@ export function MobileNav({
           <Menu aria-hidden="true" />
         </Button>
       </DialogTrigger>
-      <DialogContent side="start" title={tn("menu")} hideTitle closeLabel={tn("closeMenu")} headerStart={<Logo size="sm" />}>
+      <DialogContent
+        side="start"
+        title={tn("menu")}
+        hideTitle
+        closeLabel={tn("closeMenu")}
+        headerStart={<Logo size="sm" />}
+      >
         <div className="flex flex-col gap-5 p-4">
           {loggedIn ? (
             <div className="flex items-center gap-3 rounded-md bg-muted p-4">
@@ -169,7 +189,17 @@ function Item({ href, label, icon }: { href: string; label: string; icon?: React
   );
 }
 
-function LangLink({ target, current, pathname, label }: { target: "ar" | "en"; current: string; pathname: string; label: string }) {
+function LangLink({
+  target,
+  current,
+  pathname,
+  label,
+}: {
+  target: "ar" | "en";
+  current: string;
+  pathname: string;
+  label: string;
+}) {
   const active = target === current;
   return (
     <Link

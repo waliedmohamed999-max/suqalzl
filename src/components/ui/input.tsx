@@ -53,7 +53,7 @@ export function PhoneInput({ className, prefix = "+966", ...props }: PhoneInputP
   return (
     <div
       className={cn(
-        "flex h-13 w-full items-stretch overflow-hidden rounded-md border border-input bg-card has-[input[aria-invalid=true]]:border-danger has-[input[aria-invalid=true]]:shadow-[0_0_0_1px_var(--danger)] has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-ring",
+        "flex h-13 w-full items-stretch overflow-hidden rounded-md border border-input bg-card has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-ring has-[input[aria-invalid=true]]:border-danger has-[input[aria-invalid=true]]:shadow-[0_0_0_1px_var(--danger)]",
         className,
       )}
     >

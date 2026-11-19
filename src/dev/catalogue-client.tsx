@@ -44,10 +44,17 @@ const demoSchema = z.object({
 export function FormDemo() {
   const ts = useTranslations("auth.staff");
   const tc = useTranslations("auth.customer");
-  const form = useForm<z.infer<typeof demoSchema>>({ resolver: zodResolver(demoSchema), defaultValues: { email: "", phone: "" } });
+  const form = useForm<z.infer<typeof demoSchema>>({
+    resolver: zodResolver(demoSchema),
+    defaultValues: { email: "", phone: "" },
+  });
   const tr = (k: string) => (k === "emailInvalid" ? ts("emailInvalid") : tc("phoneInvalid"));
   return (
-    <form noValidate onSubmit={form.handleSubmit(() => toast.success(ts("submit")))} className="flex max-w-md flex-col gap-4">
+    <form
+      noValidate
+      onSubmit={form.handleSubmit(() => toast.success(ts("submit")))}
+      className="flex max-w-md flex-col gap-4"
+    >
       <FormField
         control={form.control}
         name="email"
@@ -104,17 +111,46 @@ export function TableDemo({ rows }: { rows: OrderRow[] }) {
   const tc = useTranslations("common");
   const ta = useTranslations("admin.nav");
   const columns: ColumnDef<OrderRow, unknown>[] = [
-    { header: "#", accessorKey: "number", meta: { numeric: true, sortKey: "number" }, cell: (c) => <bdi dir="ltr">{`SZ-${c.getValue<number>()}`}</bdi> },
+    {
+      header: "#",
+      accessorKey: "number",
+      meta: { numeric: true, sortKey: "number" },
+      cell: (c) => <bdi dir="ltr">{`SZ-${c.getValue<number>()}`}</bdi>,
+    },
     { header: ta("customers"), accessorKey: "customer" },
-    { header: ta("orders"), accessorKey: "status", cell: (c) => <StatusBadge entity="subOrder" status={c.row.original.status} size="sm" /> },
-    { header: ta("finance"), accessorKey: "totalHalalas", meta: { numeric: true, sortKey: "total" }, cell: (c) => <Money halalas={c.getValue<number>()} /> },
+    {
+      header: ta("orders"),
+      accessorKey: "status",
+      cell: (c) => <StatusBadge entity="subOrder" status={c.row.original.status} size="sm" />,
+    },
+    {
+      header: ta("finance"),
+      accessorKey: "totalHalalas",
+      meta: { numeric: true, sortKey: "total" },
+      cell: (c) => <Money halalas={c.getValue<number>()} />,
+    },
   ];
   const empty = <EmptyState title={tt("empty")} action={<Button>{tc("retry")}</Button>} />;
   return (
     <div className="flex flex-col gap-8">
-      <DataTable caption={ta("orders")} columns={columns} data={rows} getRowId={(r) => r.id} empty={empty} pagination={{ page: 1, pageSize: 5, total: 23 }} dense />
+      <DataTable
+        caption={ta("orders")}
+        columns={columns}
+        data={rows}
+        getRowId={(r) => r.id}
+        empty={empty}
+        pagination={{ page: 1, pageSize: 5, total: 23 }}
+        dense
+      />
       <DataTable caption={ta("orders")} columns={columns} data={[]} getRowId={(r) => r.id} empty={empty} />
-      <DataTable caption={ta("orders")} columns={columns} data={[]} getRowId={(r) => r.id} empty={empty} status="loading" />
+      <DataTable
+        caption={ta("orders")}
+        columns={columns}
+        data={[]}
+        getRowId={(r) => r.id}
+        empty={empty}
+        status="loading"
+      />
     </div>
   );
 }

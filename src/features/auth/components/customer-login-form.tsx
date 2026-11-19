@@ -185,14 +185,20 @@ export function CustomerLoginForm({ next }: { next?: string | null }) {
           aria-invalid={codeError?.code === "OTP_INVALID" || undefined}
           aria-describedby={codeError?.code === "OTP_INVALID" ? "otp-error" : "otp-hint"}
         />
-        {codeError?.code === "OTP_INVALID" ? <FieldError id="otp-error">{te(errorMessageKey(codeError.code) as never)}</FieldError> : null}
+        {codeError?.code === "OTP_INVALID" ? (
+          <FieldError id="otp-error">{te(errorMessageKey(codeError.code) as never)}</FieldError>
+        ) : null}
       </div>
       {codeError && codeError.code !== "OTP_INVALID" ? (
         <AuthErrorBanner
           code={codeError.code}
           retryAt={codeError.retryAt}
           title={
-            codeError.code === "OTP_EXPIRED" ? t("expiredTitle") : codeError.code === "OTP_LOCKED" ? t("lockedTitle") : undefined
+            codeError.code === "OTP_EXPIRED"
+              ? t("expiredTitle")
+              : codeError.code === "OTP_LOCKED"
+                ? t("lockedTitle")
+                : undefined
           }
         />
       ) : null}
@@ -202,7 +208,13 @@ export function CustomerLoginForm({ next }: { next?: string | null }) {
           {verifying ? t("verifying") : t("verify")}
         </Button>
       )}
-      <Button variant={blocking ? "primary" : "ghost"} size={blocking ? "lg" : "md"} full onClick={resend} loading={resending}>
+      <Button
+        variant={blocking ? "primary" : "ghost"}
+        size={blocking ? "lg" : "md"}
+        full
+        onClick={resend}
+        loading={resending}
+      >
         <RefreshCw aria-hidden="true" />
         {t("resend")}
       </Button>

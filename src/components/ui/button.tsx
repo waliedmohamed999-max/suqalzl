@@ -70,7 +70,9 @@ export function Button({
           <Loader2 className="animate-spin" />
         </span>
       ) : null}
-      <Slottable>{loading ? <span className="inline-flex items-center gap-2 opacity-0">{children}</span> : children}</Slottable>
+      <Slottable>
+        {loading ? <span className="inline-flex items-center gap-2 opacity-0">{children}</span> : children}
+      </Slottable>
     </Comp>
   );
 }

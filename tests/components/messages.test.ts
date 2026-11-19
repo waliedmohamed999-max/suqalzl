@@ -12,6 +12,8 @@ describe("messages (CLAUDE.md rule 6)", () => {
     expect(keys(en).sort()).toEqual(keys(ar).sort());
   });
   it("no empty strings", () => {
-    for (const m of [ar, en]) for (const k of keys(m)) expect(k.split(".").reduce<any>((o, p) => o[p], m), k).not.toBe(""); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const get = (o: unknown, path: string) =>
+      path.split(".").reduce<unknown>((acc, p) => (acc as Record<string, unknown>)[p], o);
+    for (const m of [ar, en]) for (const k of keys(m)) expect(get(m, k), k).not.toBe("");
   });
 });

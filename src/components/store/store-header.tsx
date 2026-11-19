@@ -28,7 +28,9 @@ export function StoreHeader({
 
   return (
     <div data-surface="inverse-strong" className="relative z-[var(--z-header)]">
-      <p className="hidden bg-inverse px-8 py-2 text-center text-sm text-foreground-secondary lg:block">{ts("topStrip")}</p>
+      <p className="hidden bg-inverse px-8 py-2 text-center text-sm text-foreground-secondary lg:block">
+        {ts("topStrip")}
+      </p>
       <header className="px-2 lg:px-8">
         <div className="mx-auto flex min-h-14 max-w-7xl items-center gap-1 lg:min-h-19 lg:gap-6">
           <MobileNav categories={categories} whatsappNumber={whatsappNumber} />

@@ -23,15 +23,7 @@ function currencyUnit(locale: MoneyLocale): { text: string; isSign: boolean } {
  *  en: <bdi dir=ltr><span …>SIGN</span>&nbsp;<bdi dir=ltr>1,250.00</bdi></bdi>
  * The sign sits LEFT of the number in both languages, same size and colour, never mirrored.
  */
-export function Money({
-  halalas,
-  compact,
-  className,
-}: {
-  halalas: number;
-  compact?: boolean;
-  className?: string;
-}) {
+export function Money({ halalas, compact, className }: { halalas: number; compact?: boolean; className?: string }) {
   const locale = useLocale() as MoneyLocale;
   const t = useTranslations("price");
   const { amount } = formatSARParts(halalas, { locale, compact });
@@ -87,11 +79,13 @@ export function Price({ halalas, compareAt, size = "md", variant = "default", cl
         className,
       )}
     >
-      {variant === "locked" ? (
-        <Lock aria-label={t("locked")} role="img" className="size-4 self-center" />
-      ) : null}
+      {variant === "locked" ? <Lock aria-label={t("locked")} role="img" className="size-4 self-center" /> : null}
       {variant === "range" ? <span className={SIZES[size]}>{t("from")}</span> : null}
-      <Money halalas={halalas} compact={variant === "compact"} className={cn(SIZES[size], showCompare && "text-danger")} />
+      <Money
+        halalas={halalas}
+        compact={variant === "compact"}
+        className={cn(SIZES[size], showCompare && "text-danger")}
+      />
       {showCompare ? (
         <s className="price-old">
           <span className="sr-only">{t("before")} </span>

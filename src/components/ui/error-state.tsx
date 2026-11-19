@@ -41,7 +41,9 @@ export function ErrorState({
         aria-hidden="true"
         className={cn(
           "inline-flex size-16 items-center justify-center rounded-full",
-          variant === "offline" || variant === "expired" ? "bg-warning-subtle text-warning" : "bg-danger-subtle text-danger",
+          variant === "offline" || variant === "expired"
+            ? "bg-warning-subtle text-warning"
+            : "bg-danger-subtle text-danger",
         )}
       >
         <Icon className="size-7" />

@@ -36,7 +36,11 @@ function LoginView({ next }: { next: string | null }) {
   return (
     <>
       <header data-surface="inverse-strong" className="flex items-center gap-1 px-2 py-1.5 lg:px-8">
-        <Link href="/" aria-label={tc("back")} className="inline-flex size-11 items-center justify-center rounded-md lg:hidden">
+        <Link
+          href="/"
+          aria-label={tc("back")}
+          className="inline-flex size-11 items-center justify-center rounded-md lg:hidden"
+        >
           <ChevronLeft aria-hidden="true" data-directional="" className="size-6" />
         </Link>
         <span className="flex-1 text-base font-semibold lg:hidden">{t("loginTitle")}</span>
@@ -44,7 +48,11 @@ function LoginView({ next }: { next: string | null }) {
           <Logo />
         </div>
       </header>
-      <main id="main" tabIndex={-1} className="flex flex-1 flex-col lg:items-center lg:justify-center lg:bg-muted lg:px-8 lg:py-14">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="flex flex-1 flex-col lg:items-center lg:justify-center lg:bg-muted lg:px-8 lg:py-14"
+      >
         <div className="flex flex-1 flex-col lg:grid lg:w-full lg:max-w-5xl lg:flex-none lg:grid-cols-2 lg:overflow-hidden lg:rounded-lg lg:border lg:border-border lg:bg-card">
           <div data-surface="inverse" className="flex flex-col items-start gap-3 px-6 py-8 lg:justify-center lg:p-12">
             <div className="lg:hidden">

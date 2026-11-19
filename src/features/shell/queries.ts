@@ -67,7 +67,11 @@ export async function getStoreShell(locale: string): Promise<StoreShellDTO> {
     return {
       categories: null,
       whatsappNumber: null,
-      storeInfo: { name: locale === "en" ? DEFAULT_SETTINGS.storeInfo.nameEn : DEFAULT_SETTINGS.storeInfo.nameAr, crNumber: null, vatNumber: null },
+      storeInfo: {
+        name: locale === "en" ? DEFAULT_SETTINGS.storeInfo.nameEn : DEFAULT_SETTINGS.storeInfo.nameAr,
+        crNumber: null,
+        vatNumber: null,
+      },
     };
   }
 }

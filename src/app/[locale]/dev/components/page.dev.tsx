@@ -36,15 +36,19 @@ export default async function ComponentsCatalogue({ params }: { params: Promise<
 
   return (
     <main id="main" className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-8 md:px-8">
-      <h1 dir="ltr" className="text-3xl font-bold rtl:text-end">/dev/components</h1>
+      <h1 dir="ltr" className="text-3xl font-bold rtl:text-end">
+        /dev/components
+      </h1>
 
       <Section name="Button">
         <div className="flex flex-wrap items-center gap-3">
-          {(["primary", "gold", "secondary", "outline", "ghost", "bargain", "destructive", "link"] as const).map((v) => (
-            <Button key={v} variant={v}>
-              {t("auth.customer.sendCode")}
-            </Button>
-          ))}
+          {(["primary", "gold", "secondary", "outline", "ghost", "bargain", "destructive", "link"] as const).map(
+            (v) => (
+              <Button key={v} variant={v}>
+                {t("auth.customer.sendCode")}
+              </Button>
+            ),
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Button size="lg">{t("auth.staff.submit")}</Button>
@@ -150,8 +154,16 @@ export default async function ComponentsCatalogue({ params }: { params: Promise<
             <Card key={v}>
               <ErrorState
                 variant={v}
-                title={t(v === "offline" ? "states.offlineTitle" : v === "expired" ? "states.expiredTitle" : "states.errorTitle")}
-                body={t(v === "offline" ? "states.offlineBody" : v === "expired" ? "states.expiredBody" : "states.errorBody")}
+                title={t(
+                  v === "offline"
+                    ? "states.offlineTitle"
+                    : v === "expired"
+                      ? "states.expiredTitle"
+                      : "states.errorTitle",
+                )}
+                body={t(
+                  v === "offline" ? "states.offlineBody" : v === "expired" ? "states.expiredBody" : "states.errorBody",
+                )}
                 action={<Button variant="outline">{t("common.retry")}</Button>}
               />
             </Card>

@@ -15,6 +15,10 @@ const SHAPES = {
  * Skeleton (tokens.md 11.1): flat `muted` block, aria-hidden. The pulse stops under
  * prefers-reduced-motion (global rule). Put aria-busy on the container that is loading.
  */
-export function Skeleton({ shape = "text", className, ...props }: ComponentProps<"div"> & { shape?: keyof typeof SHAPES }) {
+export function Skeleton({
+  shape = "text",
+  className,
+  ...props
+}: ComponentProps<"div"> & { shape?: keyof typeof SHAPES }) {
   return <div aria-hidden="true" className={cn("animate-pulse bg-muted", SHAPES[shape], className)} {...props} />;
 }

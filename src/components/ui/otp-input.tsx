@@ -6,8 +6,10 @@ import { cn } from "@/lib/utils";
 
 export const OTP_LENGTH = 6;
 
-export interface OtpInputProps
-  extends Omit<ComponentProps<"input">, "value" | "onChange" | "maxLength" | "type" | "children"> {
+export interface OtpInputProps extends Omit<
+  ComponentProps<"input">,
+  "value" | "onChange" | "maxLength" | "type" | "children"
+> {
   value: string;
   onValueChange: (value: string) => void;
   /** Called once the 6th digit is entered (paste and SMS autofill included). */

@@ -65,7 +65,10 @@ const config = [
         "error",
         {
           patterns: [
-            { group: ["@/dev/*", "**/dev/zod-sample", "**/dev/fixtures"], message: "D30: sample data is for tests and *.dev.tsx only." },
+            {
+              group: ["@/dev/*", "**/dev/zod-sample", "**/dev/fixtures"],
+              message: "D30: sample data is for tests and *.dev.tsx only.",
+            },
             { group: ["@supabase/*"], message: "D12: the app must stay hosting-independent (no @supabase/*)." },
             { group: ["@google-cloud/*"], message: "D12: put provider SDKs behind src/lib/providers/* adapters." },
           ],

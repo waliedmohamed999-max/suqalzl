@@ -45,7 +45,10 @@ export function DashShell({
   );
   return (
     <div className="flex min-h-dvh">
-      <aside data-surface="inverse" className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto px-3 py-5 lg:flex">
+      <aside
+        data-surface="inverse"
+        className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto px-3 py-5 lg:flex"
+      >
         {head}
         {nav}
       </aside>

@@ -36,8 +36,7 @@ const contentVariants = cva(
 );
 
 export interface DialogContentProps
-  extends Omit<ComponentProps<typeof DialogPrimitive.Content>, "title">,
-    VariantProps<typeof contentVariants> {
+  extends Omit<ComponentProps<typeof DialogPrimitive.Content>, "title">, VariantProps<typeof contentVariants> {
   /** Accessible name (rendered as the visible title). */
   title: ReactNode;
   /** Visible description, or sr-only when `hideDescription`. */

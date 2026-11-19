@@ -22,7 +22,11 @@ export function AuthErrorBanner({
   const tc = useTranslations("auth.customer");
   const left = useCountdown(retryAt);
   return (
-    <Callout tone={code === "RATE_LIMITED" || code === "OTP_EXPIRED" ? "warning" : "danger"} title={title ?? te(errorMessageKey(code) as never)} action={action}>
+    <Callout
+      tone={code === "RATE_LIMITED" || code === "OTP_EXPIRED" ? "warning" : "danger"}
+      title={title ?? te(errorMessageKey(code) as never)}
+      action={action}
+    >
       {title ? te(errorMessageKey(code) as never) : null}
       {code === "RATE_LIMITED" && left > 0 ? (
         <p>

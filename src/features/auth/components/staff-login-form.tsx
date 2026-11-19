@@ -15,7 +15,10 @@ import { errorMessageKey, fetchSession, postJson, safeNext } from "../client";
 import { AuthErrorBanner } from "./auth-error";
 
 const loginSchema = z.object({
-  email: z.string().trim().pipe(z.email({ message: "emailInvalid" })),
+  email: z
+    .string()
+    .trim()
+    .pipe(z.email({ message: "emailInvalid" })),
   password: z.string().min(1, { message: "passwordRequired" }),
 });
 type LoginForm = z.infer<typeof loginSchema>;
@@ -92,7 +95,15 @@ export function StaffLoginForm({ next }: { next?: string | null }) {
         label={t("emailLabel")}
         translateError={(k) => t(k as never)}
         render={({ field, a11y }) => (
-          <Input {...field} {...a11y} type="email" autoComplete="username" inputMode="email" dir="ltr" className="rtl:text-end" />
+          <Input
+            {...field}
+            {...a11y}
+            type="email"
+            autoComplete="username"
+            inputMode="email"
+            dir="ltr"
+            className="rtl:text-end"
+          />
         )}
       />
       <FormField
@@ -117,7 +128,11 @@ export function StaffLoginForm({ next }: { next?: string | null }) {
               aria-pressed={showPassword}
               className="absolute end-0 top-0 inline-flex size-11 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
             >
-              {showPassword ? <EyeOff aria-hidden="true" className="size-5" /> : <Eye aria-hidden="true" className="size-5" />}
+              {showPassword ? (
+                <EyeOff aria-hidden="true" className="size-5" />
+              ) : (
+                <Eye aria-hidden="true" className="size-5" />
+              )}
             </button>
           </div>
         )}
@@ -148,7 +163,10 @@ function TwoFactorStep({ next, onRestart }: { next?: string | null; onRestart: (
     if (value.length !== OTP_LENGTH || busy) return;
     setBusy(true);
     setError(null);
-    const r = await postJson<{ ok: true; area: Area }>("/api/auth/staff/2fa/verify", { code: value, rememberDevice: remember });
+    const r = await postJson<{ ok: true; area: Area }>("/api/auth/staff/2fa/verify", {
+      code: value,
+      rememberDevice: remember,
+    });
     if (r.ok) {
       window.location.assign(destination(r.data.area, next));
       return;
@@ -199,9 +217,7 @@ function TwoFactorStep({ next, onRestart }: { next?: string | null; onRestart: (
         hint={t("rememberDeviceHint")}
         disabled={busy}
       />
-      {error && error.code !== "OTP_INVALID" ? (
-        <AuthErrorBanner code={error.code} retryAt={error.retryAt} />
-      ) : null}
+      {error && error.code !== "OTP_INVALID" ? <AuthErrorBanner code={error.code} retryAt={error.retryAt} /> : null}
       {dead ? (
         <>
           <p className="text-sm text-muted-foreground">{t("twoFactorExpiredBody")}</p>

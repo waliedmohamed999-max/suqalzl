@@ -20,7 +20,7 @@ describe("Button", () => {
   it("asChild renders the child element (links) with button styles", () => {
     render(
       <Button asChild variant="outline">
-        <a href="/x">رابط</a>
+        <a href="https://example.com/x">رابط</a>
       </Button>,
     );
     const a = screen.getByRole("link", { name: "رابط" });

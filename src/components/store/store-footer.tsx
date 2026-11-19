@@ -16,7 +16,10 @@ export function StoreFooter({ storeInfo, categories }: Pick<StoreShellDTO, "stor
   const tn = useTranslations("nav");
 
   const cols: { title: string; links: { href: string; label: string }[] }[] = [
-    { title: t("colShop"), links: (categories ?? []).slice(0, 5).map((c) => ({ href: `/c/${c.slug}`, label: c.name })) },
+    {
+      title: t("colShop"),
+      links: (categories ?? []).slice(0, 5).map((c) => ({ href: `/c/${c.slug}`, label: c.name })),
+    },
     {
       title: t("colSouq"),
       links: [
@@ -67,7 +70,10 @@ export function StoreFooter({ storeInfo, categories }: Pick<StoreShellDTO, "stor
                 <ul className="grid grid-cols-2 gap-x-4 lg:grid-cols-1">
                   {c.links.map((l) => (
                     <li key={l.href}>
-                      <Link href={l.href} className="flex min-h-11 items-center text-sm text-foreground-secondary hover:text-foreground">
+                      <Link
+                        href={l.href}
+                        className="flex min-h-11 items-center text-sm text-foreground-secondary hover:text-foreground"
+                      >
                         {l.label}
                       </Link>
                     </li>
@@ -84,7 +90,11 @@ export function StoreFooter({ storeInfo, categories }: Pick<StoreShellDTO, "stor
           </p>
           <ul aria-label={t("paymentMethods")} className="flex flex-wrap gap-1.5">
             {PAYMENTS.map((p) => (
-              <li key={p} dir="auto" className="rounded-sm border border-border px-2.5 py-1 text-xs text-foreground-secondary">
+              <li
+                key={p}
+                dir="auto"
+                className="rounded-sm border border-border px-2.5 py-1 text-xs text-foreground-secondary"
+              >
                 {tp(p)}
               </li>
             ))}

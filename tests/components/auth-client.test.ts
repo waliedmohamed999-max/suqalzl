@@ -26,9 +26,23 @@ describe("safeNext (open-redirect guard)", () => {
 describe("errorMessageKey", () => {
   it("maps every backend AuthErrorCode to an existing errors.* message", () => {
     const codes = [
-      "INVALID_PHONE", "RATE_LIMITED", "OTP_INVALID", "OTP_EXPIRED", "OTP_LOCKED", "INVALID_CREDENTIALS",
-      "ACCOUNT_BLOCKED", "LOGIN_METHOD_DISABLED", "TWO_FACTOR_REQUIRED", "TWO_FACTOR_UNAVAILABLE", "NO_VENDOR_ACCESS",
-      "VALIDATION", "FORBIDDEN", "UNAUTHORIZED", "NETWORK", "INTERNAL", "SOMETHING_NEW",
+      "INVALID_PHONE",
+      "RATE_LIMITED",
+      "OTP_INVALID",
+      "OTP_EXPIRED",
+      "OTP_LOCKED",
+      "INVALID_CREDENTIALS",
+      "ACCOUNT_BLOCKED",
+      "LOGIN_METHOD_DISABLED",
+      "TWO_FACTOR_REQUIRED",
+      "TWO_FACTOR_UNAVAILABLE",
+      "NO_VENDOR_ACCESS",
+      "VALIDATION",
+      "FORBIDDEN",
+      "UNAUTHORIZED",
+      "NETWORK",
+      "INTERNAL",
+      "SOMETHING_NEW",
     ];
     for (const c of codes) expect((ar.errors as Record<string, string>)[errorMessageKey(c)], c).toBeTruthy();
   });

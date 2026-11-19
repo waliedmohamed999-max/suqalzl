@@ -26,7 +26,7 @@ export function HomeHero({ banners }: { banners: HeroBannerVM[] }) {
   if (!first) return null;
   const title = first.title ?? t("heroFallbackTitle");
   return (
-    <section aria-labelledby="hero-title" data-surface="inverse" className="-mx-4 md:-mx-6 lg:-mx-8">
+    <section aria-labelledby="hero-title" data-surface="inverse" className="-mx-4 first:-mt-6 md:-mx-6 lg:-mx-8">
       <div className="mx-auto grid max-w-7xl items-center gap-4 px-4 py-6 md:px-6 lg:min-h-[480px] lg:grid-cols-2 lg:gap-12 lg:px-8 lg:py-12">
         <div className="order-2 flex flex-col gap-4 lg:order-1 lg:gap-5">
           <Ornament className="hidden lg:flex" />

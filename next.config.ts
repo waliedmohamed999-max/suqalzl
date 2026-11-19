@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
   // SSE must not be gzip-buffered (SPEC §2 Realtime, P1-00).
   compress: false,
   poweredByHeader: false,
+  // M1-04 owner preview runs `next dev` and is opened from a phone on the same Wi-Fi by the Mac's
+  // LAN IP: allow private-network origins for dev assets/HMR (dev server only; no effect on builds).
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.16.*.*", "*.local"],
   reactStrictMode: true,
   serverExternalPackages: ["pg", "@prisma/adapter-pg", "nodemailer"],
   typescript: { ignoreBuildErrors: false },

@@ -55,7 +55,7 @@ export default async function BundlePage({ params }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <Breadcrumbs items={[{ name: b.name, href: `/bundles/${b.slug}` }]} locale={locale} />
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
         <ProductImage image={b.image} sizes="(min-width: 1024px) 600px, 100vw" priority className="lg:rounded-lg" />
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">

@@ -46,7 +46,7 @@ export default async function PolicyPage({ params }: Props) {
   return (
     <div className="flex flex-col gap-5">
       <Breadcrumbs items={[{ name: page.title, href: `/pages/${page.slug}` }]} locale={locale} />
-      <div className="grid items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
         <nav aria-label={t("otherPages")} className="order-2 lg:sticky lg:top-4 lg:order-1">
           <h2 className="mb-2 text-sm font-bold text-muted-foreground">{t("otherPages")}</h2>
           <ul className="flex flex-col">

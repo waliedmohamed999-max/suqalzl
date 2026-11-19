@@ -33,7 +33,7 @@ export function ProductCard({
   const href = `/p/${product.slug}`;
   const pct = discountPercent(product.price, product.compareAt);
   return (
-    <article className="flex min-w-0 flex-col gap-2.5">
+    <article className="flex w-full min-w-0 flex-col gap-2.5">
       <div className="relative">
         <Link href={href} tabIndex={-1} aria-hidden="true">
           <ProductImage image={product.image} sizes={PRODUCT_CARD_SIZES} priority={priority} />

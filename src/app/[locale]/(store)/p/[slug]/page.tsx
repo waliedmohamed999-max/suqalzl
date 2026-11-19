@@ -84,7 +84,7 @@ export default async function ProductPage({ params }: Props) {
   return (
     <div className="flex flex-col gap-6 lg:gap-10">
       <Breadcrumbs items={crumbs} locale={locale} />
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-14">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-14">
         <div className="-mx-4 md:-mx-6 lg:mx-0">
           <ProductGallery images={p.images} name={p.name} />
         </div>

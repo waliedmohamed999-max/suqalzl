@@ -188,9 +188,12 @@ export function parseProductListParams(
     page: int("page"),
     perPage: int("perPage"),
   };
-  const clean = Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== undefined));
-  const r = productListInput.safeParse(clean);
-  return r.success ? r.data : productListInput.parse({ locale: raw.locale, category: raw.category });
+  // each value is checked on its own: one bad parameter never resets the others
+  const shape = productListInput.shape as Record<string, z.ZodType>;
+  const clean = Object.fromEntries(
+    Object.entries(raw).filter(([k, v]) => v !== undefined && shape[k]!.safeParse(v).success),
+  );
+  return productListInput.parse(clean);
 }
 
 // ------------------------------------------------------------------ product page (/p/[slug])

@@ -293,6 +293,13 @@ export async function saveProduct(
       // SKUs must be free (or already this product's)
       const ownVariantIds = new Set(before?.variants.map((v) => v.id) ?? []);
       for (const v of input.variants) if (v.id && !ownVariantIds.has(v.id)) throw new NotFoundError();
+      // a row without id whose SKU is already one of this product's variants IS that variant
+      const ownBySku = new Map(before?.variants.map((v) => [v.sku, v.id]) ?? []);
+      for (const v of input.variants) if (!v.id && ownBySku.has(v.sku)) v.id = ownBySku.get(v.sku);
+      if (
+        new Set(input.variants.filter((v) => v.id).map((v) => v.id)).size !== input.variants.filter((v) => v.id).length
+      )
+        throw new CatalogAdminError("SKU_TAKEN");
       const clash = await tx.productVariant.findMany({
         where: { sku: { in: input.variants.map((v) => v.sku) }, ...(id ? { productId: { not: id } } : {}) },
         select: { sku: true },

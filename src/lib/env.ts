@@ -36,7 +36,8 @@ const schema = z.object({
   FIELD_ENCRYPTION_KEY_ID: z.string().default("v1"),
   FIELD_ENCRYPTION_PREVIOUS_KEYS: optional,
 
-  STORAGE_PROVIDER: z.enum(["s3"]).default("s3"),
+  STORAGE_PROVIDER: z.enum(["s3", "local", "auto"]).default("s3"),
+  LOCAL_STORAGE_DIR: z.string().default(".data/storage"),
   S3_ENDPOINT: optional,
   S3_PUBLIC_ENDPOINT: optional,
   S3_REGION: z.string().default("us-east-1"),

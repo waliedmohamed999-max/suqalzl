@@ -16,7 +16,10 @@ export default defineConfig({
     fileParallelism: false,
     projects: [
       {
-        resolve: { alias },
+        // "server-only" throws outside the React server runtime; service modules import it.
+        resolve: {
+          alias: { ...alias, "server-only": path.resolve(import.meta.dirname, "tests/stubs/server-only.ts") },
+        },
         test: {
           name: "node",
           environment: "node",

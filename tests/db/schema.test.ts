@@ -97,6 +97,7 @@ describe("schema drift: database == prisma/schema.prisma", () => {
       "0009_security_hardening",
       "0010_realtime_outbox",
       "0011_session_revocation_cron_leases",
+      "0012_catalog_search",
     ]);
     for (const row of r.rows) {
       expect(row.finished_at).not.toBeNull();

@@ -329,8 +329,9 @@ jobs:
             if [ "$ENFORCE" = true ]; then exit 1; fi
             exit 0
           }
-          # Strip trailing spaces, CRLF and trailing blank lines so only real SQL counts.
-          norm() { sed -e 's/\r$//' -e 's/[[:space:]]*$//' "$1" | sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}'; }
+          # Compare SQL only: drop CRLF, trailing spaces, `--` comment lines and blank
+          # lines (the expected file carries a review header; Prisma adds `-- DropIndex`).
+          norm() { sed -e 's/\r$//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*--/d' -e '/^$/d' "$1"; }
 
           if ! grep -q 'shadowDatabaseUrl' prisma.config.ts; then
             finish "prisma.config.ts has no datasource.shadowDatabaseUrl yet (backend-engineer: shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL)"
@@ -348,6 +349,8 @@ jobs:
           fi
           if diff -u <(norm "$expected") <(norm "$actual"); then
             echo "migrate diff: matches $expected" | tee -a "$GITHUB_STEP_SUMMARY"
+          elif diff -q <(norm "$expected" | sort) <(norm "$actual" | sort) >/dev/null; then
+            finish "same statements as $expected but in a different order: replace the file with the artifact 'migrate-diff-actual' (no drift)"
           else
             finish "generated SQL differs from $expected (diff above). Either a migration is missing for a schema.prisma change, or the expected file must be updated in the same PR"
           fi

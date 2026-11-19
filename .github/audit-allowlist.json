@@ -1,26 +1,4 @@
 {
-  "$comment": "npm audit allowlist for production dependencies (security.yml -> .github/scripts/audit-gate.mjs). Each entry silences ONE advisory (GHSA id) for ONE package until `expires` (max 120 days ahead). After that date the gate fails again. Add an entry only with a reason (why it is not exploitable here or why there is no fix) and an owner who removes it. Runtime libraries with a fix available (e.g. nodemailer) are never allowlisted: upgrade them. Owner of this file: devops-engineer; approvals in docs/reviews/devops-p1-01.md.",
-  "entries": [
-    {
-      "id": "GHSA-6g55-p6wh-862q",
-      "package": "postcss",
-      "reason": "postcss 8.4.31 is pinned inside next@15.5.29 and runs only at build time on our own CSS (no user-supplied CSS is parsed at runtime). Fix: override next>postcss to 8.5.33 or move to Next 16.",
-      "owner": "backend-engineer",
-      "expires": "2026-12-31"
-    },
-    {
-      "id": "GHSA-r28c-9q8g-f849",
-      "package": "postcss",
-      "reason": "Same as GHSA-6g55-p6wh-862q: build-time only, inside next@15.5.29.",
-      "owner": "backend-engineer",
-      "expires": "2026-12-31"
-    },
-    {
-      "id": "GHSA-fc5q-39xc-vjpf",
-      "package": "picomatch",
-      "reason": "ReDoS in glob matching; reached only through build/dev tooling (@sentry/nextjs rollup plugin, @parcel/watcher) with our own patterns, never with request input. No fixed version at review time.",
-      "owner": "backend-engineer",
-      "expires": "2026-12-31"
-    }
-  ]
+  "$comment": "npm audit allowlist for production dependencies (security.yml -> .github/scripts/audit-gate.mjs). Each entry silences ONE advisory (GHSA id) for ONE package until `expires` (max 120 days ahead). After that date the gate fails again. Add an entry only with a reason (why it is not exploitable here or why there is no fix) and an owner who removes it. Runtime libraries with a fix available (e.g. nodemailer) are never allowlisted: upgrade them. Owner of this file: devops-engineer; approvals in docs/reviews/devops-p1-01.md. History: 2026-11-18 postcss GHSA-6g55-p6wh-862q + GHSA-r28c-9q8g-f849 and picomatch GHSA-fc5q-39xc-vjpf were allowlisted; removed 2026-11-19 after backend P1-01d (nodemailer 10.6.0, overrides next>postcss 8.5.33): npm audit --omit=dev reports 0 high/critical.",
+  "entries": []
 }

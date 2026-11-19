@@ -10,10 +10,11 @@ import { ADMIN_NAV, VENDOR_NAV } from "./nav-items";
  * (border-s, mirrors in LTR) + aria-current="page". Rendered inside data-surface="inverse".
  * Icons are imported here (client module), so the server shell only passes the area name.
  */
-export function SidebarNav({ area }: { area: "admin" | "vendor" }) {
+export function SidebarNav({ area, visibleKeys }: { area: "admin" | "vendor"; visibleKeys?: string[] }) {
   const t = useTranslations(`${area}.nav`);
   const pathname = usePathname();
-  const items = area === "admin" ? ADMIN_NAV : VENDOR_NAV;
+  const all = area === "admin" ? ADMIN_NAV : VENDOR_NAV;
+  const items = visibleKeys ? all.filter((i) => visibleKeys.includes(i.key)) : all;
   const root = `/${area}`;
   return (
     <nav aria-label={t("label")}>

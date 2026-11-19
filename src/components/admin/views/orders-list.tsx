@@ -11,21 +11,11 @@ import type { AdminOrderListDTO } from "@/features/admin/schema";
 import { Link } from "@/i18n/navigation";
 import { AdminDataTable } from "../admin-data-table";
 import { FilterBar } from "../filter-bar";
+import { ORDER_PAYMENT_FILTER, ORDER_PERIODS, ORDER_VIEWS } from "../list-params";
 import { PageHeader } from "../page-header";
 import { RowMenu } from "../row-menu";
 
 type Row = AdminOrderListDTO["items"][number];
-
-export const ORDER_VIEWS = [
-  "PAID",
-  "PROCESSING",
-  "PENDING_PAYMENT",
-  "COMPLETED",
-  "CANCELLED",
-  "PAID_NEEDS_REVIEW",
-] as const;
-export const ORDER_PERIODS = ["7d", "30d", "90d"] as const;
-const PAYMENT_FILTER = ["PAID", "INITIATED", "FAILED", "PARTIALLY_REFUNDED", "REFUNDED"] as const;
 
 /** /admin/orders (AdminOrders-desktop board), read only in M1. */
 export function OrdersListView({ list, filtered }: { list: AdminOrderListDTO; filtered: boolean }) {
@@ -43,7 +33,7 @@ export function OrdersListView({ list, filtered }: { list: AdminOrderListDTO; fi
         header: t("colOrder"),
         meta: { card: "title" },
         cell: ({ row: { original: o } }) => (
-          <Link href={`/admin/orders/${o.id}`} className="font-bold text-foreground hover:underline">
+          <Link href={`/admin/orders/${o.number}`} className="font-bold text-foreground hover:underline">
             <bdi dir="ltr">{o.number}</bdi>
           </Link>
         ),
@@ -105,7 +95,7 @@ export function OrdersListView({ list, filtered }: { list: AdminOrderListDTO; fi
           {
             param: "payment",
             label: t("colPayment"),
-            options: PAYMENT_FILTER.map((s) => ({ value: s, label: tsp(s) })),
+            options: ORDER_PAYMENT_FILTER.map((s) => ({ value: s, label: tsp(s) })),
           },
           {
             param: "period",
@@ -127,7 +117,7 @@ export function OrdersListView({ list, filtered }: { list: AdminOrderListDTO; fi
           <RowMenu
             label={t("rowActions", { number: o.number })}
             items={[
-              { kind: "link", label: t("open"), href: `/admin/orders/${o.id}` },
+              { kind: "link", label: t("open"), href: `/admin/orders/${o.number}` },
               { kind: "link", label: t("customer"), href: `/admin/customers/${o.customer.id}` },
             ]}
           />

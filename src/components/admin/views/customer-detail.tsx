@@ -63,7 +63,7 @@ export function CustomerDetailView({ customer: c }: { customer: AdminCustomerDet
                   {c.recentOrders.map((o) => (
                     <tr key={o.id} className="border-t border-border">
                       <th scope="row" className="py-2 text-start font-semibold">
-                        <Link href={`/admin/orders/${o.id}`} className="underline">
+                        <Link href={`/admin/orders/${o.number}`} className="underline">
                           <bdi dir="ltr">{o.number}</bdi>
                         </Link>
                       </th>

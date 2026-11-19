@@ -16,6 +16,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { PAGE_SIZES } from "./list-params";
 import { SelectBox } from "./select-box";
 import { useUrlState } from "./url-state";
 
@@ -41,8 +42,6 @@ export interface BulkAction {
   onSelect: (ids: string[]) => void;
   destructive?: boolean;
 }
-
-export const PAGE_SIZES = [25, 50, 100] as const;
 
 export interface AdminDataTableProps<T> {
   columns: ColumnDef<T, unknown>[];
@@ -409,13 +408,4 @@ function PageLink({ href, disabled, children }: { href: string; disabled: boolea
       {children}
     </Link>
   );
-}
-
-/** Parse ?page / ?per for a list page (server side). */
-export function parsePaging(sp: Record<string, string | string[] | undefined>): { page: number; pageSize: number } {
-  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-  const page = Math.max(1, Number.parseInt(one(sp.page) ?? "1", 10) || 1);
-  const perRaw = Number.parseInt(one(sp.per) ?? "", 10);
-  const pageSize = (PAGE_SIZES as readonly number[]).includes(perRaw) ? perRaw : PAGE_SIZES[0];
-  return { page, pageSize };
 }

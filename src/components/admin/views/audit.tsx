@@ -4,18 +4,17 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { AuditLogListDTO } from "@/features/admin/schema";
 import { Link } from "@/i18n/navigation";
-import { buttonVariants } from "@/components/ui/button";
 import { AdminDataTable } from "../admin-data-table";
 import { Drawer } from "../drawer";
 import { FilterBar } from "../filter-bar";
+import { AUDIT_PERIODS } from "../list-params";
 import { PageHeader } from "../page-header";
 
 type Row = AuditLogListDTO["items"][number];
-export const AUDIT_PERIODS = ["today", "7d", "30d", "90d"] as const;
 
 const json = (v: unknown) => (v === null || v === undefined ? "—" : JSON.stringify(v, null, 2));
 

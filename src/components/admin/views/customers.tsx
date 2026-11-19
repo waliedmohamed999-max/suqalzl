@@ -11,11 +11,11 @@ import type { AdminCustomerListDTO } from "@/features/admin/schema";
 import { Link } from "@/i18n/navigation";
 import { AdminDataTable } from "../admin-data-table";
 import { FilterBar } from "../filter-bar";
+import { CUSTOMER_SORTS } from "../list-params";
 import { maskPhone } from "../mask";
 import { PageHeader } from "../page-header";
 
 type Row = AdminCustomerListDTO["items"][number];
-export const CUSTOMER_SORTS = ["created_desc", "orders_desc", "spent_desc"] as const;
 
 /** /admin/customers (AdminCustomers-desktop board), read only. Phones are masked (README 4.6). */
 export function CustomersListView({ list, filtered }: { list: AdminCustomerListDTO; filtered: boolean }) {

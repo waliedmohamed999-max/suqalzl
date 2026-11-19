@@ -13,19 +13,12 @@ import { PRODUCT_STATUSES, type AdminProductListDTO, type AdminProductRowDTO } f
 import { Link } from "@/i18n/navigation";
 import { AdminDataTable } from "../admin-data-table";
 import { FilterBar, type FilterOption } from "../filter-bar";
+import { PRODUCT_SORTS } from "../list-params";
 import { PageHeader } from "../page-header";
 import { RowMenu } from "../row-menu";
 import { Thumb } from "../thumb";
 
 type Row = AdminProductRowDTO;
-export const PRODUCT_SORTS = [
-  "updated_desc",
-  "created_desc",
-  "name_asc",
-  "price_asc",
-  "price_desc",
-  "stock_asc",
-] as const;
 
 /** /admin/products (AdminProducts-desktop board). Filters/sort/paging in the URL -> the RSC page refetches. */
 export function ProductsListView({

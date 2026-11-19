@@ -8,8 +8,12 @@ import { dirOf, routing } from "@/i18n/routing";
 import { fontClassNames } from "../fonts";
 import "../globals.css";
 
+// Empty on purpose: nothing under [locale] is prerendered at build time (CI and build
+// environments have no database). An empty list (not a missing export) keeps pages with
+// `revalidate` as ISR: rendered on the first request, then served from the cache.
+// Unknown locales still 404 (hasLocale below).
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  return [];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useUrlState } from "./url-state";
 
 export interface FilterView {
-  /** value of ?view=; the first view is the default and has no param */
+  /** value of the view param; the first view is the default and has no param */
   key: string;
   label: string;
   count?: number;
@@ -33,12 +33,15 @@ export interface FilterDef {
  */
 export function FilterBar({
   views,
+  viewParam = "view",
   search,
   filters = [],
   resultCount,
   controls,
 }: {
   views?: FilterView[];
+  /** URL param the views write (default "view"; e.g. "status" when a view is a status filter) */
+  viewParam?: string;
   search?: { placeholder: string; param?: string };
   filters?: FilterDef[];
   resultCount?: number;
@@ -70,7 +73,7 @@ export function FilterBar({
     return () => clearTimeout(id);
   }, [q, qParam, set]);
 
-  const activeView = get("view") ?? views?.[0]?.key;
+  const activeView = get(viewParam) ?? views?.[0]?.key;
   const applied = filters.flatMap((f) => {
     const v = get(f.param);
     const opt = v ? f.options.find((o) => o.value === v) : undefined;
@@ -111,7 +114,7 @@ export function FilterBar({
                 aria-selected={on}
                 aria-controls={controls}
                 tabIndex={on ? 0 : -1}
-                onClick={() => set({ view: i === 0 ? null : v.key })}
+                onClick={() => set({ [viewParam]: i === 0 ? null : v.key })}
                 className={cn(
                   "inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-b-2 px-3 text-sm whitespace-nowrap",
                   on

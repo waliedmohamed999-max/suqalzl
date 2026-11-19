@@ -9,20 +9,31 @@ import {
   sanitizeVendorPermissions,
   UnauthorizedError,
   vendor,
+  VENDOR_CAPABILITIES,
   type Principal,
+  type VendorCapability,
+  type VendorStatus,
 } from "@/lib/permissions";
 
 const U = "11111111-1111-4111-8111-111111111111";
 const V = "22222222-2222-4222-8222-222222222222";
 const superAdmin: Principal = { kind: "staff", userId: U, role: "SUPER_ADMIN", permissions: [] };
 const staffOrders: Principal = { kind: "staff", userId: U, role: "STAFF", permissions: ["orders.manage"] };
-const owner: Principal = { kind: "vendor", userId: U, vendorId: V, role: "VENDOR_OWNER", permissions: [] };
+const owner: Principal = {
+  kind: "vendor",
+  userId: U,
+  vendorId: V,
+  role: "VENDOR_OWNER",
+  permissions: [],
+  vendorStatus: "APPROVED",
+};
 const vstaff: Principal = {
   kind: "vendor",
   userId: U,
   vendorId: V,
   role: "VENDOR_STAFF",
   permissions: ["orders.fulfill"],
+  vendorStatus: "APPROVED",
 };
 const customer: Principal = { kind: "customer", userId: U, role: "CUSTOMER" };
 
@@ -75,5 +86,75 @@ describe("authorize → RLS context", () => {
     expect(sanitizeVendorPermissions(["products.manage", "orders.manage", "vendor.bank.manage"])).toEqual([
       "products.manage",
     ]);
+  });
+});
+
+describe("D36-3 / QA-B8: vendor capabilities by store status (central allowlist)", () => {
+  const STATUSES: VendorStatus[] = ["PENDING", "REJECTED", "SUSPENDED", "APPROVED"];
+  const ownerIn = (vendorStatus: VendorStatus): Principal => ({ ...owner, vendorStatus }) as Principal;
+  const fullStaffIn = (vendorStatus: VendorStatus): Principal =>
+    ({
+      ...vstaff,
+      permissions: ["products.manage", "orders.fulfill", "finance.view", "reviews.reply"],
+      vendorStatus,
+    }) as Principal;
+
+  // expected for the OWNER (every role permission held) — the full matrix, 4 statuses x 14 capabilities
+  const OWNER_ALLOWED: Record<VendorStatus, VendorCapability[]> = {
+    PENDING: ["vendor.application.manage"],
+    REJECTED: ["vendor.application.manage"],
+    SUSPENDED: [
+      "vendor.read",
+      "orders.fulfill",
+      "finance.view",
+      "finance.invoice.upload",
+      "finance.payout.request",
+      "vendor.team.remove",
+    ],
+    APPROVED: VENDOR_CAPABILITIES.filter((c) => c !== "vendor.application.manage"),
+  };
+
+  for (const status of STATUSES) {
+    it(`owner of a ${status} store`, () => {
+      for (const cap of VENDOR_CAPABILITIES) {
+        expect([cap, can(ownerIn(status), vendor(cap))]).toEqual([cap, OWNER_ALLOWED[status].includes(cap)]);
+      }
+    });
+  }
+
+  it("SUSPENDED: fulfils existing orders and sees finance, but no products/prices/deals/negotiation/IBAN", () => {
+    const o = ownerIn("SUSPENDED");
+    expect(can(o, vendor("orders.fulfill"))).toBe(true);
+    expect(can(o, vendor("finance.payout.request"))).toBe(true);
+    for (const cap of [
+      "products.manage",
+      "deals.manage",
+      "negotiation.respond",
+      "reviews.reply",
+      "vendor.team.manage",
+      "vendor.profile.manage",
+      "vendor.bank.manage",
+    ] as const)
+      expect(can(o, vendor(cap))).toBe(false);
+  });
+
+  it("VENDOR_STAFF with every delegable permission: never owner-only, never beyond the status", () => {
+    expect(can(fullStaffIn("APPROVED"), vendor("products.manage"))).toBe(true);
+    expect(can(fullStaffIn("APPROVED"), vendor("negotiation.respond"))).toBe(true);
+    expect(can(fullStaffIn("APPROVED"), vendor("finance.payout.request"))).toBe(false); // owner-only
+    expect(can(fullStaffIn("APPROVED"), vendor("vendor.profile.manage"))).toBe(false); // G7
+    expect(can(fullStaffIn("SUSPENDED"), vendor("products.manage"))).toBe(false);
+    expect(can(fullStaffIn("SUSPENDED"), vendor("orders.fulfill"))).toBe(true);
+    expect(can(fullStaffIn("PENDING"), vendor("vendor.application.manage"))).toBe(false); // owner only
+    expect(can(fullStaffIn("PENDING"), vendor("vendor.read"))).toBe(false);
+  });
+
+  it("authorize() throws 403 for a capability the status forbids", () => {
+    expect(() => authorize(ownerIn("SUSPENDED"), vendor("products.manage"))).toThrow(PermissionDeniedError);
+    expect(authorize(ownerIn("SUSPENDED"), vendor("orders.fulfill")).ctx).toEqual({
+      kind: "vendor",
+      userId: U,
+      vendorId: V,
+    });
   });
 });

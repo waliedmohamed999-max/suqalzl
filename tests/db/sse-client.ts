@@ -14,6 +14,8 @@ export interface SseConn {
   status: number;
   events: SseEvent[];
   raw: string[]; // every raw frame, comments included — scanned by leak tests
+  /** true once the SERVER closed the stream (or it was aborted) */
+  ended: boolean;
   close(): void;
   waitFor(pred: (e: SseEvent) => boolean, timeoutMs?: number): Promise<SseEvent>;
   waitCount(pred: (e: SseEvent) => boolean, n: number, timeoutMs?: number): Promise<SseEvent[]>;
@@ -39,6 +41,7 @@ export async function sse(
     status: res.status,
     events,
     raw,
+    ended: false,
     close: () => ac.abort(),
     waitFor(pred, timeoutMs = 5000) {
       return conn.waitCount(pred, 1, timeoutMs).then((x) => x[0]!);
@@ -100,6 +103,7 @@ export async function sse(
     } catch {
       /* aborted */
     }
+    conn.ended = true;
   })();
   return conn;
 }

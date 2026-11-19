@@ -287,7 +287,7 @@ describe("delivery semantics", () => {
     const admin = new pg.Client({ connectionString: process.env.DATABASE_URL });
     await admin.connect();
     const k = await admin.query(
-      "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE usename = current_user AND query = 'LISTEN realtime' AND pid <> pg_backend_pid()",
+      "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE usename = current_user AND application_name = 'suqalzl-realtime-listen' AND pid <> pg_backend_pid()",
     );
     expect(k.rowCount).toBeGreaterThan(0);
     await admin.end();

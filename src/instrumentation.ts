@@ -4,6 +4,12 @@
  * Keeping Sentry vs GlitchTip in-Kingdom is decided in P8 (T11).
  */
 export async function register() {
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    // T10 condition 1: refuse to START (not only on the first SSE request) in staging/production
+    // without a dedicated LISTEN connection.
+    const { realtimeDatabaseUrl } = await import("./lib/providers/realtime/pg-hub");
+    realtimeDatabaseUrl();
+  }
   if (!process.env.SENTRY_DSN) return;
   if (process.env.NEXT_RUNTIME !== "nodejs" && process.env.NEXT_RUNTIME !== "edge") return;
   const Sentry = await import("@sentry/nextjs");

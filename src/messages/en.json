@@ -239,21 +239,30 @@
       "COMPLETED": "Completed",
       "CANCELLED": "Cancelled",
       "RETURN_REQUESTED": "Return requested",
-      "RETURNED": "Returned"
+      "RETURNED": "Returned",
+      "PENDING_PAYMENT": "Awaiting payment"
     },
     "order": {
       "PENDING_PAYMENT": "Awaiting payment",
       "PAID": "Paid",
       "PARTIALLY_SHIPPED": "Partially shipped",
       "COMPLETED": "Completed",
-      "CANCELLED": "Cancelled"
+      "CANCELLED": "Cancelled",
+      "PROCESSING": "Processing",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "PARTIALLY_CANCELLED": "Partly cancelled",
+      "PAID_NEEDS_REVIEW": "Paid, under review"
     },
     "payment": {
       "PENDING": "Awaiting payment",
       "PAID": "Paid",
       "FAILED": "Payment failed",
       "REFUNDED": "Refunded",
-      "PARTIALLY_REFUNDED": "Partially refunded"
+      "PARTIALLY_REFUNDED": "Partially refunded",
+      "INITIATED": "Awaiting payment",
+      "AUTHORIZED": "Authorised",
+      "VOIDED": "Voided"
     },
     "return": {
       "REQUESTED": "Return requested",

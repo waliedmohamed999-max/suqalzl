@@ -239,21 +239,30 @@
       "COMPLETED": "مكتمل",
       "CANCELLED": "ملغي",
       "RETURN_REQUESTED": "طلب استرجاع",
-      "RETURNED": "مسترجع"
+      "RETURNED": "مسترجع",
+      "PENDING_PAYMENT": "بانتظار الدفع"
     },
     "order": {
       "PENDING_PAYMENT": "بانتظار الدفع",
       "PAID": "مدفوع",
       "PARTIALLY_SHIPPED": "شُحن جزئياً",
       "COMPLETED": "مكتمل",
-      "CANCELLED": "ملغي"
+      "CANCELLED": "ملغي",
+      "PROCESSING": "قيد التنفيذ",
+      "SHIPPED": "تم الشحن",
+      "DELIVERED": "تم التسليم",
+      "PARTIALLY_CANCELLED": "ملغي جزئياً",
+      "PAID_NEEDS_REVIEW": "مدفوع، قيد المراجعة"
     },
     "payment": {
       "PENDING": "بانتظار الدفع",
       "PAID": "مدفوع",
       "FAILED": "فشل الدفع",
       "REFUNDED": "مسترد",
-      "PARTIALLY_REFUNDED": "مسترد جزئياً"
+      "PARTIALLY_REFUNDED": "مسترد جزئياً",
+      "INITIATED": "بانتظار الدفع",
+      "AUTHORIZED": "مفوَّض",
+      "VOIDED": "ملغي"
     },
     "return": {
       "REQUESTED": "طلب استرجاع",

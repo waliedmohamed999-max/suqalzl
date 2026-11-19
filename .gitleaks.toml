@@ -15,3 +15,13 @@ stopwords = [
   '''-dev-access''',
   '''postgres_ci_only''',
 ]
+
+# False positives in test fixtures: fake captcha tokens and test-only HMAC fallbacks.
+# Path-scoped on purpose: the rules stay active everywhere else (and in these files for
+# any other finding). Do not widen this to a directory.
+[[allowlists]]
+description = "test fixtures with fake values (not secrets)"
+paths = [
+  '''^tests/components/login-forms\.test\.tsx$''',
+  '''^tests/setup-env\.ts$''',
+]

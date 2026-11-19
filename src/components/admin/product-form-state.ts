@@ -4,6 +4,7 @@
  * when building the input (D7: never a float).
  */
 import type { AdminProductDetailDTO, ProductUpsertInput } from "@/features/admin/schema";
+import { toLatinDigits } from "@/lib/format/digits";
 import { toDecimalString, toHalalas } from "@/lib/money";
 import type { ImageItem } from "./image-uploader";
 
@@ -171,7 +172,10 @@ const tryHalalas = (s: string): number | null => {
     return null;
   }
 };
-const intOf = (s: string) => (/^\d+$/.test(s.trim()) ? Number(s.trim()) : null);
+const intOf = (raw: string) => {
+  const s = toLatinDigits(raw).trim();
+  return /^\d+$/.test(s) ? Number(s) : null;
+};
 
 /**
  * Builds productUpsertInput. Returns client-side errors (message keys under admin.productForm.errors)

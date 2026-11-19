@@ -126,4 +126,9 @@ export const MIGRATION_PLAN: MigrationStep[] = [
       "QA-B3/B4 session revocation triggers + session.revoked NOTIFY, resync bounds, cron leases + heartbeat (devops P1-5/6)",
     models: ["CronLease"],
   },
+  {
+    name: "0012_catalog_search",
+    description: "Arabic-normalised search: app.normalize_ar, app.search_query, products.search_vector trigger + backfill (M1-02)",
+    models: [],
+  },
 ];

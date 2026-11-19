@@ -85,9 +85,15 @@ jobs:
       - name: npm audit gate — production dependencies (expiring allowlist)
         if: steps.lock.outputs.present == 'true'
         run: |
+          # GitHub runs `bash -e {0}`: npm audit exits non-zero when advisories exist, which
+          # would end the step before the gate below runs. Tolerate it around that one
+          # command only; the gate fails closed on a broken/empty report.
           set -uo pipefail
+          set +e
           npm audit --omit=dev --json > "$RUNNER_TEMP/npm-audit-prod.json"
-          echo "npm audit exit code: $? (non-zero just means advisories exist; the gate decides)"
+          audit_rc=$?
+          set -e
+          echo "npm audit exit code: ${audit_rc} (non-zero just means advisories exist; the gate decides)"
           node .github/scripts/audit-gate.mjs "$RUNNER_TEMP/npm-audit-prod.json" \
             --allowlist .github/audit-allowlist.json --level high
       - name: npm audit — full report (dev dependencies included, informational)

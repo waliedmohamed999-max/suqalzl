@@ -279,6 +279,7 @@
   },
   "status": {
     "subOrder": {
+      "PENDING_PAYMENT": "Awaiting payment",
       "NEW": "New",
       "PREPARING": "Preparing",
       "READY_TO_SHIP": "Ready to ship",
@@ -292,16 +293,23 @@
     "order": {
       "PENDING_PAYMENT": "Awaiting payment",
       "PAID": "Paid",
+      "PROCESSING": "Processing",
       "PARTIALLY_SHIPPED": "Partially shipped",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
       "COMPLETED": "Completed",
-      "CANCELLED": "Cancelled"
+      "PARTIALLY_CANCELLED": "Partially cancelled",
+      "CANCELLED": "Cancelled",
+      "PAID_NEEDS_REVIEW": "Paid, needs review"
     },
     "payment": {
-      "PENDING": "Awaiting payment",
+      "INITIATED": "Awaiting payment",
+      "AUTHORIZED": "Authorized",
       "PAID": "Paid",
       "FAILED": "Payment failed",
-      "REFUNDED": "Refunded",
-      "PARTIALLY_REFUNDED": "Partially refunded"
+      "VOIDED": "Voided",
+      "PARTIALLY_REFUNDED": "Partially refunded",
+      "REFUNDED": "Refunded"
     },
     "return": {
       "REQUESTED": "Return requested",

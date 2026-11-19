@@ -279,6 +279,7 @@
   },
   "status": {
     "subOrder": {
+      "PENDING_PAYMENT": "بانتظار الدفع",
       "NEW": "جديد",
       "PREPARING": "قيد التجهيز",
       "READY_TO_SHIP": "جاهز للشحن",
@@ -292,16 +293,23 @@
     "order": {
       "PENDING_PAYMENT": "بانتظار الدفع",
       "PAID": "مدفوع",
+      "PROCESSING": "قيد التنفيذ",
       "PARTIALLY_SHIPPED": "شُحن جزئياً",
+      "SHIPPED": "تم الشحن",
+      "DELIVERED": "تم التسليم",
       "COMPLETED": "مكتمل",
-      "CANCELLED": "ملغي"
+      "PARTIALLY_CANCELLED": "ملغي جزئياً",
+      "CANCELLED": "ملغي",
+      "PAID_NEEDS_REVIEW": "مدفوع ويحتاج مراجعة"
     },
     "payment": {
-      "PENDING": "بانتظار الدفع",
+      "INITIATED": "بانتظار الدفع",
+      "AUTHORIZED": "مفوّض",
       "PAID": "مدفوع",
       "FAILED": "فشل الدفع",
-      "REFUNDED": "مسترد",
-      "PARTIALLY_REFUNDED": "مسترد جزئياً"
+      "VOIDED": "ملغي",
+      "PARTIALLY_REFUNDED": "مسترد جزئياً",
+      "REFUNDED": "مسترد"
     },
     "return": {
       "REQUESTED": "طلب استرجاع",

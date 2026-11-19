@@ -8,6 +8,7 @@ type Entry = { tone: Tone; solid?: boolean };
 
 export const STATUS_MAP = {
   subOrder: {
+    PENDING_PAYMENT: { tone: "warning" },
     NEW: { tone: "info" },
     PREPARING: { tone: "accent" },
     READY_TO_SHIP: { tone: "accent" },
@@ -18,19 +19,27 @@ export const STATUS_MAP = {
     RETURN_REQUESTED: { tone: "warning" },
     RETURNED: { tone: "neutral" },
   },
+  // every OrderStatus / PaymentStatus of the schema (features/orders/schema.ts)
   order: {
     PENDING_PAYMENT: { tone: "warning" },
     PAID: { tone: "info" },
+    PROCESSING: { tone: "accent" },
     PARTIALLY_SHIPPED: { tone: "info" },
-    COMPLETED: { tone: "success" },
+    SHIPPED: { tone: "info" },
+    DELIVERED: { tone: "success" },
+    COMPLETED: { tone: "success", solid: true },
+    PARTIALLY_CANCELLED: { tone: "warning" },
     CANCELLED: { tone: "neutral" },
+    PAID_NEEDS_REVIEW: { tone: "danger" },
   },
   payment: {
-    PENDING: { tone: "warning" },
+    INITIATED: { tone: "warning" },
+    AUTHORIZED: { tone: "info" },
     PAID: { tone: "success" },
     FAILED: { tone: "danger" },
-    REFUNDED: { tone: "neutral" },
+    VOIDED: { tone: "neutral" },
     PARTIALLY_REFUNDED: { tone: "neutral" },
+    REFUNDED: { tone: "neutral" },
   },
   return: {
     REQUESTED: { tone: "warning" },

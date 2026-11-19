@@ -360,6 +360,12 @@
   .num {
     font-variant-numeric: tabular-nums;
   } /* no-op for Plex (digits already 600u), kept for fallbacks */
+  /* A page with a mobile StickyActionBar raises the WhatsApp button above it (README 3-12: 96px). */
+  @media (width < 64rem) {
+    :root:has([data-sticky-action-bar]) {
+      --fab-offset: 6rem;
+    }
+  }
   [data-directional]:dir(rtl) {
     transform: scaleX(-1);
   }

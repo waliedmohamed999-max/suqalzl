@@ -78,7 +78,7 @@ export function VariantMatrix({
       {options.length === 0 ? <p className="text-sm text-muted-foreground">{t("noOptions")}</p> : null}
 
       {options.map((o, oi) => (
-        <fieldset key={o.key} className="flex flex-col gap-3 rounded-md border border-border p-3">
+        <fieldset key={o.key} className="flex min-w-0 flex-col gap-3 rounded-md border border-border p-3">
           <legend className="sr-only">{t("optionN", { n: oi + 1 })}</legend>
           <div className="flex flex-wrap items-start gap-2">
             <LabeledInput

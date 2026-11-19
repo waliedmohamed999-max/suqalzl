@@ -193,7 +193,7 @@ export function ProductForm({
       {banner ? <Callout tone="danger" title={t(`saveErrors.${knownCode(banner)}`)} /> : null}
 
       <form id={FORM_ID} onSubmit={onSubmit} noValidate>
-        <fieldset disabled={readOnly || saving} className="flex flex-wrap items-start gap-6">
+        <fieldset disabled={readOnly || saving} className="flex min-w-0 flex-wrap items-start gap-6">
           <div className="min-w-0 flex-[999_1_40rem]">
             <FormSection id="pf-basics" title={t("sections.basics")} description={t("basicsHelp")}>
               <div className="grid gap-3 md:grid-cols-2">

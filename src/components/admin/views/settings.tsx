@@ -38,7 +38,10 @@ export function SettingsView({ data }: { data: AdminSettingsDTO }) {
         {t("readOnlyBody")}
       </Callout>
       <div className="flex flex-wrap items-start gap-6">
-        <nav aria-label={t("nav")} className="flex max-w-60 flex-[1_1_12rem] flex-col gap-0.5 lg:sticky lg:top-4">
+        <nav
+          aria-label={t("nav")}
+          className="flex max-w-60 flex-[1_1_12rem] flex-col gap-0.5 lg:sticky lg:top-[calc(var(--banner-h,0px)+1rem)]"
+        >
           {groups.map(({ g }) => (
             <a
               key={g}

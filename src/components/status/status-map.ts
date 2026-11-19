@@ -19,7 +19,6 @@ export const STATUS_MAP = {
     RETURN_REQUESTED: { tone: "warning" },
     RETURNED: { tone: "neutral" },
   },
-  // every OrderStatus / PaymentStatus of the schema (features/orders/schema.ts)
   order: {
     PENDING_PAYMENT: { tone: "warning" },
     PAID: { tone: "info" },
@@ -27,19 +26,20 @@ export const STATUS_MAP = {
     PARTIALLY_SHIPPED: { tone: "info" },
     SHIPPED: { tone: "info" },
     DELIVERED: { tone: "success" },
-    COMPLETED: { tone: "success", solid: true },
+    COMPLETED: { tone: "success" },
     PARTIALLY_CANCELLED: { tone: "warning" },
     CANCELLED: { tone: "neutral" },
-    PAID_NEEDS_REVIEW: { tone: "danger" },
+    PAID_NEEDS_REVIEW: { tone: "warning" },
   },
   payment: {
+    PENDING: { tone: "warning" },
     INITIATED: { tone: "warning" },
     AUTHORIZED: { tone: "info" },
     PAID: { tone: "success" },
-    FAILED: { tone: "danger" },
     VOIDED: { tone: "neutral" },
-    PARTIALLY_REFUNDED: { tone: "neutral" },
+    FAILED: { tone: "danger" },
     REFUNDED: { tone: "neutral" },
+    PARTIALLY_REFUNDED: { tone: "neutral" },
   },
   return: {
     REQUESTED: { tone: "warning" },

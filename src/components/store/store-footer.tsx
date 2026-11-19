@@ -90,12 +90,8 @@ export function StoreFooter({ storeInfo, categories }: Pick<StoreShellDTO, "stor
           </p>
           <ul aria-label={t("paymentMethods")} className="flex flex-wrap gap-1.5">
             {PAYMENTS.map((p) => (
-              <li
-                key={p}
-                dir="auto"
-                className="rounded-sm border border-border px-2.5 py-1 text-xs text-foreground-secondary"
-              >
-                {tp(p)}
+              <li key={p} className="rounded-sm border border-border px-2.5 py-1 text-xs text-foreground-secondary">
+                <bdi>{tp(p)}</bdi>
               </li>
             ))}
           </ul>

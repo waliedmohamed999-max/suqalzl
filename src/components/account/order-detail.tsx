@@ -20,7 +20,7 @@ export function OrderDetail({ order }: { order: CustomerOrderDetailDTO }) {
   const locale = useLocale();
   const a = order.address;
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">

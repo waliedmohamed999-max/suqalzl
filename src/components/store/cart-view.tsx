@@ -86,7 +86,7 @@ export function CartView({
 
   const groups = groupByStore(cart.lines);
   return (
-    <div className="grid gap-6 pb-24 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start lg:pb-0">
+    <div className="grid grid-cols-1 gap-6 pb-24 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start lg:pb-0">
       <div className="flex flex-col gap-4">
         {cart.hasIssues ? (
           <Callout tone="warning" title={t("issuesTitle")}>

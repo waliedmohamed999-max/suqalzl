@@ -408,7 +408,9 @@
       "priceChip": "Price: {range}",
       "noResultsTitle": "No products match your choice",
       "noResultsBody": "Try removing one or more filters, or browse all products.",
-      "removeAll": "Remove all filters"
+      "removeAll": "Remove all filters",
+      "priceFrom": "from {value}",
+      "priceTo": "up to {value}"
     },
     "pagination": {
       "label": "Result pages",

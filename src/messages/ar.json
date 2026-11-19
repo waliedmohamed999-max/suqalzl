@@ -408,7 +408,9 @@
       "priceChip": "السعر: {range}",
       "noResultsTitle": "ما فيه منتجات تطابق اختيارك",
       "noResultsBody": "جرّب تشيل فلتر أو أكثر، أو تصفّح كل المنتجات.",
-      "removeAll": "إزالة كل الفلاتر"
+      "removeAll": "إزالة كل الفلاتر",
+      "priceFrom": "من {value}",
+      "priceTo": "حتى {value}"
     },
     "pagination": {
       "label": "صفحات النتائج",

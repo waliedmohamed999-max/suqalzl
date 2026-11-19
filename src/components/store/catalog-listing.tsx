@@ -89,10 +89,13 @@ export async function CatalogListing({
   const filtered = activeFilterCount(query) > 0;
   const chips: { key: string; label: string; href: string }[] = [];
   if (query.priceMin != null || query.priceMax != null) {
-    const range = [
-      query.priceMin != null ? formatSAR(query.priceMin, { locale }) : "",
-      query.priceMax != null ? formatSAR(query.priceMax, { locale }) : "",
-    ].join(" – ");
+    const fmt = (h: number) => formatSAR(h, { locale });
+    const range =
+      query.priceMin != null && query.priceMax != null
+        ? `${fmt(query.priceMin)} – ${fmt(query.priceMax)}`
+        : query.priceMin != null
+          ? t("filters.priceFrom", { value: fmt(query.priceMin) })
+          : t("filters.priceTo", { value: fmt(query.priceMax as number) });
     chips.push({
       key: "price",
       label: t("filters.priceChip", { range }),

@@ -42,7 +42,7 @@ export interface BulkAction {
   destructive?: boolean;
 }
 
-export const PAGE_SIZES = [20, 50, 100] as const;
+export const PAGE_SIZES = [25, 50, 100] as const;
 
 export interface AdminDataTableProps<T> {
   columns: ColumnDef<T, unknown>[];

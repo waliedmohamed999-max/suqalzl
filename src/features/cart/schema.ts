@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { halalas, imageDTO, locale, uuid } from "@/features/common/schema";
-import { stockLevel, vendorCardDTO } from "@/features/catalog/schema";
+import { bnplLineDTO, stockLevel, vendorCardDTO } from "@/features/catalog/schema";
+import { appliedCouponDTO } from "@/features/coupons/schema";
 import { SAUDI_MOBILE_E164 } from "@/lib/phone";
 
 /**
@@ -51,6 +52,14 @@ export const cartDTO = z
     hasIssues: z.boolean(),
     /** D3: one cart, one payment; the order splits per store internally */
     storeCount: z.number().int().nonnegative(),
+    /** applied coupon (P2-02), re-validated on every read; null = none */
+    coupon: appliedCouponDTO.nullable(),
+    /** items discount from the coupon (0 when none / invalid). Shipping is added at checkout */
+    discountTotal: halalas,
+    /** subtotal − discountTotal (before shipping) */
+    total: halalas,
+    /** D32 installments line for `total`, every visitor; null = no BNPL provider configured */
+    bnpl: bnplLineDTO.nullable(),
   })
   .strict();
 export type CartDTO = z.infer<typeof cartDTO>;
@@ -72,6 +81,14 @@ export const updateCartLineInput = z
 export const removeCartLineInput = z.object({ lineId: uuid, locale: locale.default("ar") }).strict();
 
 // ------------------------------------------------------------------ checkout: address + shipping
+/**
+ * Light actions for the store front (features/cart/actions.ts):
+ *   listCitiesAction(locale)     -> ActionResult<CityDTO[]>     public (address form city select)
+ *   listAddressesAction(locale)  -> ActionResult<AddressDTO[]>  account(): /account/addresses
+ * plus saveAddressAction / deleteAddressAction (M1). The final checkout totals (coupon, payment
+ * methods) are in features/checkout/schema.ts (checkoutSummaryDTO); shippingQuoteDTO stays for
+ * the address step.
+ */
 export const cityDTO = z.object({ id: uuid, slug: z.string(), name: z.string() }).strict();
 export type CityDTO = z.infer<typeof cityDTO>;
 
@@ -148,11 +165,11 @@ export const shippingQuoteDTO = z
     ),
     subtotal: halalas,
     shippingTotal: halalas,
-    /** subtotal + shippingTotal (coupons: P2-02 later) */
+    /** subtotal + shippingTotal, WITHOUT the coupon: the final total is checkoutSummaryDTO */
     grandTotal: halalas,
     vatIncluded: halalas,
-    /** M1 preview: payment (P2-03) is not available yet */
-    paymentAvailable: z.literal(false),
+    /** true when at least one payment provider is configured in this environment (P2-03) */
+    paymentAvailable: z.boolean(),
   })
   .strict();
 export type ShippingQuoteDTO = z.infer<typeof shippingQuoteDTO>;

@@ -14,6 +14,24 @@ export { publicVendorDTO, type PublicVendorDTO } from "@/features/vendors/dto";
 export const vendorCardDTO = z.object({ slug: z.string(), name: z.string() }).strict();
 export type VendorCardDTO = z.infer<typeof vendorCardDTO>;
 
+// ------------------------------------------------------------------ installments line (D32)
+/** count + the largest instalment (ceil), only when the total is within the provider cap */
+export const installmentDTO = z
+  .object({ count: z.number().int().positive(), amount: z.number().int().positive() })
+  .strict();
+/**
+ * D32: shown to every visitor (product page, bundle page, cart). null = no BNPL provider configured
+ * in this environment: render nothing. `installment: null` = above/below the cap: generic line
+ * without a number ("قسّطها مع تابي أو تمارا"). Never promises approval (wording: P2-05).
+ */
+export const bnplLineDTO = z
+  .object({
+    providers: z.array(z.enum(["TABBY", "TAMARA"])).min(1),
+    installment: installmentDTO.nullable(),
+  })
+  .strict();
+export type BnplLineDTO = z.infer<typeof bnplLineDTO>;
+
 export const stockLevel = z.enum(["IN_STOCK", "LOW", "OUT"]);
 export type StockLevel = z.infer<typeof stockLevel>;
 /** LOW when 1..LOW_STOCK_THRESHOLD units can still be bought */
@@ -208,6 +226,8 @@ export const productVariantDTO = z
     stockLevel,
     /** qty selector max: min(available, MAX_QTY_PER_LINE); 0 when out of stock */
     maxQty: z.number().int().nonnegative(),
+    /** D32 line for THIS variant's price (switch it with the selected variant) */
+    bnpl: bnplLineDTO.nullable(),
   })
   .strict();
 export type ProductVariantDTO = z.infer<typeof productVariantDTO>;
@@ -245,6 +265,8 @@ export const productDetailDTO = z
     vendor: publicVendorDTO.nullable(),
     seo: z.object({ title: z.string(), description: z.string().nullable() }).strict(),
     related: z.array(productCardDTO),
+    /** D32 line for the default variant's price */
+    bnpl: bnplLineDTO.nullable(),
     updatedAt: isoDate,
   })
   .strict();
@@ -268,6 +290,8 @@ export const bundleDetailDTO = bundleCardDTO
     ),
     /** how many bundles can be bought at once (limited by the scarcest item) */
     maxQty: z.number().int().nonnegative(),
+    /** D32 line for the bundle price */
+    bnpl: bnplLineDTO.nullable(),
   })
   .strict();
 export type BundleDetailDTO = z.infer<typeof bundleDetailDTO>;

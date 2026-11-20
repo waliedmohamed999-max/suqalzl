@@ -128,6 +128,18 @@ export const settingSchemas = {
     .strict(),
   trustedDeviceDays: z.number().int().positive(),
   checkoutReservationMinutes: z.number().int().positive(),
+  /** D32 installments line: provider cap (default SAMA BNPL ceiling 10,000 SAR; confirm in P8) */
+  bnpl: z
+    .object({
+      installments: z.number().int().min(2).max(12),
+      minAmount: halalas,
+      maxAmount: halalas,
+    })
+    .strict(),
+  /** returns policy draft §1: 7 days from delivery (legal-contracts; final text in P8) */
+  returnWindowDays: z.number().int().min(0).max(60),
+  /** Moyasar: a paid payment can be VOIDED for ~2 h, then it must be refunded (backend.md 3.1) */
+  paymentVoidWindowMinutes: z.number().int().min(0).max(1440),
   flashPriceLockMinutes: z.number().int().positive(),
   whatsappNumber: z.string().nullable(),
   pixels: z
@@ -210,6 +222,9 @@ export const DEFAULT_SETTINGS: { [K in SettingKey]: SettingValue<K> } = {
   captcha: { provider: "POW", powDifficultyBits: 16, ttlSeconds: 300 },
   trustedDeviceDays: 30,
   checkoutReservationMinutes: 30,
+  bnpl: { installments: 4, minAmount: 100, maxAmount: 1_000_000 },
+  returnWindowDays: 7,
+  paymentVoidWindowMinutes: 110,
   flashPriceLockMinutes: 15,
   whatsappNumber: null,
   pixels: { ga4: null, meta: null, snap: null, tiktok: null },
@@ -225,6 +240,8 @@ export const PUBLIC_SETTING_KEYS: readonly SettingKey[] = [
 
 /** Values that are defaults awaiting an owner decision (docs/decisions.md §8, SPEC table O). */
 export const PENDING_OWNER_KEYS: readonly SettingKey[] = [
+  "bnpl",
+  "returnWindowDays",
   "holdDays",
   "newVendorHoldDays",
   "payoutCycle",

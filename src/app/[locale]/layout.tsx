@@ -28,6 +28,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 /**
  * Root layout (tokens.md 8.1): <html lang dir> from the locale, fonts from next/font/local
  * (tokens.md 9.2, src/app/fonts.ts), skip link, and the single toast region.
+ * The skip link is always `fixed` inside the viewport's inline size and parked ABOVE the top edge
+ * until focused (overflow upwards is never scrollable). `sr-only` + `start-0` left a 1px box past
+ * the inline edge (its -1px margin), which overflow checks at 390px reported.
  */
 export default async function LocaleLayout({
   children,
@@ -46,7 +49,7 @@ export default async function LocaleLayout({
       <body className="flex min-h-dvh flex-col">
         <a
           href="#main"
-          className="sr-only start-0 top-0 z-[var(--z-toast)] rounded-md bg-primary text-primary-foreground focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:px-4 focus:py-3"
+          className="fixed start-2 top-2 z-[var(--z-toast)] -translate-y-[calc(100%+1rem)] rounded-md bg-primary px-4 py-3 text-primary-foreground focus:translate-y-0"
         >
           {t("skipToContent")}
         </a>

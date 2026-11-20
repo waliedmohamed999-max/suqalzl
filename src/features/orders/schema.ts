@@ -106,6 +106,10 @@ export const customerSubOrderDTO = z
     total: halalas,
     timeline: z.array(timelineEventDTO),
     shipments: z.array(shipmentDTO),
+    /** P2-04: DELIVERED and inside the return window -> "اطلب استرجاع" until this date; else null */
+    returnableUntil: isoDate.nullable(),
+    /** an open return request exists for this sub-order */
+    hasOpenReturn: z.boolean(),
   })
   .strict();
 
@@ -145,6 +149,8 @@ export const customerOrderDetailDTO = z
     vatTotal: halalas,
     grandTotal: halalas,
     couponCode: z.string().nullable(),
+    /** PENDING_PAYMENT with a live reservation: "أكمل الدفع" (startPaymentAction) until this date */
+    payableUntil: isoDate.nullable(),
   })
   .strict();
 export type CustomerOrderDetailDTO = z.infer<typeof customerOrderDetailDTO>;

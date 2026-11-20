@@ -1,6 +1,7 @@
 import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
-import { NotFoundError, withCtx } from "@/lib/db";
+import { asSystem, NotFoundError, withCtx, type Ctx } from "@/lib/db";
+import { getSetting } from "@/lib/settings";
 import { mediaUrl } from "@/lib/providers/storage";
 import type { Locale } from "@/features/common/schema";
 import {
@@ -110,6 +111,7 @@ export async function getMyOrder(userId: string, raw: unknown): Promise<Customer
               select: { id: true, qty: true, unitPrice: true, lineTotal: true, productSnapshot: true },
             },
             history: { orderBy: { createdAt: "asc" }, select: { to: true, createdAt: true } },
+            returns: { where: { status: { in: ["REQUESTED", "APPROVED", "RECEIVED"] } }, select: { id: true } },
             shipments: {
               where: { direction: "OUTBOUND" },
               orderBy: { createdAt: "asc" },
@@ -131,6 +133,26 @@ export async function getMyOrder(userId: string, raw: unknown): Promise<Customer
         : [],
     );
     const a = parseAddressSnapshot(o.addressSnapshot);
+    const ctx: Ctx = { kind: "customer", userId };
+    // privileged step: settings are private; reservations are system-only — limited to THIS order
+    const [windowDays, reservation] = await asSystem(tx, ctx, () =>
+      Promise.all([
+        getSetting(tx, "returnWindowDays"),
+        o.status === "PENDING_PAYMENT"
+          ? tx.stockReservation.findFirst({
+              where: { sourceType: "ORDER", sourceId: o.id, status: "ACTIVE", expiresAt: { gt: new Date() } },
+              orderBy: { expiresAt: "asc" },
+              select: { expiresAt: true },
+            })
+          : Promise.resolve(null),
+      ]),
+    );
+    const now = Date.now();
+    const returnableUntil = (s: { status: string; deliveredAt: Date | null }) => {
+      if (s.status !== "DELIVERED" || !s.deliveredAt) return null;
+      const until = s.deliveredAt.getTime() + windowDays * 86_400_000;
+      return until > now ? new Date(until).toISOString() : null;
+    };
     return customerOrderDetailDTO.parse({
       id: o.id,
       number: o.number,
@@ -182,6 +204,8 @@ export async function getMyOrder(userId: string, raw: unknown): Promise<Customer
           shippedAt: s.shippedAt?.toISOString() ?? null,
           deliveredAt: s.deliveredAt?.toISOString() ?? null,
         })),
+        returnableUntil: s.returns.length ? null : returnableUntil(s),
+        hasOpenReturn: s.returns.length > 0,
       })),
       subtotal: o.subtotal,
       discountTotal: o.discountTotal,
@@ -189,6 +213,7 @@ export async function getMyOrder(userId: string, raw: unknown): Promise<Customer
       vatTotal: o.vatTotal,
       grandTotal: o.grandTotal,
       couponCode: o.couponCode,
+      payableUntil: reservation ? reservation.expiresAt.toISOString() : null,
     });
   });
 }

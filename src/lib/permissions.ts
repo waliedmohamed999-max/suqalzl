@@ -8,17 +8,8 @@
  */
 import type { Ctx } from "./db";
 
-export const STAFF_PERMISSIONS = [
-  "orders.manage",
-  "products.review",
-  "vendors.manage",
-  "payouts.manage",
-  "cms.manage",
-  "customers.view",
-  "reports.view",
-  "settings.manage",
-] as const;
-export type StaffPermission = (typeof STAFF_PERMISSIONS)[number];
+import { STAFF_PERMISSIONS, type StaffPermission } from "./permission-names";
+export { STAFF_PERMISSIONS, type StaffPermission };
 
 export const VENDOR_PERMISSIONS = ["products.manage", "orders.fulfill", "finance.view", "reviews.reply"] as const;
 export type VendorPermission = (typeof VENDOR_PERMISSIONS)[number];

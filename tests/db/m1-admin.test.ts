@@ -41,6 +41,7 @@ describe("permission matrix (M1-03: STAFF with partial permissions sees only wha
       categories: false,
       orders: true,
       customers: true,
+      coupons: false,
       settings: false,
       staff: false,
       audit: false,
@@ -105,6 +106,11 @@ describe("admin read screens", () => {
     expect(c.ordersCount).toBe(3);
     expect(c.recentOrders).toHaveLength(3);
     expect(c.addresses).toHaveLength(1);
+    // customer phones are masked on the SERVER (no raw +9665… in any admin DTO)
+    const raw = /\+9665\d{8}/;
+    expect(JSON.stringify([list, byPhone, d, cs, c])).not.toMatch(raw);
+    expect(d.customer.phone).toMatch(/^\+9665\*{6}\d{2}$/);
+    expect(d.address.recipientPhone).toMatch(/^\+9665\*{6}\d{2}$/);
   });
 
   it("categories tree, settings view, staff and audit (SUPER_ADMIN)", async () => {

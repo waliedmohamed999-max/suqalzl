@@ -4,6 +4,7 @@ import { NotFoundError, withCtx, type Tx } from "@/lib/db";
 import { mediaUrl } from "@/lib/providers/storage";
 import type { Locale } from "@/features/common/schema";
 import { PUBLIC_VENDOR_SELECT, toPublicVendor } from "@/features/vendors/dto";
+import { bnplBuilder } from "@/features/payments/bnpl";
 import {
   LOW_STOCK_THRESHOLD,
   MAX_QTY_PER_LINE,
@@ -216,7 +217,7 @@ export function optionsLabel(
     .join(" / ");
 }
 
-function toBundle(b: BundleRow, locale: Locale): BundleDetailDTO {
+function toBundle(b: BundleRow, locale: Locale): Omit<BundleDetailDTO, "bnpl"> {
   const name = L(b, "name", locale);
   const items = b.items.map((it) => {
     const v = it.variant;
@@ -260,7 +261,8 @@ export async function getBundle(slugValue: string, locale: Locale = "ar"): Promi
   return withCtx(PUBLIC, async (tx) => {
     const b = await tx.bundle.findUnique({ where: { slug: slugValue }, select: BUNDLE_SELECT });
     if (!b) throw new NotFoundError();
-    return bundleDetailDTO.parse(toBundle(b, locale));
+    const bnpl = await bnplBuilder(tx, PUBLIC);
+    return bundleDetailDTO.parse({ ...toBundle(b, locale), bnpl: bnpl(b.price) });
   });
 }
 
@@ -506,6 +508,7 @@ export async function getProduct(slugValue: string, loc: Locale = "ar"): Promise
     if (!p) throw new NotFoundError();
     const name = L(p, "name", loc);
     const optionOrder = p.options.map((o) => new Set(o.values.map((v) => v.id)));
+    const bnpl = await bnplBuilder(tx, PUBLIC);
     const variants = p.variants.map((v) => {
       const avail = v.stock - v.reservedStock;
       // option values stored in option order; re-order defensively
@@ -520,6 +523,7 @@ export async function getProduct(slugValue: string, loc: Locale = "ar"): Promise
         optionValueIds: ordered,
         stockLevel: stockLevelOf(avail),
         maxQty: Math.max(0, Math.min(avail, MAX_QTY_PER_LINE)),
+        bnpl: bnpl(v.price),
       };
     });
     const def = variants.find((v) => v.maxQty > 0) ?? variants[0]!;
@@ -553,6 +557,7 @@ export async function getProduct(slugValue: string, loc: Locale = "ar"): Promise
         description: (loc === "ar" ? p.seoDescription : null) || (description ? description.slice(0, 160) : null),
       },
       related,
+      bnpl: bnpl(def.price),
       updatedAt: p.updatedAt.toISOString(),
     });
   });

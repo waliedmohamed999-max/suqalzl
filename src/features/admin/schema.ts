@@ -7,7 +7,15 @@ import {
   paymentStatus,
   subOrderStatus,
 } from "@/features/orders/schema";
-import { STAFF_PERMISSIONS } from "@/lib/permissions";
+import {
+  ADMIN_SECTIONS,
+  COUPON_APPROVAL_STATUSES,
+  COUPON_TYPES,
+  DASHBOARD_PERIODS,
+  PRODUCT_STATUSES,
+  SETTING_GROUPS,
+  STAFF_PERMISSIONS,
+} from "./constants";
 
 /**
  * /admin contracts for M1-03 (SPEC §7.2, D29: the admin UI is Arabic only, but DTOs carry both
@@ -19,6 +27,7 @@ import { STAFF_PERMISSIONS } from "@/lib/permissions";
  *   categories   products.review     list (tree)
  *   orders       orders.manage       read only in M1
  *   customers    customers.view      read only
+ *   coupons      cms.manage          list/create/edit; D18 approval = SUPER_ADMIN only (P2-02)
  *   settings     settings.manage     view only in M1
  *   staff        SUPER_ADMIN only    D36-6 / QA-G11
  *   audit        SUPER_ADMIN only    read only (contains before/after of sensitive changes)
@@ -28,16 +37,15 @@ import { STAFF_PERMISSIONS } from "@/lib/permissions";
  */
 export const staffPermission = z.enum(STAFF_PERMISSIONS);
 
-export const ADMIN_SECTIONS = [
-  "dashboard",
-  "products",
-  "categories",
-  "orders",
-  "customers",
-  "settings",
-  "staff",
-  "audit",
-] as const;
+/**
+ * A customer phone in an admin DTO is MASKED ON THE SERVER ("+9665******12", lib/phone maskPhone):
+ * the raw number never reaches the browser (README 4.6; revealing it is an audited action, P3-01).
+ * The regex makes a forgotten mask a parse error instead of a leak.
+ */
+export const maskedPhone = z.string().regex(/^(?:\+9665\*{6}\d{2}|\*\*\*)$/);
+
+/** Client components: import these arrays from ./constants (no server imports there). */
+export { ADMIN_SECTIONS, DASHBOARD_PERIODS, PRODUCT_STATUSES, SETTING_GROUPS, COUPON_TYPES, COUPON_APPROVAL_STATUSES };
 export const adminSection = z.enum(ADMIN_SECTIONS);
 export type AdminSection = z.infer<typeof adminSection>;
 
@@ -53,7 +61,6 @@ export const adminCapabilitiesDTO = z
 export type AdminCapabilitiesDTO = z.infer<typeof adminCapabilitiesDTO>;
 
 // =================================================================== dashboard (KPIs)
-export const DASHBOARD_PERIODS = ["today", "7d", "30d", "90d"] as const;
 export const dashboardInput = z.object({ period: z.enum(DASHBOARD_PERIODS).default("30d") }).strict();
 
 const kpi = z
@@ -106,7 +113,6 @@ export const adminDashboardDTO = z
 export type AdminDashboardDTO = z.infer<typeof adminDashboardDTO>;
 
 // =================================================================== products
-export const PRODUCT_STATUSES = ["DRAFT", "PENDING", "PUBLISHED", "REJECTED", "ARCHIVED"] as const;
 export const productStatus = z.enum(PRODUCT_STATUSES);
 
 export const adminProductListInput = z
@@ -371,7 +377,8 @@ export const adminOrderRowDTO = z
     id: uuid,
     number: z.string(),
     placedAt: isoDate,
-    customer: z.object({ id: uuid, name: z.string(), phone: z.string().nullable() }).strict(),
+    /** phone masked server-side (maskedPhone) */
+    customer: z.object({ id: uuid, name: z.string(), phone: maskedPhone.nullable() }).strict(),
     status: orderStatus,
     paymentStatus,
     paymentMethod,
@@ -452,9 +459,10 @@ export const adminOrderDetailDTO = z
     paymentStatus,
     paymentMethod,
     customer: z
-      .object({ id: uuid, name: z.string(), phone: z.string().nullable(), email: z.string().nullable() })
+      .object({ id: uuid, name: z.string(), phone: maskedPhone.nullable(), email: z.string().nullable() })
       .strict(),
-    address: addressSnapshotDTO,
+    /** recipientPhone masked server-side too (reveal = audited action, P3-01) */
+    address: addressSnapshotDTO.extend({ recipientPhone: maskedPhone }).strict(),
     subtotal: halalas,
     discountTotal: halalas,
     shippingTotal: halalas,
@@ -495,7 +503,8 @@ export const adminCustomerRowDTO = z
   .object({
     id: uuid,
     name: z.string(),
-    phone: z.string().nullable(),
+    /** masked server-side (maskedPhone) */
+    phone: maskedPhone.nullable(),
     email: z.string().nullable(),
     status: z.enum(["ACTIVE", "BLOCKED"]),
     ordersCount: z.number().int().nonnegative(),
@@ -529,7 +538,6 @@ export const adminCustomerDetailDTO = adminCustomerRowDTO
 export type AdminCustomerDetailDTO = z.infer<typeof adminCustomerDetailDTO>;
 
 // =================================================================== settings (view only in M1)
-export const SETTING_GROUPS = ["store", "finance", "payouts", "marketing", "negotiation", "security", "other"] as const;
 export const adminSettingDTO = z
   .object({
     key: z.string(),

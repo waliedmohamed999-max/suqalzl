@@ -12,6 +12,9 @@ import { CodedError } from "@/features/common/action";
 import { uuid, type Locale } from "@/features/common/schema";
 import { MAX_QTY_PER_LINE } from "@/features/catalog/schema";
 import { PUBLIC_PRODUCT_WHERE, optionsLabel, stockLevelOf } from "@/features/catalog/queries";
+import type { BnplLineDTO } from "@/features/catalog/schema";
+import { bnplBuilder } from "@/features/payments/bnpl";
+import { anyPaymentConfigured } from "@/lib/providers/payment/config";
 import {
   MAX_ADDRESSES,
   MAX_CART_LINES,
@@ -252,7 +255,7 @@ async function cartItems(tx: Tx, ctx: Ctx, o: CartOwner, cartId: string) {
   return o.kind === "guest" ? asSystem(tx, ctx, q) : q();
 }
 
-function toCartDTO(lines: DescribedLine[], vatRateBp: number): CartDTO {
+function toCartDTO(lines: DescribedLine[], vatRateBp: number, bnpl: (total: number) => BnplLineDTO | null): CartDTO {
   const ok = lines.filter((l) => l.available);
   const subtotal = ok.reduce((s, l) => s + l.lineTotal, 0);
   return cartDTO.parse({
@@ -262,6 +265,10 @@ function toCartDTO(lines: DescribedLine[], vatRateBp: number): CartDTO {
     vatIncluded: vatOfGross(subtotal, vatRateBp),
     hasIssues: lines.some((l) => !l.available || l.qtyExceedsStock),
     storeCount: new Set(ok.map((l) => l.vendor?.slug ?? "")).size,
+    coupon: null,
+    discountTotal: 0,
+    total: subtotal,
+    bnpl: subtotal > 0 ? bnpl(subtotal) : null,
   });
 }
 
@@ -273,7 +280,7 @@ async function vatRate(tx: Tx, ctx: Ctx) {
 async function buildCart(tx: Tx, ctx: Ctx, o: CartOwner, loc: Locale) {
   const cart = await findCart(tx, ctx, o);
   const lines = cart ? await describeLines(tx, ctx, await cartItems(tx, ctx, o, cart.id), loc) : [];
-  return { cart: toCartDTO(lines, await vatRate(tx, ctx)), lines };
+  return { cart: toCartDTO(lines, await vatRate(tx, ctx), await bnplBuilder(tx, ctx)), lines };
 }
 
 // ------------------------------------------------------------------ public API
@@ -560,7 +567,7 @@ export async function quoteShipping(userId: string, raw: unknown): Promise<Shipp
       shippingTotal,
       grandTotal,
       vatIncluded: vatOfGross(grandTotal, await vatRate(tx, ctx)),
-      paymentAvailable: false,
+      paymentAvailable: anyPaymentConfigured(),
     });
   });
 }

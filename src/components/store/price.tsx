@@ -23,7 +23,18 @@ function currencyUnit(locale: MoneyLocale): { text: string; isSign: boolean } {
  *  en: <bdi dir=ltr><span …>SIGN</span>&nbsp;<bdi dir=ltr>1,250.00</bdi></bdi>
  * The sign sits LEFT of the number in both languages, same size and colour, never mirrored.
  */
-export function Money({ halalas, compact, className }: { halalas: number; compact?: boolean; className?: string }) {
+export function Money({
+  halalas,
+  compact,
+  negative,
+  className,
+}: {
+  halalas: number;
+  compact?: boolean;
+  /** a deduction (coupon, refund): U+2212 before the digits, inside the LTR run (tokens 8.4) */
+  negative?: boolean;
+  className?: string;
+}) {
   const locale = useLocale() as MoneyLocale;
   const t = useTranslations("price");
   const { amount } = formatSARParts(halalas, { locale, compact });
@@ -33,7 +44,12 @@ export function Money({ halalas, compact, className }: { halalas: number; compac
       {unit.text}
     </span>
   );
-  const num = <bdi dir="ltr">{amount}</bdi>;
+  const num = (
+    <bdi dir="ltr">
+      {negative && halalas > 0 ? "\u2212" : null}
+      {amount}
+    </bdi>
+  );
   return (
     <bdi dir={locale === "ar" ? "rtl" : "ltr"} className={cn("whitespace-nowrap", className)}>
       {locale === "ar" ? (

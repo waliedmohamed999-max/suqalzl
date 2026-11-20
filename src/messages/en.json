@@ -998,9 +998,9 @@
     "loadErrorTitle": "Couldn't load the products",
     "loadErrorBody": "Your filters are kept. Refresh the page to try again.",
     "bnpl": {
-      "generic": "Split it with Tabby or Tamara.",
-      "withAmount": "Split it into {count} payments of <amount></amount> with Tabby or Tamara.",
-      "approval": "Approval is by the instalment provider at checkout."
+      "generic": "Split it with Tabby or Tamara",
+      "withAmount": "Split it into {count} payments of <amount></amount> with Tabby or Tamara",
+      "approval": "Instalments are subject to the provider's approval and limits at checkout."
     }
   },
   "home": {
